@@ -1,0 +1,11 @@
+.md-grid {
+  max-width: 900px;
+}
+
+.md-sidebar {
+  width: 20%;
+}
+
+.md-sidebar.md-sidebar--post {
+  width: 18%;
+}
