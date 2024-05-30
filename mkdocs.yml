@@ -1,8 +1,7 @@
 site_name: CodeTango
 site_url: https://samgrah.github.io/codetango/
-site_description: A blog about software development
+site_description: A software dev blog
 site_author: Sam Grahm
-copyright: Copyright &copy; 2023 Sam Graham
 
 nav:
   - Home: index.md
@@ -58,7 +57,7 @@ plugins:
   - rss:
       enabled: true
       feed_name: CodeTango
-      site_url: https://samgraham.github.io/codetango/
+      site_url: https://samgrah.github.io/codetango/
       filename: rss.xml
       path: blog/rss
       copyright: Copyright (c) 2024 Sam Graham
