@@ -1,4 +1,9 @@
 site_name: CodeTango
+site_url: https://samgrah.github.io/codetango/
+site_description: A blog about software development
+site_author: Sam Grahm
+copyright: Copyright &copy; 2023 Sam Graham
+
 nav:
   - Home: index.md
   - About: about.md
@@ -8,7 +13,7 @@ nav:
 theme:
   name: material
   font:
-    text: Open Sans 
+    text: Open Sans
   features:
     - navigation.footer
     - navigation.indexes
