@@ -55,7 +55,7 @@ plugins:
   - blog
   - search
   - rss:
-      enabled: !ENV [ENV, false]
+      enabled: !ENV [CI, false]
       match_path: blog/posts/.*
       date_from_meta:
         as_creation: date
