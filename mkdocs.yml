@@ -55,17 +55,7 @@ plugins:
   - blog
   - search
   - rss:
-      enabled: true
-      feed_name: CodeTango
-      site_url: https://samgrah.github.io/codetango/
-      filename: rss.xml
-      path: blog/rss
-      copyright: Copyright (c) 2024 Sam Graham
-      author: Sam Grahm
-      description: A blog about software development
-      language: en
-      generator: false
-      include_self: false
+      enabled: !ENV [ENV, false]
       match_path: blog/posts/.*
       date_from_meta:
         as_creation: date
