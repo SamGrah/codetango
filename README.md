@@ -20,7 +20,7 @@ A technical blog about agentic AI development and operations, built with [MkDocs
 pip install -r requirements.txt
 
 # Start the dev server with live reload
-mkdocs serve
+mkdocs serve --livereload
 ```
 
 The site will be available at `http://127.0.0.1:8000/codetango/`.
