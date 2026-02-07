@@ -98,7 +98,7 @@ Place `<!-- more -->` after the excerpt paragraph (1-3 sentences) to set the blo
 
 | Command                           | Purpose                                   |
 | --------------------------------- | ----------------------------------------- |
-| `mkdocs serve`                    | Local dev server with live reload         |
+| `mkdocs serve --livereload`       | Local dev server with live reload         |
 | `mkdocs build --strict`           | Build site; fail on warnings              |
 | `mkdocs gh-deploy --force`        | Deploy to GitHub Pages                    |
 | `pip install -r requirements.txt` | Install/sync dependencies                 |
