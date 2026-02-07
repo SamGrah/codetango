@@ -26,6 +26,5 @@ jobs:
           path: .cache
           restore-keys: |
             mkdocs-material-
-      - run: source /venv/bin/activate
       - run: pip install -r requirements.txt
       - run: mkdocs gh-deploy --force
