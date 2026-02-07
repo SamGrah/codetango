@@ -8,6 +8,7 @@ hide:
   - navigation
   - toc
 ---
+
 These are mocks and stubs, and they are not the same thing.
 
 <!-- more -->
@@ -43,6 +44,19 @@ def bubble_sort(items):
         for j in range(len(items) - 1 - i):
             if items[j] > items[j + 1]:
                 items[j], items[j + 1] = items[j + 1], items[j]
+```
+
+```go
+func main() {
+    fmt.Println("Hello, world!")
+}
+```
+
+```mermaid
+graph LR
+    hello --> world
+    world --> again
+    again --> hello
 ```
 
 > Occupat dominae his moderamen vomunt forma tenebat. Rabidi esse ingens cava clamant caelesti saltuque hanc et stravere.

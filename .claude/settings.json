@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Bash(mkdocs serve*)",
+      "Bash(mkdocs build*)",
+      "Bash(git status*)",
+      "Bash(git log*)",
+      "Bash(git diff*)",
+      "Bash(pip list*)",
+      "Bash(pip show*)",
+      "Bash(wc *)"
+    ],
+    "deny": [
+      "Bash(rm *)",
+      "Bash(git push --force*)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean*)",
+      "Bash(mkdocs gh-deploy*)"
+    ]
+  }
+}

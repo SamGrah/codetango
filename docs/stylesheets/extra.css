@@ -1,3 +1,8 @@
+/* Always reserve space for scrollbar to prevent content shift */
+html {
+  scrollbar-gutter: stable;
+}
+
 .md-grid {
   max-width: 900px;
 }
@@ -8,4 +13,58 @@
 
 .md-sidebar.md-sidebar--post {
   width: 18%;
+}
+
+/* Hide the logo icon but keep hamburger menu */
+.md-header__button.md-logo,
+.md-nav__button.md-logo {
+  display: none;
+}
+
+/* Align header content to the left */
+.md-header__inner {
+  padding-left: 0;
+}
+
+.md-header__title {
+  margin-left: 0;
+}
+
+/* Site name styling: codeTango (header and sidebar) */
+.md-header__topic .md-ellipsis,
+.md-nav__title .md-ellipsis {
+  font-weight: 900;
+  font-size: 1.3rem;
+}
+
+.site-name-code {
+  color: #0F3328 !important;
+  font-style: italic !important;
+}
+
+.site-name-tango {
+  color: #E0F2F1 !important;
+}
+
+.site-name-link {
+  text-decoration: none !important;
+  cursor: pointer;
+}
+
+.site-name-link:hover {
+  text-decoration: none !important;
+}
+
+/* Sidebar header: empty green bar matching navbar height (48px) */
+.md-nav--primary > .md-nav__title {
+  height: 48px !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
+  padding: 0 !important;
+  background-color: var(--md-primary-fg-color);
+  font-size: 0 !important;
+}
+
+.md-nav--primary > .md-nav__title * {
+  display: none !important;
 }

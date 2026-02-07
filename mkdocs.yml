@@ -1,10 +1,10 @@
-site_name: CodeTango
+site_name: codeTango
 site_url: https://samgrah.github.io/codetango/
 site_description: A software dev blog
 site_author: Sam Grahm
+docs_dir: docs # indispensable or readthedocs will fail
 
 nav:
-  - Home: index.md
   - About: about.md
   - Posts:
       - blog/index.md
@@ -54,6 +54,7 @@ theme:
 plugins:
   - blog
   - search
+  - mermaid2
   - rss:
       enabled: !ENV [CI, False]
       match_path: blog/posts/.*
@@ -70,7 +71,11 @@ markdown_extensions:
       pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:mermaid2.fence_mermaid_custom
 
 extra:
   social:
@@ -84,3 +89,6 @@ extra:
 
 extra_css:
   - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/extra.js
