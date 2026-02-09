@@ -16,9 +16,8 @@ theme:
   features:
     - navigation.footer
     - navigation.indexes
-    - navigation.instant
-    - navigation.instant.prefetch
-    - navigation.instant.progress
+    # - navigation.instant
+    # - navigation.instant.prefetch
     - navigation.prune
     - navigation.tabs
     - navigation.tabs.sticky

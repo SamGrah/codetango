@@ -36,10 +36,111 @@ html {
 }
 
 /* Site name styling: codeTango (header and sidebar) */
-.md-header__topic .md-ellipsis,
+.md-header__topic:first-child .md-ellipsis,
 .md-nav__title .md-ellipsis {
   font-weight: 900;
   font-size: 1.3rem;
+}
+
+/* Keep header title stable during instant navigation */
+[data-md-component="header-topic"] {
+  display: none;
+}
+
+/* Keep brand text visible when header switches to active state on scroll */
+.md-header__title .md-header__topic + .md-header__topic {
+  display: none;
+}
+
+.md-header__title--active .md-header__topic:first-child {
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
+  z-index: 1;
+}
+
+.md-tabs__item--active > .md-tabs__link {
+  color: var(--md-primary-bg-color);
+  font-weight: 500;
+  opacity: 1;
+}
+
+@media screen and (max-width: 76.234375em) {
+  .md-header__button[for="__drawer"] {
+    display: none !important;
+  }
+
+  .md-tabs__item--active > .md-tabs__link {
+    box-shadow: none;
+  }
+}
+
+@media screen and (min-width: 60em) and (max-width: 76.234375em) {
+  .md-tabs {
+    display: block;
+  }
+}
+
+@media screen and (max-width: 59.984375em) {
+  .md-tabs {
+    display: block;
+  }
+
+  .md-header__inner {
+    position: relative;
+  }
+
+  .md-tabs.md-tabs--in-header {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: auto;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+    z-index: 4;
+  }
+
+  .md-tabs.md-tabs--in-header .md-grid {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    height: 2.4rem;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    padding-bottom: 0.68rem;
+    white-space: nowrap;
+  }
+
+  .md-tabs.md-tabs--in-header .md-tabs__list {
+    gap: 1.2rem;
+    overflow: visible;
+  }
+
+  .md-tabs.md-tabs--in-header .md-tabs__item {
+    height: auto;
+  }
+
+  .md-tabs.md-tabs--in-header .md-tabs__link {
+    font-family: inherit;
+    font-size: 0.84rem;
+    font-weight: 400;
+    line-height: 1;
+    color: var(--md-primary-bg-color);
+    opacity: 0.82;
+    text-decoration: none;
+    margin-top: 0;
+  }
+
+  .md-tabs.md-tabs--in-header .md-tabs__item--active > .md-tabs__link {
+    opacity: 1;
+    font-weight: 500;
+    text-decoration: none;
+    box-shadow: none;
+  }
 }
 
 .site-name-code {
@@ -58,6 +159,16 @@ html {
 
 .site-name-link:hover {
   text-decoration: none !important;
+}
+
+pre.mermaid.mermaid-pending {
+  opacity: 0;
+  min-height: 9rem;
+}
+
+pre.mermaid.mermaid-ready {
+  opacity: 1;
+  transition: opacity 120ms linear;
 }
 
 /* Sidebar header: empty green bar matching navbar height (48px) */
