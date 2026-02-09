@@ -100,7 +100,12 @@ html {
     background: transparent;
     box-shadow: none;
     overflow: visible;
-    z-index: 4;
+    z-index: 1;
+  }
+
+  .md-header .md-search {
+    position: relative;
+    z-index: 5;
   }
 
   .md-tabs.md-tabs--in-header .md-grid {
@@ -141,6 +146,10 @@ html {
     text-decoration: none;
     box-shadow: none;
   }
+
+  #__search:checked ~ .md-header .md-tabs.md-tabs--in-header {
+    z-index: 0;
+  }
 }
 
 .site-name-code {
@@ -169,6 +178,22 @@ pre.mermaid.mermaid-pending {
 pre.mermaid.mermaid-ready {
   opacity: 1;
   transition: opacity 120ms linear;
+}
+
+.ct-search-ghost {
+  position: fixed;
+  z-index: 9999;
+  padding: 0 0.8rem;
+  display: flex;
+  align-items: center;
+  border-radius: 0.1rem;
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.8rem;
+  line-height: 1;
+  pointer-events: none;
+  transform-origin: right center;
+  transition: transform 180ms ease, opacity 180ms ease;
 }
 
 /* Sidebar header: empty green bar matching navbar height (48px) */

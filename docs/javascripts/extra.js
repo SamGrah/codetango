@@ -11,6 +11,7 @@ let mermaidModulePromise;
 let mermaidInitialized = false;
 let internalNavigationBound = false;
 let internalNavigationInFlight = false;
+let lastNarrowState = window.matchMedia("(max-width: 59.984375em)").matches;
 
 // Style the site name: wrap "code" in a span for targeted styling
 function styleSiteName() {
@@ -79,19 +80,22 @@ function syncTabsPlacement() {
   }
 
   if (isNarrow) {
-    if (tabs.parentElement !== headerInner) {
-      tabs.classList.add("md-tabs--in-header");
+    tabs.classList.add("md-tabs--in-header");
 
-      const search = headerInner.querySelector(".md-search");
-      const palette = headerInner.querySelector("[data-md-component='palette']");
-      if (search) {
-        headerInner.insertBefore(tabs, search);
-      } else if (palette) {
-        headerInner.insertBefore(tabs, palette);
+    const search = headerInner.querySelector(".md-search");
+    const palette = headerInner.querySelector("[data-md-component='palette']");
+    const anchor = search || palette || null;
+
+    if (tabs.parentElement !== headerInner) {
+      if (anchor) {
+        headerInner.insertBefore(tabs, anchor);
       } else {
         headerInner.appendChild(tabs);
       }
+    } else if (anchor && tabs.nextElementSibling !== anchor) {
+      headerInner.insertBefore(tabs, anchor);
     }
+
     return;
   }
 
@@ -102,6 +106,62 @@ function syncTabsPlacement() {
       parent.insertBefore(tabs, header.nextSibling);
     }
   }
+
+  if (window.scrollY <= 1) {
+    window.requestAnimationFrame(function () {
+      header.classList.remove("md-header--shadow");
+      header.classList.remove("md-header--lifted");
+    });
+  }
+}
+
+function animateSearchCollapse() {
+  const search = document.querySelector(".md-search");
+  const searchForm = document.querySelector(".md-search__form");
+  const searchIcon = document.querySelector('.md-header__button[for="__search"]');
+  if (!search || !searchForm || !searchIcon) {
+    return;
+  }
+
+  const searchRect = search.getBoundingClientRect();
+  const iconRect = searchIcon.getBoundingClientRect();
+  if (searchRect.width < 120 || searchRect.height < 24) {
+    return;
+  }
+
+  const ghost = document.createElement("div");
+  ghost.className = "ct-search-ghost";
+  ghost.textContent = "Search";
+  ghost.style.left = searchRect.left + "px";
+  ghost.style.top = searchRect.top + "px";
+  ghost.style.width = searchRect.width + "px";
+  ghost.style.height = searchRect.height + "px";
+
+  document.body.appendChild(ghost);
+
+  const dx = iconRect.left - searchRect.left + (iconRect.width - searchRect.width) / 2;
+  const dy = iconRect.top - searchRect.top + (iconRect.height - searchRect.height) / 2;
+  const sx = Math.max(0.12, iconRect.width / searchRect.width);
+  const sy = Math.max(0.2, iconRect.height / searchRect.height);
+
+  window.requestAnimationFrame(function () {
+    ghost.style.transform =
+      "translate(" + dx + "px, " + dy + "px) scale(" + sx + ", " + sy + ")";
+    ghost.style.opacity = "0";
+  });
+
+  window.setTimeout(function () {
+    ghost.remove();
+  }, 220);
+}
+
+function syncResponsiveAnimations() {
+  const isNarrow = window.matchMedia("(max-width: 59.984375em)").matches;
+  if (isNarrow && !lastNarrowState) {
+    animateSearchCollapse();
+  }
+
+  lastNarrowState = isNarrow;
 }
 
 function primeMermaidModule() {
@@ -298,8 +358,11 @@ async function navigateInternal(url, pushState) {
 
     normalizeInternalLinks(document.querySelector("main"));
     normalizeInternalLinks(document.querySelector(".md-footer"));
+    normalizeInternalLinks(document.querySelector(".md-header"));
+    normalizeInternalLinks(document.querySelector(".md-tabs"));
     updateTabsActiveState(url);
     syncTabsPlacement();
+    styleSiteName();
     await renderMermaidBlocks(document);
     stabilizeMermaidBlocks();
 
@@ -403,7 +466,12 @@ document$.subscribe(function () {
   }
 
   if (!tabsPlacementResizeBound) {
-    window.addEventListener("resize", syncTabsPlacement);
+    window.addEventListener("resize", function () {
+      syncResponsiveAnimations();
+      syncTabsPlacement();
+    });
     tabsPlacementResizeBound = true;
   }
+
+  syncResponsiveAnimations();
 });
