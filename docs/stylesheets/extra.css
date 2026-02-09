@@ -7,6 +7,11 @@ html {
   max-width: 900px;
 }
 
+.md-sidebar--primary,
+.md-sidebar--post {
+    display: none;
+}
+
 .md-sidebar {
   width: 20%;
 }

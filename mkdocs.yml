@@ -1,5 +1,5 @@
 site_name: codeTango
-site_url: https://samgrah.github.io/codetango/
+site_url: https://codetango.vercel.app/
 site_description: A software dev blog
 site_author: Sam Grahm
 docs_dir: docs # indispensable or readthedocs will fail
