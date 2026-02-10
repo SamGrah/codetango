@@ -5,44 +5,17 @@ hide:
   - footer
 ---
 
-# Caede nec quae
+# About this blog
 
-## Sentibus nequeunt
+This blog is about being delighted about programming showing how topics traditionally considered “hard” and “scary” are actually accessible and interesting and fun (TCP! / Kernel hacking! / Traceroute! / gzip! / databases! / SSL!)
+asking questions and getting better every day.
+how being clear & curious & humble is better than sounding like I know it all already
+experimenting with alternative ways to teach hard concepts (zines!)
 
-Lorem markdownum fratri studeat; sculpsit Anienis, cvrrvs est post _et putes_.
-Salmacis ab _nervos trahit_ in et Riphea aestus! Parte est ramis arma cursus:
-iam implet fallere prementem nec, missum [illa ducibusque](http://que-qui.org/)
-deus. Funeribus si inpia agris verbis Talibus Augusto. Hastam erat; duo tuos,
-Indus non quo quisquis foret tria necemque praecipitique nimium, denique undis
-illuc.
+# About me
 
-> Penates **exire vellera in** superos freta ceram, columbae cavari: corona
-> animo quidem et alti mihi. _Aures neu dum_, muneraque Nereidum animalia et
-> exhalata quam exsurgo. Et ianua delapsam et si in meae oculos fecit, _quidem_
-> avidissima supplex credas; fulva ore quae. Si quid.
+I’m a software developer. I live in Montreal. I sometimes give talks. Most of my income comes from my programming zines business Wizard Zines.
 
-Ide limes, croceo, neque nomen iniuria est oculos Charopem ignorant insuper
-rigidos. Has unum ille fateri, abdita caeso, Aeneia: date [perit primasque
-evanuit](http://www.magicoimum.com/) festinus. _Blanditias pavetque_, a sustulit
-austro, latebris ferebat, [nympham](http://caput-tibi.com/adestet). Orbem
-advolat dracones dimovit Ichnobatesque _ecce ducibusque dictis_ materiam crinis
-veteres ira, vestem.
+I have one main opinion about programming, which is that deeply understanding the underlying systems you use (the browser, the kernel, the operating system, the network layers, your database, HTTP, whatever you’re running on top of) is essential if you want to do technically innovative work and be able to solve hard problems.
 
-## Traxit ficta tibi secunda certans laborem recuset
-
-Placet pecudes: grandior! Est est ille et nymphis tenuere lenius. [Pias ultima
-regis](http://soror.com/tantaet) pro [expellitur laniatque
-pronis](http://ut.com/acuti-cum) viribus, sed et quaerit.
-
-```python
-def bubble_sort(items):
-    for i in range(len(items)):
-        for j in range(len(items) - 1 - i):
-            if items[j] > items[j + 1]:
-                items[j], items[j + 1] = items[j + 1], items[j]
-```
-
-> Occupat dominae his moderamen vomunt forma tenebat. Rabidi esse ingens cava clamant caelesti saltuque hanc et stravere.
-
-[Ad nato](http://cernit-gravi.com/), veluti fert illa urbe lucis lacerti admovit
-_hoc_ coniunx est suffundit. Auratis eram.
+I spent the fall of 2013 at the Recurse Center, which houses my favourite programming community. I wrote down what I did every day while there, if you want to know what it’s like.
