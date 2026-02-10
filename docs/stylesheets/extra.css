@@ -265,13 +265,15 @@ body.ct-hide-about-title .md-content__inner > h1:first-of-type + * {
     right: 0;
     background: var(--md-primary-fg-color);
     box-shadow: none;
-    transform: translateY(-0.4rem) scaleY(0.985);
+    max-height: 0;
+    overflow: hidden;
     opacity: 0;
     pointer-events: none;
-    transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1), opacity 160ms ease;
+    transition:
+      max-height 300ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 240ms ease;
     z-index: 16;
-    transform-origin: top center;
-    will-change: transform, opacity;
+    will-change: max-height, opacity;
   }
 
   .ct-mobile-drawer__link {
@@ -289,7 +291,7 @@ body.ct-hide-about-title .md-content__inner > h1:first-of-type + * {
   }
 
   #__drawer:checked ~ .md-header .ct-mobile-drawer {
-    transform: translateY(0) scaleY(1);
+    max-height: 8rem;
     opacity: 1;
     pointer-events: auto;
   }
