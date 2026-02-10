@@ -3,6 +3,38 @@ html {
   scrollbar-gutter: stable;
 }
 
+:root {
+  --ct-theme-transition: 220ms ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  body,
+  .md-header,
+  .md-tabs,
+  .md-content,
+  .md-content__inner,
+  .md-main,
+  .md-footer,
+  .md-sidebar,
+  .ct-mobile-drawer,
+  .md-search,
+  .md-search__form,
+  .md-search__input,
+  .md-typeset,
+  .md-typeset a,
+  .md-nav__link,
+  .md-header__button,
+  .md-icon svg {
+    transition:
+      background-color var(--ct-theme-transition),
+      color var(--ct-theme-transition),
+      border-color var(--ct-theme-transition),
+      box-shadow var(--ct-theme-transition),
+      fill var(--ct-theme-transition),
+      stroke var(--ct-theme-transition);
+  }
+}
+
 .md-grid {
   max-width: 900px;
 }
@@ -289,6 +321,10 @@ body.ct-hide-about-title .md-content__inner > h1:first-of-type + * {
 
 .ct-post-synopsis {
   color: rgba(0, 0, 0, 0.56);
+}
+
+[data-md-color-scheme="slate"] .ct-post-synopsis {
+  color: rgba(236, 239, 241, 0.82);
 }
 
 .ct-post-synopsis--page {
