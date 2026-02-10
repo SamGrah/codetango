@@ -8,4 +8,12 @@ hide:
   - navigation
   - toc
 ---
+
 These are mocks and stubs, and they are not the same thing.
+
+```mermaid
+pie
+  "Dogs" : 386
+  "Cats" : 85
+  "Rats" : 15
+```
