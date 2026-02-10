@@ -59,6 +59,14 @@ html {
   z-index: 1;
 }
 
+body.ct-hide-about-title .md-content__inner > h1:first-of-type {
+  display: none;
+}
+
+body.ct-hide-about-title .md-content__inner > h1:first-of-type + * {
+  margin-top: -0.35rem;
+}
+
 .md-tabs__item--active > .md-tabs__link {
   color: var(--md-primary-bg-color);
   font-weight: 500;

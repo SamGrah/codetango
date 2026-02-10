@@ -21,6 +21,13 @@ function closeMobileDrawer() {
   }
 }
 
+function syncAboutTitleVisibility() {
+  const scope = window.__md_scope || new URL(".", window.location.href);
+  const aboutPath = normalizePathname(new URL("about/", scope).pathname);
+  const currentPath = normalizePathname(window.location.pathname);
+  document.body.classList.toggle("ct-hide-about-title", currentPath === aboutPath);
+}
+
 // Style the site name: wrap "code" in a span for targeted styling
 function styleSiteName() {
   // Target header site name only (sidebar text is hidden via CSS)
@@ -458,6 +465,7 @@ async function navigateInternal(url, pushState) {
     syncMobileDrawer();
     styleSiteName();
     positionPostSynopsis();
+    syncAboutTitleVisibility();
     await renderMermaidBlocks(document);
     stabilizeMermaidBlocks();
 
@@ -572,6 +580,7 @@ document$.subscribe(function () {
     stabilizeMermaidBlocks();
   });
   positionPostSynopsis();
+  syncAboutTitleVisibility();
 
   if (!tabsPlacementInitialized) {
     syncTabsPlacement();
