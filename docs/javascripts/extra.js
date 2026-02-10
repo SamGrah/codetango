@@ -12,6 +12,14 @@ let mermaidInitialized = false;
 let internalNavigationBound = false;
 let internalNavigationInFlight = false;
 let lastNarrowState = window.matchMedia("(max-width: 59.984375em)").matches;
+let drawerScrollBound = false;
+
+function closeMobileDrawer() {
+  const drawerToggle = document.getElementById("__drawer");
+  if (drawerToggle) {
+    drawerToggle.checked = false;
+  }
+}
 
 // Style the site name: wrap "code" in a span for targeted styling
 function styleSiteName() {
@@ -131,9 +139,7 @@ function syncMobileDrawer() {
     if (drawer) {
       drawer.remove();
     }
-    if (drawerToggle) {
-      drawerToggle.checked = false;
-    }
+    closeMobileDrawer();
     return;
   }
 
@@ -338,6 +344,25 @@ function stabilizeMermaidBlocks() {
   });
 }
 
+function positionPostSynopsis() {
+  const synopsis = document.querySelector("[data-ct-post-synopsis]");
+  if (!synopsis) {
+    return;
+  }
+
+  const article = synopsis.closest("article.md-content__inner");
+  if (!article) {
+    return;
+  }
+
+  const heading = article.querySelector("h1");
+  if (!heading) {
+    return;
+  }
+
+  heading.insertAdjacentElement("afterend", synopsis);
+}
+
 function normalizePathname(pathname) {
   if (!pathname) {
     return "/";
@@ -432,13 +457,11 @@ async function navigateInternal(url, pushState) {
     syncTabsPlacement();
     syncMobileDrawer();
     styleSiteName();
+    positionPostSynopsis();
     await renderMermaidBlocks(document);
     stabilizeMermaidBlocks();
 
-    const drawerToggle = document.getElementById("__drawer");
-    if (drawerToggle) {
-      drawerToggle.checked = false;
-    }
+    closeMobileDrawer();
 
     if (url.hash) {
       const id = decodeURIComponent(url.hash.slice(1));
@@ -504,9 +527,8 @@ function bindInternalNavigation() {
     }
 
     const url = new URL(link.href, window.location.href);
-    const drawerToggle = document.getElementById("__drawer");
-    if (drawerToggle && link.closest(".ct-mobile-drawer")) {
-      drawerToggle.checked = false;
+    if (link.closest(".ct-mobile-drawer")) {
+      closeMobileDrawer();
     }
 
     event.preventDefault();
@@ -516,6 +538,17 @@ function bindInternalNavigation() {
   window.addEventListener("popstate", function () {
     navigateInternal(new URL(window.location.href), false);
   });
+
+  if (!drawerScrollBound) {
+    window.addEventListener(
+      "scroll",
+      function () {
+        closeMobileDrawer();
+      },
+      { passive: true }
+    );
+    drawerScrollBound = true;
+  }
 
   internalNavigationBound = true;
 }
@@ -538,6 +571,7 @@ document$.subscribe(function () {
   renderMermaidBlocks(document).then(function () {
     stabilizeMermaidBlocks();
   });
+  positionPostSynopsis();
 
   if (!tabsPlacementInitialized) {
     syncTabsPlacement();

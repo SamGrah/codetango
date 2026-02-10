@@ -1,5 +1,6 @@
 ---
 title: "Beyond Mocks vs Stubs"
+synopsis: "A practical breakdown of mocks vs stubs and when each test double is the right tool."
 date: 2024-05-26
 author: Sam Graham
 tags: ["mocks", "stubs"]
@@ -8,8 +9,6 @@ hide:
   - navigation
   - toc
 ---
-
-These are mocks and stubs, and they are not the same thing.
 
 <!-- more -->
 
