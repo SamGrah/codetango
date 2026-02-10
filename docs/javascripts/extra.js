@@ -68,7 +68,9 @@ function normalizeInternalLinks(root) {
 }
 
 function syncTabsPlacement() {
-  const isNarrow = window.matchMedia("(max-width: 59.984375em)").matches;
+  const isNarrow =
+    window.matchMedia("(min-width: 37.5001em)").matches &&
+    window.matchMedia("(max-width: 59.984375em)").matches;
   const headerInner = document.querySelector(".md-header__inner");
   const header = document.querySelector(".md-header");
   const tabs = document.querySelector(".md-tabs");
@@ -113,6 +115,72 @@ function syncTabsPlacement() {
       header.classList.remove("md-header--lifted");
     });
   }
+}
+
+function syncMobileDrawer() {
+  const isMobile = window.matchMedia("(max-width: 37.5em)").matches;
+  const header = document.querySelector(".md-header");
+  if (!header) {
+    return;
+  }
+
+  const drawerToggle = document.getElementById("__drawer");
+  let drawer = header.querySelector(".ct-mobile-drawer");
+
+  if (!isMobile) {
+    if (drawer) {
+      drawer.remove();
+    }
+    if (drawerToggle) {
+      drawerToggle.checked = false;
+    }
+    return;
+  }
+
+  if (!drawer) {
+    drawer = document.createElement("nav");
+    drawer.className = "ct-mobile-drawer";
+    drawer.setAttribute("aria-label", "Mobile");
+    header.appendChild(drawer);
+  }
+
+  const links = Array.from(document.querySelectorAll(".md-tabs__link")).filter(function (link) {
+    const text = link.textContent.trim().toLowerCase();
+    return text === "about" || text === "posts";
+  });
+
+  const linkData = links.length
+    ? links.map(function (link) {
+        return {
+          label: link.textContent.trim(),
+          href: link.getAttribute("href") || link.href,
+        };
+      })
+    : [
+        { label: "About", href: "/about/" },
+        { label: "Posts", href: "/blog/" },
+      ];
+
+  const currentPath = normalizePathname(window.location.pathname);
+  drawer.replaceChildren(
+    ...linkData.map(function (item) {
+      const anchor = document.createElement("a");
+      anchor.className = "ct-mobile-drawer__link";
+      anchor.textContent = item.label;
+      anchor.href = item.href;
+
+      try {
+        const path = normalizePathname(new URL(anchor.href, window.location.href).pathname);
+        if (currentPath === path || (path !== "/" && currentPath.startsWith(path))) {
+          anchor.classList.add("ct-mobile-drawer__link--active");
+        }
+      } catch (_err) {
+        // no-op
+      }
+
+      return anchor;
+    })
+  );
 }
 
 function animateSearchCollapse() {
@@ -362,9 +430,15 @@ async function navigateInternal(url, pushState) {
     normalizeInternalLinks(document.querySelector(".md-tabs"));
     updateTabsActiveState(url);
     syncTabsPlacement();
+    syncMobileDrawer();
     styleSiteName();
     await renderMermaidBlocks(document);
     stabilizeMermaidBlocks();
+
+    const drawerToggle = document.getElementById("__drawer");
+    if (drawerToggle) {
+      drawerToggle.checked = false;
+    }
 
     if (url.hash) {
       const id = decodeURIComponent(url.hash.slice(1));
@@ -430,6 +504,11 @@ function bindInternalNavigation() {
     }
 
     const url = new URL(link.href, window.location.href);
+    const drawerToggle = document.getElementById("__drawer");
+    if (drawerToggle && link.closest(".ct-mobile-drawer")) {
+      drawerToggle.checked = false;
+    }
+
     event.preventDefault();
     navigateInternal(url, true);
   });
@@ -469,9 +548,11 @@ document$.subscribe(function () {
     window.addEventListener("resize", function () {
       syncResponsiveAnimations();
       syncTabsPlacement();
+      syncMobileDrawer();
     });
     tabsPlacementResizeBound = true;
   }
 
   syncResponsiveAnimations();
+  syncMobileDrawer();
 });
