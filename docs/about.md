@@ -5,14 +5,14 @@ hide:
   - footer
 ---
 
-# About this blog
+## About this blog
 
 This blog is about being delighted about programming showing how topics traditionally considered “hard” and “scary” are actually accessible and interesting and fun (TCP! / Kernel hacking! / Traceroute! / gzip! / databases! / SSL!)
 asking questions and getting better every day.
 how being clear & curious & humble is better than sounding like I know it all already
 experimenting with alternative ways to teach hard concepts (zines!)
 
-# About me
+## About me
 
 I’m a software developer. I live in Montreal. I sometimes give talks. Most of my income comes from my programming zines business Wizard Zines.
 
