@@ -15,8 +15,10 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+# Anchored to repo root — these Python-dist names must not match JS source
+# dirs like astro/src/lib/ (which is real source, not a build artifact).
+/lib/
+/lib64/
 node_modules/
 parts/
 sdist/
