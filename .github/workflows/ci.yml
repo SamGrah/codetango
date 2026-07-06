@@ -1,14 +1,13 @@
 name: CI
 
-# Quality gate for the Astro site. Runs on every PR (mandatory once branch
-# protection requires it) and on direct pushes to main. Vercel still handles
-# deployment separately; this asserts the things a plain build can't — the
-# near-zero-JS budget, agent-facing output contracts, pure-function behavior,
+# Quality gate for the Astro site — runs on every PR (required by branch
+# protection on main, so a red run blocks the merge). Delivery is PR-based; main
+# only advances through merges, so there's no separate push trigger. Vercel
+# handles deployment separately; this asserts the things a plain build can't —
+# the near-zero-JS budget, agent-facing output contracts, pure-function behavior,
 # and content conventions.
 on:
   pull_request:
-  push:
-    branches: [main]
 
 # Cancel superseded runs on the same ref (e.g. rapid PR pushes).
 concurrency:
