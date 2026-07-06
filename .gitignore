@@ -1,78 +1,17 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-# Anchored to repo root — these Python-dist names must not match JS source
-# dirs like astro/src/lib/ (which is real source, not a build artifact).
-/lib/
-/lib64/
+# Dependencies
 node_modules/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*,cover
-.hypothesis/
-
-# Translations
-*.mo
-
-# Scrapy stuff:
-.scrapy
-
-# PyBuilder
-target/
-
-# IPython Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# virtualenv
-venv/
-.venv/
-ENV/
-
-# MkDocs documentation
-site*/
+# Build output (Astro builds inside astro/, which has its own .gitignore too)
+dist/
 
 # macOS
 .DS_Store
 
 # Stray repo-local agent state (real memory lives in ~/.claude)
 .claude/projects/
+
+# Python virtualenvs (in case one is ever created locally)
+venv/
+.venv/
+__pycache__/
+*.py[cod]

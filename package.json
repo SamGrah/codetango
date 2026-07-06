@@ -7,6 +7,8 @@
     "dev": "PATH=/opt/homebrew/bin:$PATH npm --prefix astro run dev",
     "build": "PATH=/opt/homebrew/bin:$PATH npm --prefix astro run build",
     "preview": "PATH=/opt/homebrew/bin:$PATH npm --prefix astro run preview",
-    "charts": "PATH=/opt/homebrew/bin:$PATH npm --prefix astro run charts"
+    "charts": "PATH=/opt/homebrew/bin:$PATH npm --prefix astro run charts",
+    "check": "PATH=/opt/homebrew/bin:$PATH npm --prefix astro run check",
+    "test": "PATH=/opt/homebrew/bin:$PATH npm --prefix astro test"
   }
 }

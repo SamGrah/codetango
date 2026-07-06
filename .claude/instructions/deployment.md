@@ -1,7 +1,6 @@
 # Deployment & Development Workflow
 
-> **Current stack: Astro 7 (in `astro/`), deployed on Vercel as static HTML.** The
-> legacy MkDocs deployment is retired — see "Legacy (MkDocs)" at the bottom for history.
+> **Stack: Astro 7 (in `astro/`), deployed on Vercel as static HTML.**
 > Read `.claude/instructions/astro-reference.md` before build/deploy work.
 
 ## How production deploys work
@@ -25,35 +24,31 @@ There is no deploy script and no GitHub Actions deploy — pushing is the deploy
 
 Production URL: `https://codetango.vercel.app/`.
 
-## One-time Vercel dashboard setup (cutover from MkDocs)
+Vercel is configured with **Root Directory = `astro`**, framework preset Astro, build
+`npm run build`, output `dist/`. If a deploy ever needs re-verifying: check the home
+listing, a post, `/about/`, `/rss.xml`, and an old date-based URL redirecting to its new
+slug (redirect map in `astro/vercel.json`).
 
-Only the project owner can do this in the Vercel dashboard:
+## CI (test gate)
 
-1. **Project → Settings → General → Root Directory** → set to `astro` → Save.
-2. Confirm **Framework Preset = Astro**, **Build = `npm run build`**, **Output = `dist`**
-   (auto-filled once the root directory is `astro`).
-3. **Deployments →** redeploy `main` (or push a commit) to build the Astro site.
-4. Verify: home listing, a post, `/about/`, `/rss.xml`, and an old URL redirecting
-   (e.g. `/blog/2026/03/14/anatomy-of-my-agentic-development-setup/` → new slug).
+`.github/workflows/ci.yml` runs on every **PR** and on pushes to **main**. It is the
+assertion layer Vercel can't provide — Vercel only tells you the build succeeded, not
+whether the JS budget, agent-facing outputs, or content conventions still hold. The job
+(working directory `astro/`, Node from `.node-version`) runs:
 
-Until step 1 is done, Vercel still builds the old MkDocs site from the repo root.
+```
+npm ci  →  npm run check  →  npm run build  →  npm test
+```
 
-## CI
+- `npm run check` = `astro check` (types + content refs).
+- `npm test` = Vitest: unit (pure functions), content conventions (frontmatter,
+  kebab-case, canonical tag/category vocabulary), build-output (JS budget, markdown
+  mirrors, `llms.txt`/`llms-full.txt`, full-content RSS, `robots.txt`, sitemap, pagefind
+  index), and internal-link integrity. See `astro-reference.md` → Testing.
 
-None. There are no GitHub Actions — Vercel is the single source of truth. Every push and
-PR gets a Vercel build (production for `main`, a preview URL otherwise), so a broken build
-surfaces there. The old `.github/workflows/ci.yml` (`mkdocs gh-deploy`, later a build-check)
-was removed. If you ever want a pre-Vercel gate, re-add a workflow that runs
-`npm ci && npm run build` in `astro/`.
-
-## Retiring the old GitHub Pages deploy
-
-The legacy `mkdocs gh-deploy --force` pushed to a `gh-pages` branch (still present on the
-remote, now stale). To fully retire it (owner, optional cleanup):
-
-- The Actions workflow was removed, so nothing new is published to Pages.
-- **GitHub → Settings → Pages** → set Source to "None" (disable the Pages site).
-- Delete the stale branch: `git push origin --delete gh-pages`.
+Deployment stays entirely on Vercel; CI never deploys. **To make the gate blocking**
+(owner, one-time): GitHub → Settings → Branches → protect `main` → *Require status checks
+to pass* → select **CI / test**. Without that, the workflow runs but won't block a merge.
 
 ## Local development
 
@@ -70,22 +65,23 @@ npm run charts                    # rebuild chart SVGs only
 
 ### Pre-push checklist
 
-1. `npm run build` passes (from `astro/`).
-2. `find dist -name '*.js' -not -path '*/pagefind/*' | wc -l` prints **1** (ClientRouter
-   only — a higher number means an unintended client bundle crept in; the pagefind/
-   directory is the search index + UI, loaded only on /search/).
-3. New posts have complete frontmatter (see `astro-reference.md`); filenames are
-   kebab-case (the filename becomes the URL slug).
-4. If you added a chart, its `src/charts/*.vl.json` spec is committed (the generated SVG
+1. `npm run check` and `npm test` pass (from `astro/`). `npm test` runs the same gate CI
+   does; the build-output tests trigger a build automatically if `dist/` is missing.
+   (This subsumes the old "build passes + JS budget = 1" checks — the `js-budget` test
+   asserts exactly one client bundle, ClientRouter; the pagefind/ dir is the exempt
+   search index + UI.)
+2. New posts have complete frontmatter (see `astro-reference.md`); filenames are
+   kebab-case (the filename becomes the URL slug); tags/categories come from the canonical
+   vocabulary in `post-formatting.md` (the convention test hard-fails otherwise).
+3. If you added a chart, its `src/charts/*.vl.json` spec is committed (the generated SVG
    in `public/charts/` is gitignored and rebuilt on deploy).
-5. Browser-check visual changes in **both themes** (`open -a "Google Chrome" <url>` —
+4. Browser-check visual changes in **both themes** (`open -a "Google Chrome" <url>` —
    Chrome is not the default browser).
 
 ## Troubleshooting
 
 | Symptom | Cause | Fix |
 | --- | --- | --- |
-| Vercel still builds MkDocs | Root Directory not set to `astro` | Dashboard → Settings → Root Directory = `astro` |
 | Build fails: `vega` not found | Platform pruned devDependencies | Move `vega`/`vega-lite` to `dependencies` in `astro/package.json` |
 | Node engine error on Vercel | Node < 22.12 | Ensure `astro/.node-version` = `22` and `engines.node` present |
 | Old post URL 404s | Missing redirect | Add a rule to `astro/vercel.json` |
@@ -94,19 +90,3 @@ npm run charts                    # rebuild chart SVGs only
 | Search icon does nothing locally | Index/assets only exist after a build | `npm run build && npm run preview` (search never works under `npm run dev`) |
 | Search results include nav/chrome text | `data-pagefind-body` missing | Keep it on the post article + About article only |
 | Local `npm run dev` uses wrong Node | nvm default is 20 | Prefix `PATH=/opt/homebrew/bin:$PATH` |
-
----
-
-## Legacy (MkDocs) — retired, for reference
-
-The site was previously MkDocs Material with **two** parallel MkDocs deploys on push to
-`main`:
-
-1. **GitHub Actions** → `pip install -r requirements.txt` → `mkdocs gh-deploy --force` →
-   GitHub Pages (`gh-pages` branch).
-2. **Vercel** → root `package.json` `build: python3 -m mkdocs build -d public` → `public/`.
-
-Both are superseded by the single Vercel/Astro pipeline above. The root `package.json`,
-`mkdocs.yml`, `requirements.txt`, `venv/`, `site/`, `public/`, and `docs/` are legacy MkDocs
-artifacts; leave them during transition, remove at full cutover once the Astro deploy is
-confirmed in production.

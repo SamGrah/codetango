@@ -117,14 +117,33 @@ A count above 1 means an unintended bundle crept in (e.g. an accidentally-hydrat
 
 One site-wide search field: the header magnifier button (or **⌘K/Ctrl+K**) opens a `<pagefind-modal>` with live-as-you-type results. No search page (a redirect stub remains at `src/pages/search.astro`; deletable).
 
-- Index is built post-build: `postbuild: pagefind --site dist` (devDependency `pagefind`). Works in `npm run build && npm run preview` and prod — **not in `npm run dev`** (no built HTML to index; the header icon is inert there and the component assets 404 harmlessly).
+- Index is built post-build: `postbuild: pagefind --site dist` (devDependency `pagefind`). In `npm run dev`, `predev` runs `scripts/dev-search.mjs`, which copies the **last build's** `dist/pagefind/` into `public/pagefind/` (gitignored; deleted again on `prebuild`) — so dev search works but its index is only as fresh as the last `npm run build`. If there's never been a build, the icon is inert and the script prints a hint.
 - Indexing is scoped by `data-pagefind-body` on the post article (`blog/[id].astro`) and About (`MarkdownLayout.astro`) — pages without it are excluded, and chrome is never indexed.
 - Wiring (all in `Base.astro`): component CSS + module script in the head on every page (small and idle; the index lazy-loads on first keystroke); `<pagefind-modal reset-on-close>` in the body; our own `#search-open` icon button + a mod+K keydown handler call `modal.open()` via the **delegated-on-document** pattern (survives ClientRouter swaps — verified: modal re-upgrades and works after client-side navigations). We deliberately don't use `<pagefind-modal-trigger>` (own icon = full styling control).
 - Theming: `--pf-*` custom properties on `body` in `global.css` map to site tokens (flip automatically with `[data-theme]`), plus an explicit `mark` rule — the component's default highlight color is near-black and invisible on the dark ink. Backdrop via `--pf-modal-backdrop` (separate dark value).
 - Known quirk (harmless): after a ClientRouter swap + native-ESC close, the component's `isOpen` getter can go stale. Never gate on `isOpen` — call `.open()` unconditionally (the click handler already does).
 - Do **not** use the legacy `PagefindUI` (`pagefind-ui.js`) API — 1.5's Component UI replaces it. Component guide: https://pagefind.app/llms-component-ui.txt
 
-**ClientRouter consequence — swaps replace `<body>`.** Element-bound listeners die after the first client navigation. Bind chrome interactivity by **delegation on `document`** (which persists) or re-bind on the `astro:page-load` event. The theme toggle already does this (delegated click on `document`); follow that pattern for anything new. The `<html>` element persists across swaps, so `data-theme` carries over with no flash.
+**ClientRouter consequence — swaps replace `<body>`.** Element-bound listeners die after the first client navigation. Bind chrome interactivity by **delegation on `document`** (which persists) or re-bind on the `astro:page-load` event. The theme toggle already does this (delegated click on `document`); follow that pattern for anything new. The `<html>` element object persists, **but ClientRouter copies the incoming document's `<html>` attributes on every swap — wiping `data-theme`** (server HTML never has it). The theme script re-applies the stored preference on `astro:after-swap`; don't remove that hook or the user's light/dark choice reverts on every navigation.
+
+## Agent-Facing Surface (agentic-native affordances)
+
+All build-time — none of this adds client JS. Post changes regenerate these automatically; **structural** changes (URL scheme, new content types) must keep them in sync:
+
+- **Markdown mirrors**: every post is also served at `/blog/<slug>/index.md` (`src/pages/blog/[id]/index.md.js`). The rendering helper `postToMarkdown()` lives in **`src/lib/post-markdown.ts`** (pure, no `astro:content` import → unit-testable); the endpoint and `/llms-full.txt` both import it from there. Each post's `<head>` advertises the mirror via `<link rel="alternate" type="text/markdown">`.
+- **`/llms.txt`** (`src/pages/llms.txt.js`): llmstxt.org index — site summary, per-post markdown-mirror links, feeds, and how to query the Pagefind index programmatically. **`/llms-full.txt`**: the whole corpus as one markdown file.
+- **`/robots.txt`** (static, `public/robots.txt`): explicitly allows AI crawlers (GPTBot, ClaudeBot, PerplexityBot, Google-Extended, CCBot, …) + sitemap pointer.
+- **RSS is full-content** (`src/pages/rss.xml.js`): post body rendered with `markdown-it` + `sanitize-html` (devDeps), root-relative img/link URLs rewritten absolute. No Shiki in feeds — plain code blocks are correct there.
+
+## Testing (`npm test`, Vitest)
+
+CI gate + local safety net. Framework: **Vitest** (`vitest.config.ts`; `include: test/**/*.test.ts`). Tests deliberately avoid `astro:*` imports so no Astro Vite config is needed — that's why `postToMarkdown` was extracted to `src/lib/`. Three tiers under `astro/test/`:
+
+- **`test/unit/`** — pure functions, instant, no build. `utils.test.ts` (`readingTime`, `formatDate`), `post-markdown.test.ts`. Run alone via `npm run test:unit`.
+- **`test/content/conventions.test.ts`** — reads each `src/content/blog/*.md` with `gray-matter`; **parses the canonical tag/category vocabulary out of `post-formatting.md`** (single source of truth) and hard-fails off-vocabulary tags/categories, non-kebab filenames, or missing title/date.
+- **`test/build/`** — assert against `dist/` after a build (`js-budget`, `agent-surface`, `integrity`, `links`). Gated by **`ensureBuilt()`** (`test/helpers/ensure-build.ts`): builds only if `dist/index.html` is absent, so CI (which builds first) doesn't rebuild and local `npm test` stays self-contained. `publishedPosts()` there is the shared non-draft post loader.
+
+Gotchas: `astro check` needs `src/env.d.ts` to declare the `@fontsource-variable/open-sans` side-effect import (no bundled types), and `z` must come from `astro:schema` not `astro:content` (deprecated). RSS `content:encoded` is **entity-escaped, not CDATA** — match both forms. When the URL scheme or a content type changes, update the build-output assertions to match.
 
 ## Docs MCP (recommended)
 

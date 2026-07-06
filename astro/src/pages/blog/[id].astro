@@ -15,6 +15,14 @@ const { Content } = await render(post);
 ---
 
 <Base title={post.data.title} description={post.data.synopsis} ogType="article">
+  {/* Agent-facing raw-markdown mirror of this post (see index.md.js) */}
+  <link
+    slot="head"
+    rel="alternate"
+    type="text/markdown"
+    title="Markdown version"
+    href={`/blog/${post.id}/index.md`}
+  />
   {/* data-pagefind-body scopes the search index to post content — pages without
       it (listing, search itself) are excluded, and header/footer chrome is never
       indexed. See https://pagefind.app/docs/indexing/ */}
