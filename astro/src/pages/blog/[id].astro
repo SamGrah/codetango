@@ -1,0 +1,30 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+import { formatDate, readingTime } from '../../lib/utils';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) =>
+    import.meta.env.PROD ? !data.draft : true
+  );
+  return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<Base title={post.data.title} description={post.data.synopsis} ogType="article">
+  <article>
+    <header class="post-header">
+      <h1>{post.data.title}</h1>
+      {post.data.synopsis && <p class="post-lede">{post.data.synopsis}</p>}
+      <span class="post-meta">
+        {formatDate(post.data.date)} · {readingTime(post.body ?? '')} min read
+      </span>
+    </header>
+    <div class="prose">
+      <Content />
+    </div>
+  </article>
+</Base>

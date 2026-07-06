@@ -1,0 +1,28 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { formatDate, readingTime } from '../lib/utils';
+
+const posts = (
+  await getCollection('blog', ({ data }) => (import.meta.env.PROD ? !data.draft : true))
+).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+
+<Base>
+  <h1 class="visually-hidden">codeTango — posts</h1>
+  <ul class="post-list">
+    {
+      posts.map((post) => (
+        <li>
+          <h2>
+            <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+          </h2>
+          {post.data.synopsis && <p class="post-synopsis">{post.data.synopsis}</p>}
+          <span class="post-meta">
+            {formatDate(post.data.date)} · {readingTime(post.body ?? '')} min read
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+</Base>

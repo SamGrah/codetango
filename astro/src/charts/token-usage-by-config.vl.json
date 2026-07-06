@@ -1,0 +1,29 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "description": "Output tokens consumed per agentic configuration (illustrative sample data)",
+  "width": 600,
+  "height": 300,
+  "data": {
+    "values": [
+      { "config": "CLAUDE.md only", "tokens": 18400 },
+      { "config": "+ Skills", "tokens": 24100 },
+      { "config": "+ Subagents", "tokens": 39800 },
+      { "config": "+ Hooks", "tokens": 27600 },
+      { "config": "Combined", "tokens": 52300 }
+    ]
+  },
+  "mark": { "type": "bar", "cornerRadiusEnd": 3, "width": { "band": 0.62 } },
+  "encoding": {
+    "x": {
+      "field": "config",
+      "type": "nominal",
+      "sort": null,
+      "axis": { "title": null, "labelAngle": 0 }
+    },
+    "y": {
+      "field": "tokens",
+      "type": "quantitative",
+      "axis": { "title": "Output tokens", "format": "~s", "tickCount": 5 }
+    }
+  }
+}

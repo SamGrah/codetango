@@ -54,7 +54,7 @@ theme:
 plugins:
   - blog
   - search
-  - mermaid2
+  # mermaid2 removed — extra.js handles rendering with mermaid v11.13.0
   - rss:
       enabled: !ENV [CI, False]
       match_path: blog/posts/.*
@@ -75,7 +75,7 @@ markdown_extensions:
       custom_fences:
         - name: mermaid
           class: mermaid
-          format: !!python/name:mermaid2.fence_mermaid_custom
+          format: !!python/name:overrides.mermaid_fence.fence_mermaid
 
 extra:
   social:

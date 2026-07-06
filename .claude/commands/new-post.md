@@ -9,6 +9,8 @@ Create a new blog post for CodeTango. Before writing, gather the following from 
 
 ## Steps
 
+0. **Read `.claude/instructions/authors-voice.md`** before writing any content. All prose must follow the author's voice: personal experience framing, no prescriptive or universal claims.
+
 1. **Generate the filename** using kebab-case from the topic (e.g., `agentic-design-patterns.md`). Confirm with the user before creating.
 
 2. **Write complete frontmatter** using today's date:

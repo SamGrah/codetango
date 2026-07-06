@@ -1,118 +1,109 @@
 # Deployment & Development Workflow
 
-## Browser Preview (Claude Code for Chrome)
+> **Current stack: Astro 7 (in `astro/`), deployed on Vercel as static HTML.** The
+> legacy MkDocs deployment is retired — see "Legacy (MkDocs)" at the bottom for history.
+> Read `.claude/instructions/astro-reference.md` before build/deploy work.
 
-The Claude Code for Chrome extension enables visual verification of rendered content. Use this workflow when changes affect visual elements:
+## How production deploys work
 
-### When to Use Browser Preview
+**Host: Vercel, native Git integration.** Vercel is connected to the GitHub repo and
+auto-builds on every push to `main`; every branch/PR gets its own **preview deploy** URL.
+There is no deploy script and no GitHub Actions deploy — pushing is the deploy.
 
-- **Always**: Mermaid diagrams, images, embedded media
-- **Always**: Theme or CSS changes
-- **Recommended**: Complex layout changes, new plugins, frontmatter changes that affect rendering
+- **Root Directory:** `astro/` (Vercel builds the Astro app, not the repo root)
+- **Framework preset:** Astro (auto-detected)
+- **Build command:** `npm run build` — runs `prebuild` (compiles Vega-Lite charts →
+  `public/charts/*.svg`) then `astro build`
+- **Output directory:** `dist/`
+- **Install:** `npm ci` (Vercel installs devDependencies during the build, so the
+  `vega`/`vega-lite` chart tools are available)
+- **Node:** pinned to 22 via `astro/.node-version` and `engines.node >=22.12.0`
+- **No SSR adapter.** Output is fully static (`output: 'static'`); Vercel just serves
+  `dist/`. Do not add `@astrojs/vercel` unless a feature genuinely needs SSR/ISR.
+- **Redirects:** `astro/vercel.json` maps legacy MkDocs URLs (old date-based post paths,
+  `/blog/`, old RSS/sitemap paths) to the new structure. Vercel applies it automatically.
 
-### Preview Workflow
+Production URL: `https://codetango.vercel.app/`.
 
-1. **Ensure dev server is running**: `mkdocs serve` at `http://127.0.0.1:8000`
-2. **Open Chrome explicitly**: Chrome is not the default browser, so use:
-   ```bash
-   open -a "Google Chrome" http://127.0.0.1:8000/codetango/path/to/page/
-   ```
-3. **Navigate/interact**: Use the browser MCP tools to navigate to specific pages
-4. **Take a screenshot**: Capture the rendered output for verification
-5. **Check for issues**: Verify diagrams render correctly, images load, layout is correct
-6. **Iterate if needed**: Make fixes and re-verify
+## One-time Vercel dashboard setup (cutover from MkDocs)
 
-### Common Visual Checks
+Only the project owner can do this in the Vercel dashboard:
 
-| Content Type      | What to Verify                                           |
-|-------------------|----------------------------------------------------------|
-| Mermaid diagrams  | All nodes visible, arrows connect correctly, text readable |
-| Images            | Loads correctly, appropriate size, alt text renders on failure |
-| Code blocks       | Syntax highlighting applied, not truncated               |
-| Admonitions       | Icon and color correct, content formatted properly       |
-| Tables            | Columns align, responsive on narrow viewports            |
+1. **Project → Settings → General → Root Directory** → set to `astro` → Save.
+2. Confirm **Framework Preset = Astro**, **Build = `npm run build`**, **Output = `dist`**
+   (auto-filled once the root directory is `astro`).
+3. **Deployments →** redeploy `main` (or push a commit) to build the Astro site.
+4. Verify: home listing, a post, `/about/`, `/rss.xml`, and an old URL redirecting
+   (e.g. `/blog/2026/03/14/anatomy-of-my-agentic-development-setup/` → new slug).
 
----
+Until step 1 is done, Vercel still builds the old MkDocs site from the repo root.
 
-## Local Development
+## CI
 
-### Setup
+None. There are no GitHub Actions — Vercel is the single source of truth. Every push and
+PR gets a Vercel build (production for `main`, a preview URL otherwise), so a broken build
+surfaces there. The old `.github/workflows/ci.yml` (`mkdocs gh-deploy`, later a build-check)
+was removed. If you ever want a pre-Vercel gate, re-add a workflow that runs
+`npm ci && npm run build` in `astro/`.
+
+## Retiring the old GitHub Pages deploy
+
+The legacy `mkdocs gh-deploy --force` pushed to a `gh-pages` branch (still present on the
+remote, now stale). To fully retire it (owner, optional cleanup):
+
+- The Actions workflow was removed, so nothing new is published to Pages.
+- **GitHub → Settings → Pages** → set Source to "None" (disable the Pages site).
+- Delete the stale branch: `git push origin --delete gh-pages`.
+
+## Local development
+
+From `astro/` (prefix `PATH=/opt/homebrew/bin:$PATH` — the nvm default is Node 20, but
+Astro 7 needs ≥22.12; Homebrew node is 25.x):
 
 ```bash
-# Activate the virtual environment
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
+npm install                       # first time
+npm run dev                       # dev server (predev rebuilds charts) → localhost:4321
+npm run build                     # production build → dist/ (prebuild rebuilds charts)
+npm run preview                   # serve the built dist/ locally
+npm run charts                    # rebuild chart SVGs only
 ```
 
-### Development Server
+### Pre-push checklist
 
-```bash
-# Start live-reloading dev server (http://127.0.0.1:8000)
-mkdocs serve --livereload
-```
-
-- Auto-reloads on file changes
-- Shows warnings for broken links, missing files
-
-### Local Build Validation
-
-```bash
-# Build with strict mode — fails on any warning
-mkdocs build --strict
-```
-
-Always run this before pushing. It catches:
-
-- Broken internal links
-- Missing referenced files
-- Invalid YAML in frontmatter
-- Plugin configuration errors
-
-## CI/CD Pipeline
-
-### GitHub Actions Workflow (`.github/workflows/ci.yml`)
-
-**Trigger**: Push to `main` or `master` branch
-
-**What it does**:
-
-1. Checks out the repo
-2. Configures git credentials for the bot
-3. Sets up Python 3.x
-4. Caches MkDocs build artifacts (weekly rotation via `%V` week number)
-5. Sets `CI=True` environment variable (enables RSS plugin)
-6. Installs dependencies from `requirements.txt`
-7. Deploys to GitHub Pages via `mkdocs gh-deploy --force`
-
-**Key detail**: The `CI=True` env var controls RSS feed generation. Locally, RSS is disabled so `mkdocs serve` is faster.
-
-### Deployment Target
-
-- GitHub Pages at `https://samgrah.github.io/codetango/`
-- Uses the `gh-pages` branch (auto-managed by `mkdocs gh-deploy`)
-
-## Pre-Push Checklist
-
-Run these before pushing to `main`:
-
-1. **Activate venv**: `source venv/bin/activate`
-2. **Build strict**: `mkdocs build --strict` — must pass with zero warnings
-3. **Check git status**: `git status` — no unintended files staged
-4. **Review diff**: `git diff --staged` — verify only intended changes
-5. **Verify frontmatter**: Every new/modified post has complete frontmatter
-6. **Check filenames**: Post filenames use kebab-case, no spaces
+1. `npm run build` passes (from `astro/`).
+2. `find dist -name '*.js' | wc -l` prints **1** (ClientRouter only — a higher number
+   means an unintended client bundle crept in).
+3. New posts have complete frontmatter (see `astro-reference.md`); filenames are
+   kebab-case (the filename becomes the URL slug).
+4. If you added a chart, its `src/charts/*.vl.json` spec is committed (the generated SVG
+   in `public/charts/` is gitignored and rebuilt on deploy).
+5. Browser-check visual changes in **both themes** (`open -a "Google Chrome" <url>` —
+   Chrome is not the default browser).
 
 ## Troubleshooting
 
-| Symptom                           | Cause                                       | Fix                                                                  |
-| --------------------------------- | ------------------------------------------- | -------------------------------------------------------------------- |
-| `mermaid2` plugin not found       | Missing from `requirements.txt`             | `pip install mkdocs-mermaid2-plugin` and add to `requirements.txt`   |
-| RSS feed not generating locally   | RSS is CI-only by default                   | Set `CI=True` env var: `CI=True mkdocs serve`                        |
-| Build warning: page not in nav    | New page exists but not in `mkdocs.yml` nav | Add the page to the `nav` section in `mkdocs.yml`                    |
-| Styles not updating               | Browser cache                               | Hard refresh (`Cmd+Shift+R`) or clear `.cache/` dir                  |
-| `gh-deploy` fails on CI           | Git credentials misconfigured               | Check the `Configure Git Credentials` step in `ci.yml`               |
-| Blog posts not appearing          | Missing `date` in frontmatter               | Add `date: YYYY-MM-DD` to post frontmatter                           |
-| Excerpt not showing on listing    | Missing `<!-- more -->`                     | Add `<!-- more -->` after the excerpt paragraph                      |
-| Superfences Mermaid not rendering | Custom fences not configured                | Add custom fence config under `pymdownx.superfences` in `mkdocs.yml` |
+| Symptom | Cause | Fix |
+| --- | --- | --- |
+| Vercel still builds MkDocs | Root Directory not set to `astro` | Dashboard → Settings → Root Directory = `astro` |
+| Build fails: `vega` not found | Platform pruned devDependencies | Move `vega`/`vega-lite` to `dependencies` in `astro/package.json` |
+| Node engine error on Vercel | Node < 22.12 | Ensure `astro/.node-version` = `22` and `engines.node` present |
+| Old post URL 404s | Missing redirect | Add a rule to `astro/vercel.json` |
+| `dist` has extra `.js` files | A component got hydrated (`client:*`) | Remove the directive or move it to an island by intent |
+| Charts missing on the site | Prebuild didn't run / spec error | `npm run charts` and read its error output |
+| Local `npm run dev` uses wrong Node | nvm default is 20 | Prefix `PATH=/opt/homebrew/bin:$PATH` |
+
+---
+
+## Legacy (MkDocs) — retired, for reference
+
+The site was previously MkDocs Material with **two** parallel MkDocs deploys on push to
+`main`:
+
+1. **GitHub Actions** → `pip install -r requirements.txt` → `mkdocs gh-deploy --force` →
+   GitHub Pages (`gh-pages` branch).
+2. **Vercel** → root `package.json` `build: python3 -m mkdocs build -d public` → `public/`.
+
+Both are superseded by the single Vercel/Astro pipeline above. The root `package.json`,
+`mkdocs.yml`, `requirements.txt`, `venv/`, `site/`, `public/`, and `docs/` are legacy MkDocs
+artifacts; leave them during transition, remove at full cutover once the Astro deploy is
+confirmed in production.

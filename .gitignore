@@ -68,3 +68,9 @@ ENV/
 
 # MkDocs documentation
 site*/
+
+# macOS
+.DS_Store
+
+# Stray repo-local agent state (real memory lives in ~/.claude)
+.claude/projects/

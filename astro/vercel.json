@@ -1,0 +1,31 @@
+{
+  "redirects": [
+    {
+      "source": "/blog/2026/03/14/anatomy-of-my-agentic-development-setup",
+      "destination": "/blog/anatomy-of-an-agentic-dev-setup/",
+      "permanent": true
+    },
+    {
+      "source": "/blog/2026/03/14/anatomy-of-my-agentic-development-setup/",
+      "destination": "/blog/anatomy-of-an-agentic-dev-setup/",
+      "permanent": true
+    },
+    {
+      "source": "/blog/:year(\\d{4})/:month(\\d{2})/:day(\\d{2})/:slug",
+      "destination": "/blog/:slug/",
+      "permanent": true
+    },
+    {
+      "source": "/blog/:year(\\d{4})/:month(\\d{2})/:day(\\d{2})/:slug/",
+      "destination": "/blog/:slug/",
+      "permanent": true
+    },
+    { "source": "/blog", "destination": "/", "permanent": true },
+    { "source": "/blog/", "destination": "/", "permanent": true },
+    { "source": "/blog/category/:path*", "destination": "/", "permanent": true },
+    { "source": "/blog/archive/:path*", "destination": "/", "permanent": true },
+    { "source": "/feed_rss_created.xml", "destination": "/rss.xml", "permanent": true },
+    { "source": "/feed_rss_updated.xml", "destination": "/rss.xml", "permanent": true },
+    { "source": "/sitemap.xml", "destination": "/sitemap-index.xml", "permanent": true }
+  ]
+}

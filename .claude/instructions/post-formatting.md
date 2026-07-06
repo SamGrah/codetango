@@ -140,8 +140,10 @@ Posts must use one of these categories:
 
 ## Tone and Voice
 
+See **`.claude/instructions/authors-voice.md`** for the full author's voice guide. Key points:
+
+- **Personal, not prescriptive**: Frame as experience ("I found...", "In my setup..."), not universal truth ("You should...", "Best practice is...")
 - **Precise**: Use exact terms. "Latency p99 increased 3x" not "things got slower"
-- **Opinionated**: Take a stance. "You should do X because Y" not "some people prefer X"
-- **Conversational, not casual**: Write like you're explaining to a sharp colleague, not posting on social media
+- **Conversational, not casual**: Write like you're showing a colleague your workbench, not lecturing from a podium
 - **Show, don't tell**: Prefer examples and diagrams over abstract descriptions
 - **Respect the reader**: Assume they're competent. Don't over-explain basics unless the post targets beginners (tag it `tutorial`)

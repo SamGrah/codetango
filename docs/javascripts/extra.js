@@ -6,9 +6,10 @@ function getHomePath() {
   return new URL(".", window.location.href).pathname;
 }
 
-const MERMAID_MODULE_URL = "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
+const MERMAID_MODULE_URL = "https://unpkg.com/mermaid@11.13.0/dist/mermaid.esm.min.mjs";
 let mermaidModulePromise;
 let mermaidInitialized = false;
+
 let internalNavigationBound = false;
 let internalNavigationInFlight = false;
 let lastNarrowState = window.matchMedia("(max-width: 59.984375em)").matches;
@@ -268,7 +269,7 @@ function loadMermaidModule() {
 
 async function renderMermaidBlocks(root) {
   const scope = root || document;
-  const blocks = Array.from(scope.querySelectorAll("pre.mermaid")).filter(function (block) {
+  const blocks = Array.from(scope.querySelectorAll("pre.ct-mermaid")).filter(function (block) {
     return block.dataset.mermaidRendered !== "true";
   });
 
@@ -301,6 +302,36 @@ async function renderMermaidBlocks(root) {
       const rendered = await mermaid.render(id, graph);
       block.innerHTML = rendered.svg;
       block.setAttribute("data-processed", "true");
+
+      // For venn diagrams: zoom into the viewBox to increase apparent circle size
+      // and force font-size on all text/tspan elements (catches inline style overrides)
+      if (graph.trimStart().startsWith("venn")) {
+        block.classList.add("ct-mermaid--venn");
+        var svg = block.querySelector("svg");
+        if (svg) {
+          var vb = svg.getAttribute("viewBox");
+          if (vb) {
+            var parts = vb.split(/\s+/).map(Number);
+            var zoom = 0.75; // smaller = more zoomed in (larger circles)
+            var newW = parts[2] * zoom;
+            var newH = parts[3] * zoom;
+            var newX = parts[0] + (parts[2] - newW) / 2;
+            var newY = parts[1] + (parts[3] - newH) / 2;
+            svg.setAttribute("viewBox", [newX, newY, newW, newH].join(" "));
+          }
+
+          svg.querySelectorAll("text, tspan").forEach(function (el) {
+            el.style.fontSize = "15px";
+            el.setAttribute("font-size", "15");
+          });
+
+          svg.querySelectorAll(".venn-text-area, .venn-text-area text, .venn-text-area tspan").forEach(function (el) {
+            el.style.fontSize = "12px";
+            el.setAttribute("font-size", "12");
+            el.style.fontStyle = "italic";
+          });
+        }
+      }
     } catch (_err) {
       // Keep original code block when rendering fails
     }
@@ -312,7 +343,7 @@ async function renderMermaidBlocks(root) {
 }
 
 function stabilizeMermaidBlocks() {
-  const blocks = document.querySelectorAll("pre.mermaid");
+  const blocks = document.querySelectorAll("pre.ct-mermaid");
   blocks.forEach(function (block) {
     if (block.dataset.mermaidStabilized === "true") {
       return;

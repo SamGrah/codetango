@@ -1,13 +1,12 @@
 ---
-hide:
-  - toc
-  - navigation
-  - footer
+layout: ../layouts/MarkdownLayout.astro
+title: About
+description: About codeTango and its author.
 ---
 
 ## About this blog
 
-This blog is (mostly) about Agents; 
+This blog is (mostly) about Agents;
 
 ## About me
 

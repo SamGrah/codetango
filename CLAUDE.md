@@ -35,12 +35,23 @@ codetango/
 │   │   ├── review-post.md        # /review-post
 │   │   └── configure-mkdocs.md   # /configure-mkdocs
 │   └── instructions/             # Detailed reference docs
+│       ├── authors-voice.md      # Authorial voice guide
 │       ├── post-formatting.md    # Post structure & formatting guide
+│       ├── visual-style-guide.md # Visual design language & front-end conventions
 │       ├── mkdocs-reference.md   # MkDocs Material config reference
 │       ├── deployment.md         # CI/CD and local dev workflow
 │       └── self-improvement-protocol.md
 └── venv/                         # Local virtualenv (gitignored)
 ```
+
+## ⚠️ Framework Migration In Progress (July 2026)
+
+The site is migrating from MkDocs Material to **Astro 7**. The complete replacement site lives in **`astro/`** (own package.json, builds to `astro/dist/`); the MkDocs tree below remains the live production site until cutover. Rules during the transition:
+
+- For any work inside `astro/`, **read `.claude/instructions/astro-reference.md` first** (v7 API gotchas, commands, zero-JS budget) — `astro/CLAUDE.md` also applies there.
+- New posts and design changes target `astro/` unless explicitly told otherwise.
+- The "never produce application code" guardrail is amended: `.astro` templates, the content config, and site CSS/JS inside `astro/` are in scope; application code beyond the blog remains out of scope.
+- Do not modify the MkDocs tree (mkdocs.yml, docs/, overrides/) except for urgent fixes to the still-live site.
 
 ## Site Configuration Summary
 
@@ -135,7 +146,10 @@ See `.claude/instructions/deployment.md` for the full preview workflow.
 
 These files contain detailed guidance. Read them when the situation calls for it — not every task needs all of them.
 
+- **`.claude/instructions/authors-voice.md`** — Read before writing or reviewing any blog post. Defines the authorial voice: personal experience framing, no prescriptive/universal claims.
 - **`.claude/instructions/post-formatting.md`** — Read before writing or reviewing any blog post. Covers post anatomy, heading rules, code block conventions, Mermaid guidelines, and the canonical tag/category vocabulary.
+- **`.claude/instructions/visual-style-guide.md`** — Read before changing CSS, JavaScript, template overrides, or theme configuration. Documents the visual design language: design principles, brand, color system (including the diagram palette), typography, layout, motion rules, component patterns, CSS/JS architecture conventions, and the visual verification checklist.
+- **`.claude/instructions/astro-reference.md`** — Read before touching anything in `astro/`. Pins the Astro 7 API facts that contradict stale training knowledge, the Node/PATH toolchain requirement, the post frontmatter contract, the zero-JS budget, and the legacy-URL redirect map.
 - **`.claude/instructions/mkdocs-reference.md`** — Read before modifying `mkdocs.yml` or troubleshooting plugin/extension issues. Documents all current plugins, extensions, theme features, and available extensions not yet enabled.
 - **`.claude/instructions/deployment.md`** — Read before running builds, debugging CI failures, or advising on the deploy workflow. Covers local dev setup, the GitHub Actions pipeline, pre-push checklist, and a troubleshooting table.
 - **`.claude/instructions/self-improvement-protocol.md`** — Read when you discover a recurring issue, new pattern, or useful information that should be persisted. Defines triggers and rules for updating these config files.
