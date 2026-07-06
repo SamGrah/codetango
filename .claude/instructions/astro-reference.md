@@ -105,13 +105,24 @@ Generated SVGs land in `public/charts/` and are **gitignored** (build artifacts 
 
 ## The JS Budget (near-zero: one deliberate bundle)
 
-The site ships exactly **one** client bundle: Astro's `<ClientRouter/>` (~5.4 KB gzipped), added in `Base.astro` to guarantee smooth page transitions in every browser (native cross-document view transitions were skipped intermittently — measured 0/4; ClientRouter fires reliably). Everything else stays JS-free; the two inline theme scripts aren't bundles. Treat this as the ceiling — any *further* script must clear a real bar, and interactivity belongs in explicitly-hydrated islands (`client:*`), never global scripts. Verify after any change:
+The site ships exactly **one** global client bundle: Astro's `<ClientRouter/>` (~5.4 KB gzipped), added in `Base.astro` to guarantee smooth page transitions in every browser (native cross-document view transitions were skipped intermittently — measured 0/4; ClientRouter fires reliably). The **only other JS** is the Pagefind search bundle (`dist/pagefind/`), generated post-build and loaded **exclusively on `/search/`** — every other page stays at ClientRouter-only. The two inline theme scripts aren't bundles. Treat this as the ceiling — any *further* script must clear a real bar, and interactivity belongs in explicitly-hydrated islands (`client:*`), never global scripts. Verify after any change:
 
 ```bash
-find dist -name '*.js' | wc -l    # must print 1 (ClientRouter only)
+find dist -name '*.js' -not -path '*/pagefind/*' | wc -l    # must print 1 (ClientRouter only)
 ```
 
 A count above 1 means an unintended bundle crept in (e.g. an accidentally-hydrated component).
+
+## Search (Pagefind 1.5 Component UI — header modal, MkDocs-style)
+
+One site-wide search field: the header magnifier button (or **⌘K/Ctrl+K**) opens a `<pagefind-modal>` with live-as-you-type results. No search page (a redirect stub remains at `src/pages/search.astro`; deletable).
+
+- Index is built post-build: `postbuild: pagefind --site dist` (devDependency `pagefind`). Works in `npm run build && npm run preview` and prod — **not in `npm run dev`** (no built HTML to index; the header icon is inert there and the component assets 404 harmlessly).
+- Indexing is scoped by `data-pagefind-body` on the post article (`blog/[id].astro`) and About (`MarkdownLayout.astro`) — pages without it are excluded, and chrome is never indexed.
+- Wiring (all in `Base.astro`): component CSS + module script in the head on every page (small and idle; the index lazy-loads on first keystroke); `<pagefind-modal reset-on-close>` in the body; our own `#search-open` icon button + a mod+K keydown handler call `modal.open()` via the **delegated-on-document** pattern (survives ClientRouter swaps — verified: modal re-upgrades and works after client-side navigations). We deliberately don't use `<pagefind-modal-trigger>` (own icon = full styling control).
+- Theming: `--pf-*` custom properties on `body` in `global.css` map to site tokens (flip automatically with `[data-theme]`), plus an explicit `mark` rule — the component's default highlight color is near-black and invisible on the dark ink. Backdrop via `--pf-modal-backdrop` (separate dark value).
+- Known quirk (harmless): after a ClientRouter swap + native-ESC close, the component's `isOpen` getter can go stale. Never gate on `isOpen` — call `.open()` unconditionally (the click handler already does).
+- Do **not** use the legacy `PagefindUI` (`pagefind-ui.js`) API — 1.5's Component UI replaces it. Component guide: https://pagefind.app/llms-component-ui.txt
 
 **ClientRouter consequence — swaps replace `<body>`.** Element-bound listeners die after the first client navigation. Bind chrome interactivity by **delegation on `document`** (which persists) or re-bind on the `astro:page-load` event. The theme toggle already does this (delegated click on `document`); follow that pattern for anything new. The `<html>` element persists across swaps, so `data-theme` carries over with no flash.
 

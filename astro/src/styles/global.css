@@ -159,7 +159,8 @@ body {
   color: var(--text);
 }
 
-#theme-toggle {
+#theme-toggle,
+.icon-link {
   align-self: center;
   display: inline-flex;
   padding: 0.2rem;
@@ -170,13 +171,24 @@ body {
   cursor: pointer;
 }
 
-#theme-toggle:hover {
+#theme-toggle:hover,
+.icon-link:hover {
   color: var(--text);
 }
 
-#theme-toggle svg {
+#theme-toggle svg,
+.icon-link svg {
   width: 17px;
   height: 17px;
+}
+
+/* No harsh blue focus box on the icon buttons (e.g. the search icon after Esc) —
+   keyboard focus gets a soft on-brand state instead, keeping a11y without the box. */
+#theme-toggle:focus-visible,
+.icon-link:focus-visible {
+  outline: none;
+  color: var(--text);
+  background: var(--code-bg);
 }
 
 .icon-moon { display: none; }
@@ -206,7 +218,25 @@ main {
 
 .footer-links {
   display: inline-flex;
-  gap: 1.1rem;
+  align-items: center;
+  gap: 1.05rem;
+}
+
+.footer-links a {
+  display: inline-flex;
+}
+
+.footer-links svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+/* Pied Piper hat is a wide (640×512) mark — size by height, let width follow so
+   it isn't squished into a square, and give the sparse line-art a little presence. */
+.footer-links svg.pp-hat {
+  width: auto;
+  height: 21px;
 }
 
 .site-footer a {
@@ -216,6 +246,84 @@ main {
 
 .site-footer a:hover {
   color: var(--text);
+}
+
+/* ---------- search (header modal) ---------- */
+
+/* Theme the Pagefind Component UI from our tokens — scoped on body so the header
+   modal inherits everywhere; values flip automatically with [data-theme] because
+   they reference the site variables. */
+body {
+  --pf-text: var(--text);
+  --pf-text-secondary: var(--text-muted);
+  --pf-text-muted: var(--text-muted);
+  --pf-background: var(--bg);
+  --pf-border: var(--border);
+  --pf-border-focus: var(--accent);
+  --pf-outline-focus: var(--accent); /* Pagefind ships #0969da blue here — on-brand it */
+  --pf-hover: var(--code-bg);
+  /* Also the keyboard-selected top-level card background (and the loading-skeleton
+     shimmer) — Pagefind defaults it to #eee, which flashes white in dark mode. */
+  --pf-skeleton: var(--code-bg);
+  --pf-mark: var(--accent-strong);
+  --pf-font: "Open Sans Variable", system-ui, sans-serif;
+  --pf-modal-backdrop: rgba(31, 42, 39, 0.4);
+  --pf-modal-top: 12dvh;
+}
+
+[data-theme="dark"] body {
+  --pf-modal-backdrop: rgba(2, 8, 10, 0.65);
+}
+
+/* Belt-and-suspenders on match highlighting: the component's default mark color
+   is near-black (invisible on the dark ink). Accent-colored, no fill. */
+pagefind-modal mark,
+pagefind-results mark {
+  background: none;
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
+/* The modal input is auto-focused on every open, so its focus border+shadow would
+   sit there permanently as a box. Suppress it (the field is obviously active) —
+   !important because Pagefind's selectors use a triple :is(*,#) specificity hack. */
+pagefind-modal .pf-input:focus,
+pagefind-modal .pf-input:focus-visible {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Entrance animations: the modal grows in, backdrop fades, results rise smoothly —
+   replaces Pagefind's flat 0.15s fade. Reduced-motion users get none of it. */
+@keyframes ct-modal-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes ct-backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes ct-result-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Pagefind resets `animation: revert` on every .pf-* element via a
+     specificity-boosted `:is(*, #\#):is(*, #\#) …` selector (≈2,1,0), which
+     out-ranks a plain descendant selector and reverts ours to `none`. The
+     !important is what actually lets these entrance animations run. */
+  pagefind-modal .pf-modal {
+    animation: ct-modal-in 230ms cubic-bezier(0.22, 1, 0.36, 1) !important;
+    transform-origin: center top;
+  }
+  pagefind-modal .pf-modal::backdrop {
+    animation: ct-backdrop-in 200ms ease !important;
+  }
+  pagefind-modal .pf-result-card,
+  pagefind-modal .pf-heading-chip {
+    animation: ct-result-in 165ms ease-out both !important;
+  }
 }
 
 /* ---------- post listing (home) ---------- */

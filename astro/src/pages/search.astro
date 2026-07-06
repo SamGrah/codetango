@@ -1,0 +1,13 @@
+---
+// Legacy route: search moved into the header modal (July 2026). This stub only
+// redirects anyone who bookmarked /search/ back home — safe to delete entirely.
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Search" description="Search codeTango.">
+  <meta slot="head" http-equiv="refresh" content="0; url=/" />
+  <p>
+    Search now lives in the header — <a href="/">head home</a> and click the
+    magnifier (or press <kbd>⌘K</kbd>).
+  </p>
+</Base>

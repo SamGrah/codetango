@@ -1,9 +1,12 @@
 {
-  "name": "mkdocs",
+  "name": "codetango",
   "version": "1.0.0",
   "private": true,
+  "comment": "Thin proxy into the astro/ subproject. The PATH prefix pins Homebrew node (>=22.12, Astro's minimum) since the shell default here is nvm node 20. Vercel never runs these — it builds from the astro/ root directory.",
   "scripts": {
-    "dev": "mkdocs serve",
-    "build": "python3 -m mkdocs build -d public"
+    "dev": "PATH=/opt/homebrew/bin:$PATH npm --prefix astro run dev",
+    "build": "PATH=/opt/homebrew/bin:$PATH npm --prefix astro run build",
+    "preview": "PATH=/opt/homebrew/bin:$PATH npm --prefix astro run preview",
+    "charts": "PATH=/opt/homebrew/bin:$PATH npm --prefix astro run charts"
   }
 }

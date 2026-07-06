@@ -71,8 +71,9 @@ npm run charts                    # rebuild chart SVGs only
 ### Pre-push checklist
 
 1. `npm run build` passes (from `astro/`).
-2. `find dist -name '*.js' | wc -l` prints **1** (ClientRouter only — a higher number
-   means an unintended client bundle crept in).
+2. `find dist -name '*.js' -not -path '*/pagefind/*' | wc -l` prints **1** (ClientRouter
+   only — a higher number means an unintended client bundle crept in; the pagefind/
+   directory is the search index + UI, loaded only on /search/).
 3. New posts have complete frontmatter (see `astro-reference.md`); filenames are
    kebab-case (the filename becomes the URL slug).
 4. If you added a chart, its `src/charts/*.vl.json` spec is committed (the generated SVG
@@ -90,6 +91,8 @@ npm run charts                    # rebuild chart SVGs only
 | Old post URL 404s | Missing redirect | Add a rule to `astro/vercel.json` |
 | `dist` has extra `.js` files | A component got hydrated (`client:*`) | Remove the directive or move it to an island by intent |
 | Charts missing on the site | Prebuild didn't run / spec error | `npm run charts` and read its error output |
+| Search icon does nothing locally | Index/assets only exist after a build | `npm run build && npm run preview` (search never works under `npm run dev`) |
+| Search results include nav/chrome text | `data-pagefind-body` missing | Keep it on the post article + About article only |
 | Local `npm run dev` uses wrong Node | nvm default is 20 | Prefix `PATH=/opt/homebrew/bin:$PATH` |
 
 ---

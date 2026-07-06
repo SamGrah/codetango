@@ -24,3 +24,5 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+# pagefind bundle copied from dist/ for dev search (scripts/dev-search.mjs)
+public/pagefind/
