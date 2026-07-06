@@ -4,7 +4,7 @@ Review a blog post for structure, formatting, and content quality against CodeTa
 
 ## Input
 
-$ARGUMENTS — Path to the post file (e.g., `docs/blog/posts/newpost.md`). If not provided, ask the user which post to review.
+$ARGUMENTS — Path to the post file (e.g., `astro/src/content/blog/agentic-design-patterns.md`). If not provided, ask the user which post to review.
 
 ## Review Checklist
 
@@ -21,12 +21,11 @@ Read the post file, then evaluate each of these areas. Provide **actionable feed
 - [ ] `author` is present
 - [ ] `tags` array is present; tags match the established vocabulary
 - [ ] `categories` array is present; categories match vocabulary
-- [ ] `hide` includes `navigation` and `toc`
+- [ ] No stale MkDocs keys (`hide:`, `<!-- more -->`) — Astro uses a `synopsis:` field
 
-### 3. Excerpt Quality
-- [ ] Text before `<!-- more -->` exists and is 1-3 sentences
-- [ ] The excerpt hooks the reader — states what they'll learn or why this matters
-- [ ] `<!-- more -->` separator is present
+### 3. Synopsis Quality
+- [ ] `synopsis` field is present and 1-3 sentences
+- [ ] It hooks the reader — states what they'll learn or why this matters
 
 ### 4. Post Structure
 - [ ] Follows the anatomy: hook → context → core argument → example → trade-offs → takeaways
@@ -50,11 +49,11 @@ Read the post file, then evaluate each of these areas. Provide **actionable feed
 - [ ] Is descriptive of the content
 
 ### 8. Visual Review (if post contains diagrams or images)
-If the post contains Mermaid diagrams, images, or other visual content:
-- [ ] Ensure `mkdocs serve` is running
-- [ ] Open Chrome explicitly: `open -a "Google Chrome" http://127.0.0.1:8000/codetango/blog/<post-slug>/`
+If the post contains diagrams, images, or other visual content:
+- [ ] Build and preview: `npm run build && npm run preview`
+- [ ] Open Chrome explicitly: `open -a "Google Chrome" http://localhost:4321/blog/<post-slug>/`
 - [ ] Use browser MCP tools to screenshot the rendered post
-- [ ] Verify: Mermaid diagrams render with all nodes/edges visible
+- [ ] Verify: diagrams/charts render with all nodes/edges visible
 - [ ] Verify: Images load correctly and are appropriately sized
 - [ ] Verify: Code blocks have syntax highlighting applied
 

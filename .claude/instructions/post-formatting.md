@@ -7,19 +7,12 @@ Every post should follow this structure. Not every section needs a heading — s
 ```markdown
 ---
 title: "Post Title"
+synopsis: "1-3 sentences that hook the reader. State what they'll learn or why this matters right now."
 date: YYYY-MM-DD
 author: Sam Graham
 tags: ["tag-one"]
 categories: ["Category Name"]
-hide:
-  - navigation
-  - toc
 ---
-
-Excerpt: 1-3 sentences that hook the reader. State what they'll learn
-or why this matters right now.
-
-<!-- more -->
 
 ## The Problem / Hook
 
@@ -92,9 +85,10 @@ Rules:
 - Use `graph LR` (left-right) for flows, `graph TD` (top-down) for hierarchies
 - Use `sequenceDiagram` for multi-actor interactions
 
-## Excerpt Best Practices
+## Synopsis Best Practices
 
-The excerpt is everything before `<!-- more -->`. It appears on the blog listing page.
+The `synopsis:` frontmatter field is the excerpt. It appears on the blog listing page and
+as the lede under the post title.
 
 - **1-3 sentences maximum**
 - **State the value**: What will the reader learn or be able to do?

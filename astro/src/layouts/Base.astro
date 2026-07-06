@@ -125,8 +125,8 @@ const aboutActive = pathname.startsWith('/about');
     <pagefind-modal reset-on-close></pagefind-modal>
 
     <!-- Delegated on document (which survives ClientRouter's body swaps) so these
-         keep working after client-side navigations. The <html> element also
-         persists across swaps, so data-theme carries over with no flash. -->
+         keep working after client-side navigations. Note: swaps DO wipe <html>'s
+         data-theme attribute — the head script restores it on astro:after-swap. -->
     <script is:inline>
       document.addEventListener('click', (e) => {
         if (e.target.closest('#theme-toggle')) {
