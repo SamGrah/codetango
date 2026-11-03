@@ -1,3 +1,8 @@
+---
+name: CodeTango Author's Voice
+description: Read before writing, editing, or reviewing any CodeTango blog post prose. Personal-experience framing, no prescriptive or universal claims.
+---
+
 # Author's Voice Guide
 
 Read this before writing or reviewing any blog post. This defines the authorial voice for CodeTango and takes precedence over generic tone guidance elsewhere.

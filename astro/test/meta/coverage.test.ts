@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
  *      must have its output path asserted by a build-output test.
  *
  * When this fails, you added functionality without a test. The fix is to write
- * the test — see .claude/instructions/testing.md for which kind goes where.
+ * the test — see the `testing` skill (.opencode/skills/testing/SKILL.md) for which kind goes where.
  */
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url)); // astro/test/

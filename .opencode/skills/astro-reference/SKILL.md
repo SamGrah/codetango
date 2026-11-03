@@ -1,3 +1,8 @@
+---
+name: CodeTango Astro Reference
+description: Read before touching anything under astro/. Astro 7 API facts that differ from older versions, Node toolchain, post frontmatter contract, near-zero-JS budget, Pagefind search, ClientRouter pitfalls, agent-facing outputs (llms.txt, markdown mirrors, RSS), charts/diagrams pipeline, and legacy redirects.
+---
+
 # Astro Reference (v7)
 
 Read this before touching anything in `astro/`. Astro has shipped three breaking majors in under two years, so **model training priors are frequently stale — trust this file and the live docs over remembered APIs.** When uncertain, consult https://docs.astro.build (or wire the official docs MCP server, below).
@@ -19,7 +24,7 @@ PATH=/opt/homebrew/bin:$PATH npm run preview   # serve dist/ at localhost:4321
 PATH=/opt/homebrew/bin:$PATH npx astro dev --background   # agent-friendly dev server
 ```
 
-`astro dev --background` is the agent-oriented mode (see `astro/CLAUDE.md`): manage with `astro dev stop|status|logs`.
+`astro dev --background` is the agent-oriented mode (see `astro/AGENTS.md`): manage with `astro dev stop|status|logs`.
 
 ## v7 API Facts (the stale-knowledge trap list)
 
@@ -48,7 +53,7 @@ These all differ from pre-v6 Astro that models remember. Do not "correct" them b
 | `src/pages/blog/[id].astro` | post page (`/blog/<id>/`) |
 | `src/pages/about.md` | About page content |
 | `src/pages/rss.xml.js` | RSS feed (`/rss.xml`) |
-| `src/styles/global.css` | the entire design system — see `visual-style-guide.md` |
+| `src/styles/global.css` | the entire design system — see the `visual-style-guide` skill |
 | `src/lib/utils.ts` | `formatDate` (UTC), `readingTime` |
 | `src/charts/*.vl.json` | Vega-Lite chart specs (source; agent-authored) |
 | `src/charts/_theme.mjs` | shared brand theme merged into every chart |
@@ -140,7 +145,7 @@ All build-time — none of this adds client JS. Post changes regenerate these au
 CI gate + local safety net. Framework: **Vitest** (`vitest.config.ts`; `include: test/**/*.test.ts`). Tests deliberately avoid `astro:*` imports so no Astro Vite config is needed — that's why `postToMarkdown` was extracted to `src/lib/`. Three tiers under `astro/test/`:
 
 - **`test/unit/`** — pure functions, instant, no build. `utils.test.ts` (`readingTime`, `formatDate`), `post-markdown.test.ts`. Run alone via `npm run test:unit`.
-- **`test/content/conventions.test.ts`** — reads each `src/content/blog/*.md` with `gray-matter`; **parses the canonical tag/category vocabulary out of `post-formatting.md`** (single source of truth) and hard-fails off-vocabulary tags/categories, non-kebab filenames, or missing title/date.
+- **`test/content/conventions.test.ts`** — reads each `src/content/blog/*.md` with `gray-matter`; **parses the canonical tag/category vocabulary out of `.opencode/skills/post-formatting/SKILL.md`** (single source of truth) and hard-fails off-vocabulary tags/categories, non-kebab filenames, or missing title/date.
 - **`test/build/`** — assert against `dist/` after a build (`js-budget`, `agent-surface`, `integrity`, `links`). Gated by **`ensureBuilt()`** (`test/helpers/ensure-build.ts`): builds only if `dist/index.html` is absent, so CI (which builds first) doesn't rebuild and local `npm test` stays self-contained. `publishedPosts()` there is the shared non-draft post loader.
 
 Gotchas: `astro check` needs `src/env.d.ts` to declare the `@fontsource-variable/open-sans` side-effect import (no bundled types), and `z` must come from `astro:schema` not `astro:content` (deprecated). RSS `content:encoded` is **entity-escaped, not CDATA** — match both forms. When the URL scheme or a content type changes, update the build-output assertions to match.
@@ -150,7 +155,7 @@ Gotchas: `astro check` needs `src/env.d.ts` to declare the `@fontsource-variable
 Astro publishes an official docs MCP server (replaces their deleted llms.txt). To ground agents in current APIs:
 
 ```bash
-claude mcp add --transport http astro-docs https://mcp.docs.astro.build/mcp
+opencode mcp add astro-docs --url https://mcp.docs.astro.build/mcp   # project-local; add --global for all projects
 ```
 
 Setup reference: https://docs.astro.build/en/guides/build-with-ai/

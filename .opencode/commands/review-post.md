@@ -1,3 +1,7 @@
+---
+description: Review a CodeTango blog post against voice, formatting, and vocabulary standards
+---
+
 # /review-post — Review an Existing Blog Post
 
 Review a blog post for structure, formatting, and content quality against CodeTango standards.
@@ -10,7 +14,7 @@ $ARGUMENTS — Path to the post file (e.g., `astro/src/content/blog/agentic-desi
 
 Read the post file, then evaluate each of these areas. Provide **actionable feedback** — not just "this is wrong" but "change X to Y".
 
-### 1. Author's Voice (read `.claude/instructions/authors-voice.md` first)
+### 1. Author's Voice (read the `authors-voice` skill first)
 - [ ] Content is framed as personal experience, not universal prescription
 - [ ] No definitive statements ("X is...", "You should...", "Agents must...")
 - [ ] Claims are scoped to the author's context ("I found...", "In my setup...", "What worked for me...")
@@ -40,7 +44,7 @@ Read the post file, then evaluate each of these areas. Provide **actionable feed
 - [ ] No orphaned links or placeholder text
 
 ### 6. Tag & Category Consistency
-- [ ] Tags come from the established vocabulary in `post-formatting.md`
+- [ ] Tags come from the established vocabulary in the `post-formatting` skill
 - [ ] Categories come from the established vocabulary
 - [ ] If new tags/categories are needed, flag them for the user to approve
 
@@ -51,8 +55,7 @@ Read the post file, then evaluate each of these areas. Provide **actionable feed
 ### 8. Visual Review (if post contains diagrams or images)
 If the post contains diagrams, images, or other visual content:
 - [ ] Build and preview: `npm run build && npm run preview`
-- [ ] Open Chrome explicitly: `open -a "Google Chrome" http://localhost:4321/blog/<post-slug>/`
-- [ ] Use browser MCP tools to screenshot the rendered post
+- [ ] Use the Playwright MCP browser tools to open `http://localhost:4321/blog/<post-slug>/` and screenshot the rendered post
 - [ ] Verify: diagrams/charts render with all nodes/edges visible
 - [ ] Verify: Images load correctly and are appropriately sized
 - [ ] Verify: Code blocks have syntax highlighting applied
