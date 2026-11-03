@@ -133,7 +133,7 @@
         const hidden = state.onlyStarred && !state.stars[d.id] && i !== state.index;
         return `<li ${hidden ? 'hidden' : ''}><button data-index="${i}" aria-current="${i === state.index}">
           <span class="key">${(i + 1) % 10}</span>
-          <span>${d.name}${d.boundary ? '<br><span class="flag">Breaks the style guide</span>' : ''}</span>
+          <span>${d.name}${d.isNew ? ' <span class="flag">New</span>' : d.revised ? ' <span class="flag">Revised</span>' : ''}${d.boundary ? '<br><span class="flag">Breaks the style guide</span>' : ''}</span>
           <span class="starred">${state.stars[d.id] ? '★' : ''}</span>
         </button></li>`;
       }).join('');

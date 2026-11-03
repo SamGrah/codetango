@@ -20,4 +20,4 @@ Keys: `1`–`0` pick a design, `←`/`→` previous or next, `v` home or post, `
 - `designs.js` is the manifest: concept, palette, type and trade-offs for each design.
 - `content.html` is the real post content every mockup uses, word for word.
 
-Designs 09 (Marginalia) and 10 (Teal Field) deliberately break the current style guide, so you can see where the boundary is.
+Round 2: 01–03 are the designs starred in round 1 (03 Cyanotype revised from your notes), and 04–10 are new, riskier directions. The reviewer marks each design that breaks the current style guide and says which rule it breaks.
