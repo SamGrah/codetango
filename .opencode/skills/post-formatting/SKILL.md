@@ -1,3 +1,8 @@
+---
+name: CodeTango Post Formatting
+description: Read before writing or reviewing a blog post. Post anatomy, heading and code block rules, diagram guidelines, and the canonical tag/category vocabulary that the convention test enforces.
+---
+
 # Blog Post Formatting Guide
 
 ## Post Anatomy
@@ -134,7 +139,7 @@ Posts must use one of these categories:
 
 ## Tone and Voice
 
-See **`.claude/instructions/authors-voice.md`** for the full author's voice guide. Key points:
+See the **`authors-voice`** skill for the full author's voice guide. Key points:
 
 - **Personal, not prescriptive**: Frame as experience ("I found...", "In my setup..."), not universal truth ("You should...", "Best practice is...")
 - **Precise**: Use exact terms. "Latency p99 increased 3x" not "things got slower"

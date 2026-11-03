@@ -1,11 +1,16 @@
+---
+name: CodeTango Visual Style Guide
+description: Read before changing CSS, JavaScript, Astro components, layouts, or theme. Design principles, color tokens and diagram palette, typography, layout, motion rules, and the visual verification checklist.
+---
+
 # Visual Style Guide
 
 Read this before changing CSS, JavaScript, components, or theme configuration. Source of
 truth: `astro/src/styles/global.css` (all design tokens) + `astro/src/layouts/Base.astro`
 (chrome). Update this file when the design changes.
 
-Companion files: `authors-voice.md` (prose voice), `post-formatting.md` (content structure),
-`astro-reference.md` (framework facts + visuals workflow), `deployment.md` (preview workflow).
+Companion files: the `authors-voice` skill (prose voice), the `post-formatting` skill (content structure),
+the `astro-reference` skill (framework facts + visuals workflow), the `deployment` skill (preview workflow).
 
 ## Design Principles
 
@@ -111,7 +116,7 @@ reduced-motion disables it.
   to the teal `--code-bg` (spans forced transparent) so code belongs to the palette — Shiki's
   syntax *colors* are kept.
 - **Search** = Pagefind Component UI header modal (magnifier or ⌘K / `/`), live-as-you-type,
-  themed to site tokens incl. the accent `mark` highlight. Details in `astro-reference.md` →
+  themed to site tokens incl. the accent `mark` highlight. Details in the `astro-reference` skill →
   Search.
 
 ## Visuals (all static SVG, build-time, no client JS)
@@ -126,7 +131,7 @@ so author them dark-on-transparent:
   `astro/public/charts/` via `scripts/build-charts.mjs` (auto on `prebuild`/`predev`, or
   `npm run charts`). The teal palette + Open Sans + minimal-axis look is applied
   automatically from `src/charts/_theme.mjs`, so specs stay data-only. See
-  `astro-reference.md` → Visuals for the full workflow.
+  the `astro-reference` skill → Visuals for the full workflow.
 
 ## Architecture & the JS budget
 
@@ -142,7 +147,7 @@ so author them dark-on-transparent:
   Bind chrome interactivity by **delegation on `document`** (which persists), or re-bind on
   `astro:page-load`. The `<html>` element persists but ClientRouter copies the incoming
   document's attributes — so `data-theme` is re-applied on `astro:after-swap` (see
-  `astro-reference.md`). Any new interactive control must follow these patterns.
+  the `astro-reference` skill). Any new interactive control must follow these patterns.
 
 ## Verification Checklist (any visual change)
 
@@ -157,5 +162,5 @@ so author them dark-on-transparent:
    `prefers-reduced-motion: reduce`.
 6. `find dist -name '*.js' -not -path '*/pagefind/*' | wc -l` prints **1** (or `npm test`,
    which asserts it).
-7. For anything non-trivial, browser-preview per `deployment.md` (`open -a "Google Chrome"
-   <url>` — Chrome is not the default browser).
+7. For anything non-trivial, browser-preview per the `deployment` skill (Playwright MCP
+   browser tools: navigate, toggle theme, screenshot).

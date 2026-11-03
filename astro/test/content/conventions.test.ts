@@ -5,7 +5,7 @@ import matter from 'gray-matter';
 
 const BLOG_DIR = fileURLToPath(new URL('../../src/content/blog', import.meta.url));
 const POST_FORMATTING = fileURLToPath(
-  new URL('../../../.claude/instructions/post-formatting.md', import.meta.url)
+  new URL('../../../.opencode/skills/post-formatting/SKILL.md', import.meta.url)
 );
 
 /** Pull every `backtick-wrapped` token out of a slice of the formatting doc. */
@@ -13,7 +13,7 @@ function backtickTokens(section: string): string[] {
   return [...section.matchAll(/`([^`]+)`/g)].map((m) => m[1]);
 }
 
-/** Parse the canonical tag & category vocabularies from post-formatting.md — the
+/** Parse the canonical tag & category vocabularies from the post-formatting skill — the
  *  single source of truth, so tests never drift from the documented lists. */
 function loadVocabulary() {
   const doc = readFileSync(POST_FORMATTING, 'utf8');

@@ -1,15 +1,19 @@
+---
+description: Create a new CodeTango blog post (topic optional as argument)
+---
+
 # /new-post — Create a New Blog Post
 
 Create a new blog post for CodeTango (Astro). Before writing, gather from the user:
 
 1. **Topic**: What is the post about?
 2. **Angle/Thesis**: What specific argument or insight drives this post?
-3. **Tags**: Which tags apply? (Refer to the tag vocabulary in `.claude/instructions/post-formatting.md`)
-4. **Category**: Which category? (Refer to the category vocabulary in `.claude/instructions/post-formatting.md`)
+3. **Tags**: Which tags apply? (Refer to the tag vocabulary in the `post-formatting` skill)
+4. **Category**: Which category? (Refer to the category vocabulary in the `post-formatting` skill)
 
 ## Steps
 
-0. **Read `.claude/instructions/authors-voice.md`** before writing any content. All prose
+0. **Read the `authors-voice` skill** before writing any content. All prose
    must follow the author's voice: personal experience framing, no prescriptive or universal
    claims.
 
@@ -28,7 +32,7 @@ Create a new blog post for CodeTango (Astro). Before writing, gather from the us
    categories: ["Category Name"]
    ---
    ```
-   Tags/categories **must** come from the canonical vocabulary in `post-formatting.md`
+   Tags/categories **must** come from the canonical vocabulary in the `post-formatting` skill
    (the convention test hard-fails otherwise). There is no `<!-- more -->` separator and no
    `hide:` key — the `synopsis` field drives the listing preview.
 
@@ -44,7 +48,7 @@ Create a new blog post for CodeTango (Astro). Before writing, gather from the us
    - **Takeaways**: 2–4 bullet points the reader should remember
 
 5. **Suggest diagrams** where the post discusses architecture, workflows, or system
-   interactions. Visuals are static SVG rendered at build time (see `astro-reference.md` →
+   interactions. Visuals are static SVG rendered at build time (see the `astro-reference` skill →
    visuals): a Vega-Lite spec in `astro/src/charts/*.vl.json` (data charts) or a committed
    Mermaid SVG in `astro/public/diagrams/`. Reference them as `![alt](/charts/…svg)` or
    `![alt](/diagrams/…svg)`.
@@ -60,16 +64,16 @@ Create a new blog post for CodeTango (Astro). Before writing, gather from the us
 
 8. **Visual verification** (if the post contains diagrams or images):
    - Build and preview (search/diagrams need a build): `npm run build && npm run preview`
-   - Open Chrome explicitly: `open -a "Google Chrome" http://localhost:4321/blog/<post-slug>/`
-   - Use browser MCP tools to screenshot the rendered post
+   - Use the Playwright MCP browser tools to open `http://localhost:4321/blog/<post-slug>/`
+     and screenshot the rendered post (light and dark themes)
    - Verify diagrams/charts render (all nodes visible), images load at appropriate size
    - Fix and re-verify before completing
 
 9. **Run the test suite** — `npm test`. A new post is **auto-covered**: the convention and
    agent-surface tests validate its frontmatter, canonical tags/categories, kebab-case
    filename, markdown mirror, RSS inclusion, and links with no test edits needed. Fix any
-   failure (usually an off-vocabulary tag/category — add it to `post-formatting.md` first,
-   with the user's approval) before finishing. See `.claude/instructions/testing.md`.
+   failure (usually an off-vocabulary tag/category — add it to the `post-formatting` skill first,
+   with the user's approval) before finishing. See the `testing` skill.
 
 ## User Argument
 

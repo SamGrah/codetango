@@ -1,7 +1,12 @@
+---
+name: CodeTango Deployment & Dev Workflow
+description: Read before running builds, debugging CI or Vercel deploys, or advising on the release workflow. Local dev, Vercel pipeline, CI test gate, pre-push checklist, troubleshooting table.
+---
+
 # Deployment & Development Workflow
 
 > **Stack: Astro 7 (in `astro/`), deployed on Vercel as static HTML.**
-> Read `.claude/instructions/astro-reference.md` before build/deploy work.
+> Read the `astro-reference` skill before build/deploy work.
 
 ## How production deploys work
 
@@ -31,7 +36,8 @@ slug (redirect map in `astro/vercel.json`).
 
 ## CI (test gate)
 
-`.github/workflows/ci.yml` runs on every **PR** and on pushes to **main**. It is the
+`.github/workflows/ci.yml` runs on every **pull request** only (delivery is PR-based;
+`main` advances only through merges, so there is no push trigger). It is the
 assertion layer Vercel can't provide — Vercel only tells you the build succeeded, not
 whether the JS budget, agent-facing outputs, or content conventions still hold. The job
 (working directory `astro/`, Node from `.node-version`) runs:
@@ -44,11 +50,10 @@ npm ci  →  npm run check  →  npm run build  →  npm test
 - `npm test` = Vitest: unit (pure functions), content conventions (frontmatter,
   kebab-case, canonical tag/category vocabulary), build-output (JS budget, markdown
   mirrors, `llms.txt`/`llms-full.txt`, full-content RSS, `robots.txt`, sitemap, pagefind
-  index), and internal-link integrity. See `astro-reference.md` → Testing.
+  index), and internal-link integrity. See the `astro-reference` skill → Testing.
 
-Deployment stays entirely on Vercel; CI never deploys. **To make the gate blocking**
-(owner, one-time): GitHub → Settings → Branches → protect `main` → *Require status checks
-to pass* → select **CI / test**. Without that, the workflow runs but won't block a merge.
+Deployment stays entirely on Vercel; CI never deploys. Branch protection on `main`
+requires **CI / test** to pass, so a red run blocks the merge.
 
 ## Local development
 
@@ -70,13 +75,13 @@ npm run charts                    # rebuild chart SVGs only
    (This subsumes the old "build passes + JS budget = 1" checks — the `js-budget` test
    asserts exactly one client bundle, ClientRouter; the pagefind/ dir is the exempt
    search index + UI.)
-2. New posts have complete frontmatter (see `astro-reference.md`); filenames are
+2. New posts have complete frontmatter (see the `astro-reference` skill); filenames are
    kebab-case (the filename becomes the URL slug); tags/categories come from the canonical
-   vocabulary in `post-formatting.md` (the convention test hard-fails otherwise).
+   vocabulary in the `post-formatting` skill (the convention test hard-fails otherwise).
 3. If you added a chart, its `src/charts/*.vl.json` spec is committed (the generated SVG
    in `public/charts/` is gitignored and rebuilt on deploy).
-4. Browser-check visual changes in **both themes** (`open -a "Google Chrome" <url>` —
-   Chrome is not the default browser).
+4. Browser-check visual changes in **both themes** with the Playwright MCP browser tools
+   (navigate to the preview URL, toggle the theme, screenshot).
 
 ## Troubleshooting
 

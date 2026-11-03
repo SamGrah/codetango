@@ -1,3 +1,8 @@
+---
+name: CodeTango Testing Contract
+description: Read before adding or changing anything under astro/src/ or astro/scripts/. What the Vitest suite auto-covers vs what needs a hand-written test, the coverage map, and the coverage meta-test that fails CI.
+---
+
 # Testing Contract
 
 **Read this before adding or changing anything under `astro/src/`.** The test suite is
@@ -5,7 +10,7 @@ designed to stay in sync as the site grows — partly automatically, partly by a
 must follow. This file is the source of truth for both.
 
 Suite lives in `astro/test/`, runs with Vitest (`npm test`), and is the CI gate
-(`.github/workflows/ci.yml`). Full mechanics: `astro-reference.md` → Testing.
+(`.github/workflows/ci.yml`). Full mechanics: the `astro-reference` skill → Testing.
 
 ## The two ways tests keep up
 
@@ -28,7 +33,7 @@ Suite lives in `astro/test/`, runs with Vitest (`npm test`), and is the CI gate
 | You changed / added… | Required test action |
 | --- | --- |
 | A **blog post** (`src/content/blog/*.md`) | Nothing — auto-covered. Just run `npm test`. |
-| A **new tag/category** | Add it to the vocabulary in `post-formatting.md` first (the convention test parses that list); otherwise the post fails. |
+| A **new tag/category** | Add it to the vocabulary in `.opencode/skills/post-formatting/SKILL.md` first (the convention test parses that list); otherwise the post fails. |
 | A **pure function** in `src/lib/` | Add/extend a `test/unit/<module>.test.ts` with cases for it. |
 | A **new API endpoint** in `src/pages/` (`*.js`/`*.ts` returning a `Response`) | Add assertions in `test/build/agent-surface.test.ts` (or a new `test/build/*.test.ts`) that fetch its `dist/` output and check the contract. |
 | A **new `.astro` page/route** | Auto-swept by link + JS-budget tests. Add a targeted `test/build/` assertion if it has a specific contract (meta tags, structured data, a required element). |
