@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>codeTango redesign review</title>
+  <style>
+    :root {
+      --bg: #eef2f1;
+      --panel: #ffffff;
+      --ink: #1f2a27;
+      --muted: #5f6f6b;
+      --line: #d5dedb;
+      --accent: #00796b;
+      --accent-soft: #e0f2f1;
+      --star: #b7791f;
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      color: var(--ink);
+      background: var(--bg);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; height: 100vh; display: grid; grid-template-columns: 15rem 1fr 20rem; grid-template-rows: auto 1fr; }
+    button { font: inherit; color: inherit; cursor: pointer; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    header.bar {
+      grid-column: 1 / -1; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      padding: .6rem 1rem; background: var(--panel); border-bottom: 1px solid var(--line);
+    }
+    header.bar h1 { font-size: 1rem; margin: 0 auto 0 0; font-weight: 600; }
+    header.bar h1 em { color: var(--muted); font-style: normal; font-weight: 400; }
+    .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+    .seg button { border: 0; background: none; padding: .35rem .7rem; }
+    .seg button + button { border-left: 1px solid var(--line); }
+    .seg button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+    .plain { border: 1px solid var(--line); background: none; border-radius: 6px; padding: .35rem .7rem; text-decoration: none; color: inherit; }
+
+    nav.list { background: var(--panel); border-right: 1px solid var(--line); overflow: auto; padding: .5rem; }
+    nav.list ol { list-style: none; margin: 0; padding: 0; }
+    nav.list button {
+      width: 100%; display: grid; grid-template-columns: 1.6rem 1fr auto; align-items: baseline; gap: .25rem;
+      text-align: left; border: 0; background: none; padding: .5rem .5rem; border-radius: 6px;
+    }
+    nav.list button:hover { background: var(--bg); }
+    nav.list button[aria-current="true"] { background: var(--accent-soft); color: #004d40; font-weight: 600; }
+    nav.list .key { color: var(--muted); font-variant-numeric: tabular-nums; }
+    nav.list .flag { font-size: .75rem; color: var(--muted); font-weight: 400; }
+    nav.list .starred { color: var(--star); }
+    nav.list .filter { display: flex; align-items: center; gap: .4rem; padding: .5rem; color: var(--muted); }
+    nav.list .hint { color: var(--muted); padding: .75rem .5rem; line-height: 1.6; font-size: .8rem; }
+    nav.list kbd { font: inherit; border: 1px solid var(--line); border-radius: 3px; padding: 0 .25rem; }
+
+    main.stage { overflow: auto; display: flex; justify-content: center; align-items: flex-start; padding: 1rem; }
+    main.stage iframe {
+      width: 100%; height: 100%; min-height: 600px; border: 1px solid var(--line); border-radius: 8px; background: #fff;
+      transition: width 200ms ease;
+    }
+    main.stage.mobile iframe { width: 390px; height: 844px; flex: none; }
+
+    aside.notes { background: var(--panel); border-left: 1px solid var(--line); overflow: auto; padding: 1rem 1.1rem; line-height: 1.55; }
+    aside.notes h2 { font-size: 1.15rem; margin: 0 0 .25rem; }
+    aside.notes h3 { font-size: .85rem; margin: 1.25rem 0 .35rem; color: var(--muted); font-weight: 600; }
+    aside.notes p { margin: 0 0 .5rem; }
+    .boundary { display: inline-block; margin: .25rem 0 .5rem; padding: .15rem .5rem; border-radius: 4px; background: #fdf3e1; color: #7a4e0e; font-size: .8rem; }
+    .swatches { list-style: none; padding: 0; margin: 0; display: grid; gap: .3rem; }
+    .swatches li { display: flex; align-items: center; gap: .5rem; }
+    .swatches i { width: 1.4rem; height: 1.4rem; border-radius: 4px; border: 1px solid rgba(0,0,0,.15); flex: none; }
+    .swatches code { color: var(--muted); font-size: .8rem; margin-left: auto; }
+    ul.tradeoffs { margin: 0; padding-left: 1.1rem; }
+    .star-btn { border: 1px solid var(--line); background: none; border-radius: 6px; padding: .35rem .7rem; margin-top: .5rem; }
+    .star-btn[aria-pressed="true"] { border-color: var(--star); color: var(--star); }
+    textarea { width: 100%; min-height: 9rem; font: inherit; border: 1px solid var(--line); border-radius: 6px; padding: .5rem; resize: vertical; }
+    .saved { color: var(--muted); font-size: .8rem; min-height: 1.2em; }
+
+    @media (max-width: 1100px) {
+      body { grid-template-columns: 12rem 1fr; }
+      aside.notes { grid-column: 1 / -1; border-left: 0; border-top: 1px solid var(--line); }
+    }
+    @media (prefers-reduced-motion: reduce) { main.stage iframe { transition: none; } }
+  </style>
+</head>
+<body>
+  <header class="bar">
+    <h1>codeTango redesign review <em id="counter"></em></h1>
+    <div class="seg" role="group" aria-label="Page">
+      <button data-set="view" data-value="home">Home</button>
+      <button data-set="view" data-value="post">Post</button>
+    </div>
+    <div class="seg" role="group" aria-label="Theme">
+      <button data-set="theme" data-value="light">Light</button>
+      <button data-set="theme" data-value="dark">Dark</button>
+    </div>
+    <div class="seg" role="group" aria-label="Width">
+      <button data-set="width" data-value="desktop">Desktop</button>
+      <button data-set="width" data-value="mobile">Mobile</button>
+    </div>
+    <a class="plain" id="standalone" target="_blank" rel="noopener">Open on its own</a>
+    <button class="plain" id="export">Copy notes</button>
+  </header>
+
+  <nav class="list" aria-label="Designs">
+    <ol id="design-list"></ol>
+    <label class="filter"><input type="checkbox" id="only-starred" /> Starred only</label>
+    <p class="hint">
+      <kbd>1</kbd>–<kbd>0</kbd> pick a design · <kbd>←</kbd><kbd>→</kbd> previous or next ·
+      <kbd>v</kbd> home or post · <kbd>t</kbd> theme · <kbd>m</kbd> width · <kbd>s</kbd> star
+    </p>
+  </nav>
+
+  <main class="stage" id="stage">
+    <iframe id="frame" title="Design preview"></iframe>
+  </main>
+
+  <aside class="notes" id="notes" aria-live="polite"></aside>
+
+  <script src="designs.js"></script>
+  <script>
+    const designs = window.DESIGNS;
+    const STORE = 'codetango-design-review';
+    const saved = JSON.parse(localStorage.getItem(STORE) || '{}');
+    const state = Object.assign({ index: 0, view: 'home', theme: 'light', width: 'desktop', onlyStarred: false, notes: {}, stars: {} }, saved);
+    const persist = () => localStorage.setItem(STORE, JSON.stringify(state));
+
+    const $ = (s) => document.querySelector(s);
+    const frame = $('#frame');
+    let loadedFile = null;
+
+    const designUrl = (d) => `designs/${d.file}?theme=${state.theme}&view=${state.view}`;
+
+    function renderList() {
+      $('#design-list').innerHTML = designs.map((d, i) => {
+        const hidden = state.onlyStarred && !state.stars[d.id] && i !== state.index;
+        return `<li ${hidden ? 'hidden' : ''}><button data-index="${i}" aria-current="${i === state.index}">
+          <span class="key">${(i + 1) % 10}</span>
+          <span>${d.name}${d.boundary ? '<br><span class="flag">Breaks the style guide</span>' : ''}</span>
+          <span class="starred">${state.stars[d.id] ? '★' : ''}</span>
+        </button></li>`;
+      }).join('');
+    }
+
+    function renderNotes() {
+      const d = designs[state.index];
+      const starred = !!state.stars[d.id];
+      $('#notes').innerHTML = `
+        <h2>${d.name}</h2>
+        ${d.boundary ? `<span class="boundary">Breaks the style guide: ${d.boundary}</span>` : ''}
+        <p>${d.idea}</p>
+        <button class="star-btn" id="star" aria-pressed="${starred}">${starred ? '★ Starred' : '☆ Star'}</button>
+        <h3>Palette</h3>
+        <ul class="swatches">${d.palette.map((p) => `<li><i style="background:${p.hex}"></i>${p.name}<code>${p.hex}</code></li>`).join('')}</ul>
+        <h3>Type</h3>
+        <p>${d.type}</p>
+        <h3>Trade-offs</h3>
+        <ul class="tradeoffs">${d.tradeoffs.map((t) => `<li>${t}</li>`).join('')}</ul>
+        <h3><label for="note">Your notes</label></h3>
+        <textarea id="note" placeholder="What works, what doesn't, what to steal for the final design">${state.notes[d.id] || ''}</textarea>
+        <div class="saved" id="saved"></div>`;
+    }
+
+    function renderControls() {
+      document.querySelectorAll('[data-set]').forEach((b) => b.setAttribute('aria-pressed', state[b.dataset.set] === b.dataset.value));
+      $('#stage').classList.toggle('mobile', state.width === 'mobile');
+      $('#only-starred').checked = state.onlyStarred;
+      $('#counter').textContent = `${state.index + 1} of ${designs.length}`;
+      $('#standalone').href = designUrl(designs[state.index]);
+    }
+
+    function render() {
+      const d = designs[state.index];
+      if (loadedFile !== d.file) {
+        frame.src = designUrl(d);
+        loadedFile = d.file;
+        renderNotes();
+      } else {
+        frame.contentWindow?.postMessage({ type: 'set-state', theme: state.theme, view: state.view }, '*');
+      }
+      renderList();
+      renderControls();
+      persist();
+    }
+
+    function select(i) {
+      state.index = (i + designs.length) % designs.length;
+      render();
+    }
+
+    addEventListener('message', (e) => {
+      if (e.data?.type !== 'design-state') return;
+      if (e.data.theme === state.theme && e.data.view === state.view) return;
+      state.theme = e.data.theme;
+      state.view = e.data.view;
+      renderControls();
+      persist();
+    });
+
+    document.addEventListener('click', (e) => {
+      const item = e.target.closest('[data-index]');
+      if (item) return select(+item.dataset.index);
+      const set = e.target.closest('[data-set]');
+      if (set) { state[set.dataset.set] = set.dataset.value; return render(); }
+      if (e.target.closest('#star')) { toggleStar(); }
+    });
+
+    function toggleStar() {
+      const id = designs[state.index].id;
+      state.stars[id] = !state.stars[id];
+      renderNotes();
+      renderList();
+      persist();
+    }
+
+    let saveTimer;
+    document.addEventListener('input', (e) => {
+      if (e.target.id === 'only-starred') { state.onlyStarred = e.target.checked; renderList(); return persist(); }
+      if (e.target.id !== 'note') return;
+      state.notes[designs[state.index].id] = e.target.value;
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => { persist(); $('#saved').textContent = 'Saved in this browser'; }, 300);
+    });
+
+    $('#export').addEventListener('click', async () => {
+      const lines = designs.map((d) => {
+        const star = state.stars[d.id] ? '★ ' : '';
+        const note = (state.notes[d.id] || '').trim();
+        return `## ${star}${d.name}\n${note || '(no notes)'}`;
+      });
+      await navigator.clipboard.writeText(`# Redesign review notes\n\n${lines.join('\n\n')}\n`);
+      $('#export').textContent = 'Copied';
+      setTimeout(() => ($('#export').textContent = 'Copy notes'), 1500);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.target.matches('textarea, input') || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (/^[0-9]$/.test(e.key)) return select(e.key === '0' ? 9 : +e.key - 1);
+      const actions = {
+        ArrowRight: () => select(state.index + 1),
+        ArrowLeft: () => select(state.index - 1),
+        v: () => { state.view = state.view === 'home' ? 'post' : 'home'; render(); },
+        t: () => { state.theme = state.theme === 'dark' ? 'light' : 'dark'; render(); },
+        m: () => { state.width = state.width === 'mobile' ? 'desktop' : 'mobile'; render(); },
+        s: toggleStar,
+      };
+      if (actions[e.key]) { e.preventDefault(); actions[e.key](); }
+    });
+
+    if (state.index >= designs.length) state.index = 0;
+    render();
+  </script>
+</body>
+</html>

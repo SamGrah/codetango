@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en" data-theme="dark" data-view="home">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>codeTango: Cyanotype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,300..900;1,300..900&family=Chivo+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Tokens ---------- */
+  :root {
+    --sheet: #ffffff;          /* white drawing sheet */
+    --ink: #0f2e2e;            /* body type */
+    --muted: #4a6664;          /* secondary type */
+    --line: #0a6a6f;           /* teal linework */
+    --line-soft: #a9cfcb;      /* hairlines, sheet border */
+    --link: #00796b;
+    --raised: #f0f6f5;         /* code wells */
+    --panel: transparent;      /* diagram panel */
+    --wm-code: #0f3328;
+    --wm-tango: #00796b;
+
+    --font: "Chivo", "Helvetica Neue", Arial, sans-serif;
+    --mono: "Chivo Mono", ui-monospace, Menlo, monospace;
+    /* Chivo Mono has no box-drawing glyphs, so blocks use a system mono that does */
+    --mono-block: ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+
+    --col: 42rem;
+    --unit: clamp(2.4rem, 7vw, 3.6rem);  /* one minute of reading, drawn to scale */
+    --pad: clamp(1.1rem, 4vw, 2.5rem);
+  }
+  html[data-theme="dark"] {
+    --sheet: #0b4650;          /* cyanotype teal */
+    --ink: #e8f4f1;
+    --muted: #a8cfca;
+    --line: #cfe7e2;
+    --line-soft: #4f8a90;
+    --link: #8ee3d5;
+    --raised: #083b44;
+    --panel: #eef4f2;
+    --wm-code: #e8f4f1;
+    --wm-tango: #8ee3d5;
+  }
+
+  /* ---------- Base ---------- */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { background: var(--sheet); color-scheme: light; scrollbar-gutter: stable; }
+  html[data-theme="dark"] { color-scheme: dark; }
+  body {
+    margin: 0;
+    padding: clamp(6px, 1.4vw, 14px);
+    background: var(--sheet);
+    color: var(--ink);
+    font: 400 1.125rem/1.65 var(--font);
+    font-feature-settings: "kern", "tnum" 0;
+    -webkit-font-smoothing: antialiased;
+  }
+  html[data-view="home"] [data-page="post"],
+  html[data-view="post"] [data-page="home"] { display: none; }
+
+  a { color: var(--link); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 2px dashed var(--link); outline-offset: 3px; border-radius: 1px; }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* Drawing-sheet border: thin outer trim line, heavier inner frame */
+  .sheet { border: 1px solid var(--line-soft); padding: clamp(4px, 0.8vw, 7px); min-height: calc(100vh - 2 * clamp(6px, 1.4vw, 14px)); display: flex; flex-direction: column; }
+  .frame { flex: 1; border: 1.5px solid var(--line); display: flex; flex-direction: column; }
+  .wrap { width: 100%; max-width: calc(var(--col) + 2 * var(--pad)); margin: 0 auto; padding: 0 var(--pad); }
+
+  /* ---------- Header ---------- */
+  .site-header .wrap { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.75rem 1.5rem; padding-top: 1.6rem; padding-bottom: 1.6rem; }
+  .wordmark { font-weight: 850; font-size: 1.5rem; letter-spacing: -0.02em; text-decoration: none; line-height: 1; }
+  .wordmark em { color: var(--wm-code); font-style: italic; font-weight: 800; }
+  .wordmark span { color: var(--wm-tango); }
+  .site-nav ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 1.25rem; font-size: 0.95rem; }
+  .site-nav a { color: var(--ink); text-decoration-color: var(--line-soft); }
+  .site-nav a[aria-current="page"] { color: var(--link); text-decoration-color: currentColor; text-decoration-thickness: 2px; }
+  .btn { font: inherit; color: var(--ink); background: none; border: 1px solid var(--line-soft); border-radius: 2px; padding: 0.2rem 0.6rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.45rem; line-height: 1.4; }
+  .btn:hover { border-color: var(--line); }
+  .btn kbd { font: 500 0.75rem/1 var(--mono); color: var(--muted); border-left: 1px solid var(--line-soft); padding-left: 0.45rem; }
+  .btn svg { width: 15px; height: 15px; flex: none; }
+  .theme-light, .theme-dark { display: none; align-items: center; gap: 0.4rem; }
+  html[data-theme="light"] .theme-light, html[data-theme="dark"] .theme-dark { display: inline-flex; }
+
+  main { flex: 1; }
+
+  /* ---------- Home ---------- */
+  .listing-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 0.5rem 1rem; border-bottom: 1.5px solid var(--line); padding-bottom: 0.6rem; margin-top: 1.5rem; }
+  .listing-head h1 { margin: 0; font-size: 1rem; font-weight: 700; letter-spacing: 0.01em; }
+  .scale-key { margin: 0; display: flex; align-items: end; gap: 0.6rem; font-size: 0.82rem; color: var(--muted); }
+
+
+  .posts { list-style: none; margin: 0 0 3rem; padding: 0; }
+  .post-row { display: grid; grid-template-columns: 7.5rem 1fr; gap: 0 1.5rem; padding: 1.9rem 0 1.6rem; border-bottom: 1px solid var(--line-soft); }
+  .post-row time { font-size: 0.88rem; color: var(--muted); font-variant-numeric: tabular-nums; padding-top: 0.35rem; }
+  .post-row h2 { margin: 0; font-size: 1.45rem; line-height: 1.25; font-weight: 750; letter-spacing: -0.012em; text-wrap: balance; }
+  .post-row h2 a { color: var(--ink); text-decoration-color: var(--line-soft); text-decoration-thickness: 1px; text-underline-offset: 5px; }
+  .post-row h2 a:hover { color: var(--link); text-decoration-color: currentColor; }
+  .post-row .synopsis { margin: 0.5rem 0 0; color: var(--muted); max-width: 36rem; }
+  .post-row .dim { margin-top: 1.25rem; }
+  .row-meta { margin: 0.7rem 0 0; font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.15rem 1.1rem; }
+  .row-meta .cat { color: var(--ink); font-weight: 600; }
+
+  /* ---------- The dimension line ---------- */
+  .dim {
+    --m: 1;
+    position: relative;
+    display: block;
+    width: calc(var(--m) * var(--unit));
+    flex: none;
+    height: 2.1rem;
+    margin: 0;
+    color: var(--line);
+  }
+  .dim-rule { position: absolute; left: 0; right: 0; bottom: 6px; border-top: 1px solid currentColor; transform-origin: left center; }
+  .dim-cap { position: absolute; bottom: 0; width: 10px; height: 16px; overflow: visible; }
+  .dim-cap.l { left: -5px; }
+  .dim-cap.r { right: -5px; }
+  .dim-cap path { fill: none; stroke: currentColor; stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .dim-cap .tick { stroke-width: 1.6; }
+  .dim-label {
+    position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%);
+    font-size: 0.8rem; line-height: 1; font-weight: 600; white-space: nowrap;
+    color: var(--ink); font-variant-numeric: tabular-nums; letter-spacing: 0.01em;
+  }
+
+  /* ---------- Post ---------- */
+  .post-head { padding-top: 2.4rem; }
+  .post-head h1 { margin: 0; font-size: clamp(2.05rem, 5.6vw, 3.1rem); line-height: 1.08; font-weight: 800; letter-spacing: -0.028em; text-wrap: balance; max-width: 15ch; }
+  .post-head .lede { margin: 1.1rem 0 0; font-size: 1.2rem; line-height: 1.55; font-style: italic; font-weight: 350; color: var(--muted); max-width: 36rem; }
+
+  /* Title block, bottom-right of the drawing */
+  .title-block {
+    margin: 2.2rem 0 0 auto;
+    width: min(100%, 27rem);
+    border: 2px solid var(--line);
+    display: grid;
+    grid-template-columns: 1fr 1fr 5.2rem;
+    gap: 1px;
+    background: var(--line);
+    font-size: 0.86rem;
+    line-height: 1.35;
+  }
+  .title-block > div { background: var(--sheet); padding: 0.4rem 0.6rem 0.5rem; min-width: 0; }
+  .title-block dt { font-size: 0.7rem; color: var(--muted); margin-bottom: 0.15rem; letter-spacing: 0.01em; }
+  .title-block dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+  .title-block dl { margin: 0; }
+  .tb-title { grid-column: 1 / -1; }
+  .tb-title dd { font-size: 1rem; font-weight: 750; letter-spacing: -0.005em; }
+  .tb-wide { grid-column: span 2; }
+  .tb-tags { grid-column: 1 / -1; }
+  .tb-tags dd { font-weight: 400; }
+  .tb-sheet dd { font-variant-numeric: tabular-nums; }
+
+  .prose { padding-bottom: 4rem; }
+  .prose > :first-child { margin-top: 2.6rem; }
+  .prose p, .prose ol { margin: 0 0 1.15rem; }
+  .prose h2 { font-size: 1.6rem; line-height: 1.2; font-weight: 780; letter-spacing: -0.018em; margin: 3.2rem 0 1rem; padding-top: 1.1rem; border-top: 1.5px solid var(--line); }
+  .prose h3 { font-size: 1.2rem; line-height: 1.3; font-weight: 720; margin: 2.3rem 0 0.6rem; }
+  .prose strong { font-weight: 700; }
+  .prose ol { padding-left: 1.6rem; }
+  .prose li { margin-bottom: 0.55rem; padding-left: 0.25rem; }
+  .prose li::marker { color: var(--line); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  .prose code { font: 400 0.86em/1 var(--mono); background: var(--raised); border: 1px solid var(--line-soft); border-radius: 2px; padding: 0.12em 0.32em; }
+  .prose pre {
+    margin: 1.6rem 0 1.8rem; padding: 1rem 1.15rem;
+    background: var(--raised); border: 1px solid var(--line-soft); border-left: 2px solid var(--line); border-radius: 0;
+    font: 400 0.84rem/1.5 var(--mono-block);
+    white-space: pre; overflow-x: auto; tab-size: 4;
+  }
+  .prose pre code { font: inherit; background: none; border: 0; padding: 0; white-space: inherit; }
+
+  .prose figure { margin: 2rem 0 2.2rem; }
+  .prose figure img { display: block; width: 100%; height: auto; object-fit: contain; background: var(--panel); border: 1px solid var(--line-soft); padding: clamp(0.5rem, 2vw, 1.1rem); border-radius: 2px; }
+  .prose .fig-pillars img { max-width: 34rem; margin: 0 auto; }
+  .prose figcaption { margin-top: 0.6rem; font-size: 0.88rem; line-height: 1.5; color: var(--muted); }
+
+  .prose blockquote { margin: 2rem 0; padding: 1rem 1.25rem; border: 1px solid var(--line-soft); border-left: 3px solid var(--line); }
+  .prose blockquote p { margin: 0; }
+
+  /* ---------- Footer ---------- */
+  .site-footer { border-top: 1.5px solid var(--line); }
+  .site-footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 1.5rem; padding-top: 1.1rem; padding-bottom: 1.2rem; font-size: 0.88rem; color: var(--muted); }
+  .site-footer ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 1.2rem; }
+  .site-footer p { margin: 0; }
+
+  /* ---------- Small screens ---------- */
+  @media (max-width: 640px) {
+    body { font-size: 1.0625rem; }
+    .post-row { grid-template-columns: 1fr; padding: 1.5rem 0 1.3rem; }
+    .post-row time { padding-top: 0; margin-bottom: 0.3rem; }
+    .post-row h2 { font-size: 1.3rem; }
+    .title-block { grid-template-columns: 1fr 1fr 4.5rem; }
+  }
+  @media (max-width: 420px) {
+    .btn kbd { display: none; }
+    .site-nav ul { gap: 0.25rem 0.9rem; }
+    .title-block { grid-template-columns: 1fr 1fr; }
+    .tb-wide { grid-column: 1 / -1; order: 2; }
+    .tb-tags { order: 3; }
+  }
+
+  /* ---------- Motion ---------- */
+  @media (prefers-reduced-motion: no-preference) {
+    body, .frame, .sheet, .title-block, .title-block > div, .btn, a, .prose pre, .prose code, .prose figure img {
+      transition: background-color 220ms ease, color 220ms ease, border-color 220ms ease, text-decoration-color 220ms ease;
+    }
+    /* The one moment: the dimension lines are drawn in, longest read last */
+    [data-page="home"] .posts .dim-rule { animation: draw 520ms cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--i) * 90ms + 120ms); }
+    [data-page="home"] .posts .dim-cap.r,
+    [data-page="home"] .posts .dim-label { animation: appear 220ms ease both; animation-delay: calc(var(--i) * 90ms + 560ms); }
+  }
+  @keyframes draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @keyframes appear { from { opacity: 0; } to { opacity: 1; } }
+</style>
+</head>
+<body>
+<div class="sheet"><div class="frame">
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href="?view=home" data-goto="home"><em>code</em><span>Tango</span></a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+        <li><a href="?view=home" data-goto="home" aria-current="page">Posts</a></li>
+        <li><a href="#about">About</a></li>
+        <li>
+          <button class="btn" type="button" aria-label="Search (⌘K)">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.75" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M10 10l4.5 4.5" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>
+            Search <kbd>⌘K</kbd>
+          </button>
+        </li>
+        <li>
+          <button class="btn" type="button" data-theme-toggle>
+            <span class="theme-light">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M3 13l1.4-1.4M11.6 4.4L13 3" stroke="currentColor" stroke-width="1.4"/></svg>
+              Light<span class="vh"> theme on, switch to dark</span>
+            </span>
+            <span class="theme-dark">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 10.2A5.8 5.8 0 0 1 5.8 2.5a5.8 5.8 0 1 0 7.7 7.7z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+              Dark<span class="vh"> theme on, switch to light</span>
+            </span>
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- ===================== HOME ===================== -->
+<main data-page="home">
+  <div class="wrap">
+    <div class="listing-head">
+      <h1>Posts</h1>
+      <p class="scale-key">Reading time drawn to scale
+        <span class="dim" style="--m:1" aria-hidden="true">
+          <span class="dim-rule"></span>
+          <svg class="dim-cap l" viewBox="-5 0 10 16"><path d="M0 0V16"/><path class="tick" d="M-3.5 14L3.5 6"/></svg>
+          <svg class="dim-cap r" viewBox="-5 0 10 16"><path d="M0 0V16"/><path class="tick" d="M-3.5 14L3.5 6"/></svg>
+          <span class="dim-label">1 min</span>
+        </span>
+      </p>
+    </div>
+
+    <ol class="posts">
+      <li class="post-row">
+        <time datetime="2026-03-14">Mar 14, 2026</time>
+        <div>
+          <h2><a href="?view=post" data-goto="post">Anatomy of My Agentic Development Setup</a></h2>
+          <p class="synopsis">My agentic development setup isn't one tool — it's three systems working together. Each serves a distinct role, and the value cis dervied from how they overlap.</p>
+          <p class="dim" style="--m:6; --i:3">
+            <span class="dim-rule"></span>
+            <svg class="dim-cap l" viewBox="-5 0 10 16" aria-hidden="true"><path d="M0 0V16"/><path class="tick" d="M-3.5 14L3.5 6"/></svg>
+            <svg class="dim-cap r" viewBox="-5 0 10 16" aria-hidden="true"><path d="M0 0V16"/><path class="tick" d="M-3.5 14L3.5 6"/></svg>
+            <span class="dim-label">6 min<span class="vh"> read</span></span>
+          </p>
+          <p class="row-meta"><span class="cat">Agentic Development</span><span><span class="vh">Tags: </span>agents, orchestration, local-dev, deep-dive</span></p>
+        </div>
+      </li>
+      <li class="post-row">
+        <time datetime="2026-02-10">Feb 10, 2026</time>
+        <div>
+          <h2><a href="?view=post" data-goto="post">Profiling Agentic Configurations</a></h2>
+          <p class="dim" style="--m:1; --i:0">
+            <span class="dim-rule"></span>
+            <svg class="dim-cap l" viewBox="-5 0 10 16" aria-hidden="true"><path d="M0 0V16"/><path class="tick" d="M-3.5 14L3.5 6"/></svg>
+            <svg class="dim-cap r" viewBox="-5 0 10 16" aria-hidden="true"><path d="M0 0V16"/><path class="tick" d="M-3.5 14L3.5 6"/></svg>
+            <span class="dim-label">1 min<span class="vh"> read</span></span>
+          </p>
+          <p class="row-meta"><span class="cat">Agentic Development</span><span><span class="vh">Tags: </span>agents, orchestration, evaluation, cost-management</span></p>
+        </div>
+      </li>
+      <li class="post-row">
+        <time datetime="2024-05-27">May 27, 2024</time>
+        <div>
+          <h2><a href="?view=post" data-goto="post">How Stub and Mock</a></h2>
+          <p class="synopsis">A quick visual guide to telling stubs and mocks apart in day-to-day testing.</p>
+          <p class="dim" style="--m:1; --i:1">
+            <span class="dim-rule"></span>
+            <svg class="dim-cap l" viewBox="-5 0 10 16" aria-hidden="true"><path d="M0 0V16"/><path class="tick" d="M-3.5 14L3.5 6"/></svg>
+            <svg class="dim-cap r" viewBox="-5 0 10 16" aria-hidden="true"><path d="M0 0V16"/><path class="tick" d="M-3.5 14L3.5 6"/></svg>
+            <span class="dim-label">1 min<span class="vh"> read</span></span>
+          </p>
+          <p class="row-meta"><span class="cat">Testing</span><span><span class="vh">Tags: </span>mocks, stubs, testing</span></p>
+        </div>
+      </li>
+      <li class="post-row">
+        <time datetime="2024-05-26">May 26, 2024</time>
+        <div>
+          <h2><a href="?view=post" data-goto="post">Beyond Mocks vs Stubs</a></h2>
+          <p class="synopsis">A practical breakdown of mocks vs stubs and when each test double is the right tool.</p>
+          <p class="dim" style="--m:1; --i:2">
+            <span class="dim-rule"></span>
+            <svg class="dim-cap l" viewBox="-5 0 10 16" aria-hidden="true"><path d="M0 0V16"/><path class="tick" d="M-3.5 14L3.5 6"/></svg>
+            <svg class="dim-cap r" viewBox="-5 0 10 16" aria-hidden="true"><path d="M0 0V16"/><path class="tick" d="M-3.5 14L3.5 6"/></svg>
+            <span class="dim-label">1 min<span class="vh"> read</span></span>
+          </p>
+          <p class="row-meta"><span class="cat">Testing</span><span><span class="vh">Tags: </span>mocks, stubs, testing</span></p>
+        </div>
+      </li>
+    </ol>
+  </div>
+</main>
+
+<!-- ===================== POST ===================== -->
+<main data-page="post">
+  <article class="wrap">
+    <header class="post-head">
+      <h1>Anatomy of My Agentic Development Setup</h1>
+      <p class="lede">My agentic development setup isn't one tool — it's three systems working together. Each serves a distinct role, and the value cis dervied from how they overlap.</p>
+
+      <dl class="title-block" aria-label="Post details">
+        <div class="tb-title"><dt>Title</dt><dd>Anatomy of My Agentic Development Setup</dd></div>
+        <div><dt>Drawn by</dt><dd>Sam Graham</dd></div>
+        <div><dt>Date</dt><dd><time datetime="2026-03-14">Mar 14, 2026</time></dd></div>
+        <div><dt>Read</dt><dd>6 min</dd></div>
+        <div class="tb-wide"><dt>Category</dt><dd>Agentic Development</dd></div>
+        <div class="tb-sheet"><dt>Sheet</dt><dd>1 of 1</dd></div>
+        <div class="tb-tags"><dt>Tags</dt><dd>agents, orchestration, local-dev, deep-dive</dd></div>
+      </dl>
+    </header>
+
+    <div class="prose">
+      <p>My dev agent(s) are as crucial to my product outcome as any other first-class team member. Just like any new team member, my agentic setup is based on; issue tracking, workspace isolation, quality gate controls, and the ability to learn over time (self-update). Take a look...</p>
+
+      <h2>The Three Pillars</h2>
+      <p>In order to move from 'vibe' to 'agentic' coding, I've ended up with this taxonomy. First we'll take a look at the three major components of my harness skaffolding. Then I'll describe how the agentic value arises within cross-sections of the components.</p>
+      <figure class="fig-pillars">
+        <img src="../../astro/public/diagrams/anatomy-three-pillars.svg" alt="Venn diagram of the three pillars — Task Tracking, Workspace Isolation, and Agentic Config — with Ephemeral Plan, Long Term Memory, and Asynchronous Tasks at their intersections" width="800" height="450">
+      </figure>
+
+      <h3>Task Tracking</h3>
+      <p>The core functionality of the task tracker is the same as JIRA or Trello. Tasks are stored as indiviudal entities mapped to Epics, and may contain subtasks. Each task entity has a status property and the task lifecycle is represented as a progression through the statuses:</p>
+      <figure class="fig-lifecycle">
+        <img src="../../astro/public/diagrams/anatomy-task-lifecycle.svg" alt="Task lifecycle flow: undefined, ready, in progress, in review, completed" width="705" height="70">
+        <figcaption><em>Task status lifecycle — states progress from light to dark as work moves toward completion</em></figcaption>
+      </figure>
+      <p>I use <a href="https://github.com/beads-project/beads">Beads</a> task manager, which stores tasks, epics, and dependency relationships within the repo in the form of a Dolt database. I use <a href="https://github.com/Dicklesworthstone/beads_viewer">Beads Viewer</a> atop Beads to easily triage and expose task dependencies. The <code>.beads/</code> directory in every workspace is symlinked to a single persistent checkout (<code>beads-sync/</code>), so task state stays consistent no matter which branch I'm on. This is what enables parallelism: multiple agent sessions can work on independent tasks simultaneously, each isolated, all reading from the same task graph.</p>
+<pre><code>BannerFM/
+├── main/                   ← primary checkout
+├── beads-sync/             ← persistent shared task store
+├── fix-auth-bug/           ← task workspace (ephemeral)
+└── add-user-endpoint/      ← task workspace (ephemeral)
+
+Each branch of main symlinks to ./beads --> beads-sync/.beads/</code></pre>
+
+      <h3>Workspace Isolation</h3>
+      <p>Each task needs its own workspace so that changes don't bleed across workstreams. Without isolation, I found that agents working on one task would inadvertently stage or modify files belonging to another. Separate workspaces also mean separate git branches, which makes the eventual PR a clean diff of just that task's changes.</p>
+      <p>I use <a href="https://cmux.com/"><strong>cmux</strong></a> to spin up a workspace per task — each gets its own terminal session and git branch.</p>
+
+      <h3>The Agent Configuration</h3>
+      <p>The whole dev process is kicked off with slash commands, the core of which realize the task lifecycle through four steps:</p>
+<pre><code>┌─────────────────┐
+│  /task-selector │  Pick from backlog or plan new work
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   /start-task   │  Create cmux workspace + git branch, claim task
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   /finish-task  │  Push, create PR, transition to review,
+│                 │  verify merge, close task, cleanup
+└─────────────────┘</code></pre>
+      <p>There are two planning phases:</p>
+      <ol>
+        <li>The <strong>brainstorming</strong> skill runs research-driven Q&amp;A to define epics and tasks, then auto-decomposes large tasks into properly-sized subtasks (~5 files, ~150 lines changed per task).</li>
+        <li>The <strong>writing-plans</strong> skill is triggered when the <code>/start-task</code> slash command is invoked for a tasks with an <code>undefined</code> status.</li>
+      </ol>
+
+      <h2>Putting It Together</h2>
+      <p>The three pillars — issue tracking, workspace isolation, and agentic configuration — form a closed loop.</p>
+      <blockquote><p><strong>Ephemeral Plan</strong> — Because task tracking decomposes work into scoped units and workspace isolation gives each unit its own branch, every task starts with a focused implementation plan that lives only as long as the task itself. The plan doesn't need to survive beyond the PR — it's disposable by design, which is what keeps it specific enough to be useful.</p></blockquote>
+      <p>The result, for me, is a setup where the agent operates with roughly the same structure I'd expect from a human teammate: picking work from a prioritized backlog, working in isolation, following established procedures, reviewing its own output, and keeping documentation current. I've found that the scaffolding doesn't make the agent smarter — it improves <em>consistenty</em>.</p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>© 2026 Sam Graham</p>
+    <ul>
+      <li><a href="#rss">RSS</a></li>
+      <li><a href="https://github.com/">GitHub</a></li>
+      <li><a href="https://www.linkedin.com/">LinkedIn</a></li>
+    </ul>
+  </div>
+</footer>
+
+</div></div>
+<script src="_frame.js"></script>
+</body>
+</html>

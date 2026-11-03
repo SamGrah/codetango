@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-view="home">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>codeTango (Worktree)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff;
+    --text: #1d2b29;
+    --muted: #566966;
+    --accent: #00796b;
+    --title: #0b5d53;
+    --conn: #2e9387;
+    --guide: #b9dbd5;
+    --rule: #e1ebe9;
+    --code-bg: #f3f8f7;
+    --code-text: #1d2b29;
+    --quote-bg: #f0f8f6;
+    --wm-code: #0f3328;
+    --wm-tango: #00796b;
+    --panel: transparent;
+    --focus: #00796b;
+
+    --sans: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --g: 2.25rem;
+    --h2fs: 1.6rem;
+    --h3fs: 1.22rem;
+    color-scheme: light;
+  }
+  html[data-theme="dark"] {
+    --bg: #0a1a1e;
+    --text: #d8ebe7;
+    --muted: #8db0ab;
+    --accent: #5ed4c5;
+    --title: #8fe3d8;
+    --conn: #34867d;
+    --guide: #1f4448;
+    --rule: #17383d;
+    --code-bg: #0f2a2f;
+    --code-text: #d3e7e3;
+    --quote-bg: #0f2529;
+    --wm-code: #c2e4dd;
+    --wm-tango: #5ed4c5;
+    --panel: #eef4f2;
+    --focus: #5ed4c5;
+    color-scheme: dark;
+  }
+
+  html[data-view="home"] [data-page="post"],
+  html[data-view="post"] [data-page="home"] { display: none; }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scrollbar-gutter: stable; -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 400 1.125rem/1.65 var(--sans);
+    font-optical-sizing: auto;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    body, a, button, .tree li::before, .tree li::after, .prose section::before, pre, blockquote {
+      transition: color 220ms ease, background-color 220ms ease, border-color 220ms ease, text-decoration-color 220ms ease;
+    }
+  }
+
+  a { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+  a:hover { text-decoration-color: currentColor; text-decoration-thickness: 2px; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 3px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  .wrap { max-width: 45rem; margin-inline: auto; padding-inline: 1.25rem; }
+
+  /* ---------- Header ---------- */
+  .site-head { padding-block: 1.5rem 0; }
+  .site-head .wrap { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.75rem 1.5rem; }
+  .wordmark { font-size: 1.45rem; font-weight: 800; letter-spacing: -0.01em; text-decoration: none; line-height: 1.2; }
+  .wordmark em { color: var(--wm-code); font-style: italic; font-weight: 800; }
+  .wordmark span { color: var(--wm-tango); }
+  .site-nav ul { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 1.25rem; list-style: none; margin: 0; padding: 0; font-size: 1rem; }
+  .site-nav a { color: var(--text); text-decoration: none; }
+  .site-nav a:hover { color: var(--accent); }
+  .site-nav a[aria-current="page"] { color: var(--accent); text-decoration: underline; text-underline-offset: 0.35em; text-decoration-thickness: 2px; }
+  .site-nav button {
+    font: inherit; color: var(--text); background: none; cursor: pointer;
+    border: 1px solid var(--rule); border-radius: 999px; padding: 0.15rem 0.7rem;
+    display: inline-flex; align-items: center; gap: 0.45rem; line-height: 1.5;
+  }
+  .site-nav button:hover { border-color: var(--conn); }
+  .site-nav kbd { font: inherit; font-size: 0.85em; color: var(--muted); }
+  .theme-icon { width: 0.85rem; height: 0.85rem; border-radius: 50%; border: 1.5px solid var(--conn); background: linear-gradient(90deg, var(--conn) 50%, transparent 50%); }
+  html[data-theme="dark"] .theme-icon { background: linear-gradient(90deg, transparent 50%, var(--conn) 50%); }
+  html[data-theme="dark"] .t-light, html[data-theme="light"] .t-dark { display: none; }
+
+  /* ---------- Home: the tree ---------- */
+  main[data-page="home"] { padding-block: 3.5rem 4rem; }
+  .root {
+    font-family: var(--mono); font-weight: 500; font-size: 1.75rem; line-height: 1.3;
+    letter-spacing: -0.02em; margin: 0 0 0.3rem; color: var(--text);
+  }
+  .tree, .tree ol { list-style: none; margin: 0; padding: 0; }
+  .tree { margin-left: 0.5rem; }
+  .tree li { position: relative; padding-left: 1.75rem; }
+  /* elbow: from top of the item down to its label, then across */
+  .tree li::before {
+    content: ""; position: absolute; left: 0; top: 0;
+    width: 1.2rem; height: var(--elbow);
+    border-left: 1.5px solid var(--conn); border-bottom: 1.5px solid var(--conn);
+    border-bottom-left-radius: 7px;
+  }
+  /* trunk: continues past the item to the next sibling */
+  .tree li:not(:last-child)::after {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+    border-left: 1.5px solid var(--conn);
+  }
+  .tree > li { --elbow: 0.78rem; padding-top: 1.1rem; }
+  .tree > li::before { top: 0; height: calc(1.1rem + var(--elbow)); }
+  .dir-name {
+    font-family: var(--mono); font-weight: 400; font-size: 1rem; line-height: 1.55;
+    margin: 0; color: var(--text);
+  }
+  .dir-name a { color: inherit; text-decoration: none; }
+  .tree ol { margin-left: 0.45rem; padding-top: 0.2rem; }
+  .tree > li:not(:last-child) { padding-bottom: 1.25rem; }
+  .leaf { --elbow: 0.79rem; padding-top: 1.25rem; }
+  .tree .leaf::before { height: calc(1.25rem + var(--elbow)); }
+  .leaf h3 { margin: 0; font-size: 1.22rem; line-height: 1.3; font-weight: 700; letter-spacing: -0.005em; }
+  .leaf h3 a { color: var(--title); text-decoration: none; }
+  .leaf h3 a:hover { text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: var(--conn); }
+  .leaf p { margin: 0.35rem 0 0; max-width: 36rem; }
+  .leaf .synopsis { color: var(--text); }
+  .meta { display: flex; flex-wrap: wrap; gap: 0.15rem 1rem; color: var(--muted); font-size: 0.95rem; }
+  .meta .tags { display: flex; flex-wrap: wrap; gap: 0 0.6rem; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html[data-view="home"] .tree li::before,
+    html[data-view="home"] .tree li::after {
+      animation: draw 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+      animation-delay: calc(var(--i, 0) * 70ms);
+    }
+    @keyframes draw {
+      from { clip-path: inset(0 100% 100% 0); }
+      to { clip-path: inset(0 -2px -2px 0); }
+    }
+  }
+
+  /* ---------- Post ---------- */
+  main[data-page="post"] { padding-block: 2.75rem 4rem; }
+  .crumbs ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; font-family: var(--mono); font-size: 0.85rem; line-height: 1.6; color: var(--muted); }
+  .crumbs li { overflow-wrap: anywhere; }
+  .crumbs li + li::before { content: "/"; padding-inline: 0.5ch; color: var(--conn); }
+  .crumbs a { color: var(--accent); }
+  .crumbs [aria-current] { color: var(--text); }
+
+  .post-head { margin-top: 1.5rem; padding-bottom: 1.75rem; border-bottom: 1px solid var(--rule); }
+  .post-head h1 { font-size: clamp(2rem, 5.2vw, 2.7rem); line-height: 1.12; letter-spacing: -0.02em; font-weight: 800; margin: 0; color: var(--text); }
+  .lede { font-size: 1.22rem; line-height: 1.5; font-style: italic; color: var(--muted); margin: 1rem 0 1.1rem; max-width: 38rem; }
+  .post-head .meta { gap: 0.25rem 1.1rem; }
+  .post-head .meta a { color: var(--accent); }
+
+  .prose { padding-left: var(--g); margin-top: 2.25rem; }
+  .prose > p:first-child { margin-top: 0; }
+  .prose p, .prose ol { margin: 0 0 1.15rem; }
+  .prose section { position: relative; }
+  .prose section::before {
+    content: ""; position: absolute; top: var(--mid); bottom: 0.4rem; left: var(--x);
+    width: var(--w); border-left: 1px solid var(--guide); border-top: 1px solid var(--guide);
+    border-top-left-radius: 6px; pointer-events: none;
+  }
+  .s2 { --x: calc(-1 * var(--g)); --w: calc(var(--g) - 0.55rem); --mid: calc(var(--h2fs) * 0.625); margin-top: 2.75rem; }
+  .s3 { --x: calc(-0.5 * var(--g)); --w: calc(0.5 * var(--g) - 0.45rem); --mid: calc(var(--h3fs) * 0.65); margin-top: 2.1rem; }
+  .prose h2 { font-size: var(--h2fs); line-height: 1.25; letter-spacing: -0.015em; font-weight: 800; margin: 0 0 0.8rem; }
+  .prose h3 { font-size: var(--h3fs); line-height: 1.3; font-weight: 700; margin: 0 0 0.6rem; }
+  .prose ol { padding-left: 1.4rem; }
+  .prose li { margin-bottom: 0.5rem; padding-left: 0.25rem; }
+  .prose li::marker { color: var(--conn); font-weight: 700; }
+
+  .prose figure { margin: 1.5rem 0; }
+  .prose figure img { display: block; width: 100%; height: auto; background: var(--panel); border-radius: 10px; }
+  html[data-theme="dark"] .prose figure img { padding: 0.9rem; }
+  .prose figure.flow img { max-width: 42rem; }
+  .prose figcaption { margin-top: 0.6rem; font-size: 0.95rem; font-style: italic; color: var(--muted); }
+
+  code { font-family: var(--mono); font-size: 0.86em; background: var(--code-bg); border-radius: 4px; padding: 0.08em 0.32em; color: var(--code-text); }
+  pre {
+    font-family: var(--mono); font-size: 0.84rem; line-height: 1.38;
+    white-space: pre; overflow-x: auto; tab-size: 2;
+    background: var(--code-bg); color: var(--code-text);
+    border-radius: 8px; border-left: 2px solid var(--conn);
+    padding: 1rem 1.15rem; margin: 1.4rem 0;
+  }
+  pre code { background: none; padding: 0; font-size: inherit; border-radius: 0; }
+
+  blockquote { margin: 1.6rem 0; padding: 1.1rem 1.25rem; background: var(--quote-bg); border-radius: 8px; border-left: 2px solid var(--conn); }
+  .prose blockquote p { margin: 0; }
+
+  /* ---------- Footer ---------- */
+  .site-foot { border-top: 1px solid var(--rule); padding-block: 1.5rem 2.5rem; color: var(--muted); font-size: 0.95rem; }
+  .site-foot .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 1.5rem; }
+  .site-foot ul { display: flex; gap: 1.25rem; list-style: none; margin: 0; padding: 0; }
+  .site-foot p { margin: 0; }
+
+  @media (max-width: 34rem) {
+    :root { --g: 1.5rem; --h2fs: 1.4rem; --h3fs: 1.15rem; }
+    body { font-size: 1.0625rem; }
+    main[data-page="home"] { padding-top: 2.5rem; }
+    .root { font-size: 1.4rem; }
+    .tree li { padding-left: 1.4rem; }
+    .tree li::before { width: 0.95rem; }
+    .tree ol { margin-left: 0.2rem; }
+    .leaf h3 { font-size: 1.15rem; }
+    .leaf { --elbow: 0.75rem; }
+    pre { font-size: 0.78rem; padding: 0.85rem 0.9rem; }
+  }
+</style>
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="wordmark" href="?view=home" data-goto="home"><em>code</em><span>Tango</span></a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+        <li><a href="?view=home" data-goto="home" aria-current="page">Posts</a></li>
+        <li><a href="#about">About</a></li>
+        <li><button type="button" aria-keyshortcuts="Meta+K">Search <kbd>⌘K</kbd></button></li>
+        <li><button type="button" data-theme-toggle><span class="theme-icon" aria-hidden="true"></span><span class="sr-only">Switch theme, current theme: </span><span class="t-light">Light</span><span class="t-dark">Dark</span></button></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main data-page="home">
+  <div class="wrap">
+    <h1 class="root"><span class="sr-only">Posts in </span>codetango/</h1>
+    <ul class="tree">
+      <li style="--i:0">
+        <h2 class="dir-name">Agentic Development/</h2>
+        <ol>
+          <li class="leaf" style="--i:1">
+            <h3><a href="?view=post" data-goto="post">Anatomy of My Agentic Development Setup</a></h3>
+            <p class="synopsis">My agentic development setup isn't one tool — it's three systems working together. Each serves a distinct role, and the value cis dervied from how they overlap.</p>
+            <p class="meta"><time datetime="2026-03-14">Mar 14, 2026</time><span>6 min read</span><span class="tags"><span class="sr-only">Tags: </span><span>#agents</span><span>#orchestration</span><span>#local-dev</span><span>#deep-dive</span></span></p>
+          </li>
+          <li class="leaf" style="--i:2">
+            <h3><a href="?view=post" data-goto="post">Profiling Agentic Configurations</a></h3>
+            <p class="meta"><time datetime="2026-02-10">Feb 10, 2026</time><span>1 min read</span><span class="tags"><span class="sr-only">Tags: </span><span>#agents</span><span>#orchestration</span><span>#evaluation</span><span>#cost-management</span></span></p>
+          </li>
+        </ol>
+      </li>
+      <li style="--i:3">
+        <h2 class="dir-name">Testing/</h2>
+        <ol>
+          <li class="leaf" style="--i:4">
+            <h3><a href="?view=post" data-goto="post">How Stub and Mock</a></h3>
+            <p class="synopsis">A quick visual guide to telling stubs and mocks apart in day-to-day testing.</p>
+            <p class="meta"><time datetime="2024-05-27">May 27, 2024</time><span>1 min read</span><span class="tags"><span class="sr-only">Tags: </span><span>#mocks</span><span>#stubs</span><span>#testing</span></span></p>
+          </li>
+          <li class="leaf" style="--i:5">
+            <h3><a href="?view=post" data-goto="post">Beyond Mocks vs Stubs</a></h3>
+            <p class="synopsis">A practical breakdown of mocks vs stubs and when each test double is the right tool.</p>
+            <p class="meta"><time datetime="2024-05-26">May 26, 2024</time><span>1 min read</span><span class="tags"><span class="sr-only">Tags: </span><span>#mocks</span><span>#stubs</span><span>#testing</span></span></p>
+          </li>
+        </ol>
+      </li>
+    </ul>
+  </div>
+</main>
+
+<main data-page="post">
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="?view=home" data-goto="home">codetango</a></li>
+        <li><a href="?view=home" data-goto="home">agentic-development</a></li>
+        <li><span aria-current="page">anatomy-of-my-agentic-development-setup</span></li>
+      </ol>
+    </nav>
+    <article>
+      <header class="post-head">
+        <h1>Anatomy of My Agentic Development Setup</h1>
+        <p class="lede">My agentic development setup isn't one tool — it's three systems working together. Each serves a distinct role, and the value cis dervied from how they overlap.</p>
+        <p class="meta"><span>Sam Graham</span><time datetime="2026-03-14">Mar 14, 2026</time><span>6 min read</span><a href="?view=home" data-goto="home">Agentic Development</a><span class="tags"><span class="sr-only">Tags: </span><span>#agents</span><span>#orchestration</span><span>#local-dev</span><span>#deep-dive</span></span></p>
+      </header>
+
+      <div class="prose">
+        <p>My dev agent(s) are as crucial to my product outcome as any other first-class team member. Just like any new team member, my agentic setup is based on; issue tracking, workspace isolation, quality gate controls, and the ability to learn over time (self-update). Take a look...</p>
+
+        <section class="s2" aria-labelledby="h-pillars">
+          <h2 id="h-pillars">The Three Pillars</h2>
+          <p>In order to move from 'vibe' to 'agentic' coding, I've ended up with this taxonomy. First we'll take a look at the three major components of my harness skaffolding. Then I'll describe how the agentic value arises within cross-sections of the components.</p>
+          <figure>
+            <img src="../../astro/public/diagrams/anatomy-three-pillars.svg" width="800" height="450" alt="Venn diagram of the three pillars — Task Tracking, Workspace Isolation, and Agentic Config — with Ephemeral Plan, Long Term Memory, and Asynchronous Tasks at their intersections">
+          </figure>
+
+          <section class="s3" aria-labelledby="h-task">
+            <h3 id="h-task">Task Tracking</h3>
+            <p>The core functionality of the task tracker is the same as JIRA or Trello. Tasks are stored as indiviudal entities mapped to Epics, and may contain subtasks. Each task entity has a status property and the task lifecycle is represented as a progression through the statuses:</p>
+            <figure class="flow">
+              <img src="../../astro/public/diagrams/anatomy-task-lifecycle.svg" width="705" height="70" alt="Task lifecycle flow: undefined, ready, in progress, in review, completed">
+              <figcaption>Task status lifecycle — states progress from light to dark as work moves toward completion</figcaption>
+            </figure>
+            <p>I use <a href="https://github.com/beads-project/beads">Beads</a> task manager, which stores tasks, epics, and dependency relationships within the repo in the form of a Dolt database. I use <a href="https://github.com/Dicklesworthstone/beads_viewer">Beads Viewer</a> atop Beads to easily triage and expose task dependencies. The <code>.beads/</code> directory in every workspace is symlinked to a single persistent checkout (<code>beads-sync/</code>), so task state stays consistent no matter which branch I'm on. This is what enables parallelism: multiple agent sessions can work on independent tasks simultaneously, each isolated, all reading from the same task graph.</p>
+<pre><code>BannerFM/
+├── main/                   ← primary checkout
+├── beads-sync/             ← persistent shared task store
+├── fix-auth-bug/           ← task workspace (ephemeral)
+└── add-user-endpoint/      ← task workspace (ephemeral)
+
+Each branch of main symlinks to ./beads --> beads-sync/.beads/</code></pre>
+          </section>
+
+          <section class="s3" aria-labelledby="h-workspace">
+            <h3 id="h-workspace">Workspace Isolation</h3>
+            <p>Each task needs its own workspace so that changes don't bleed across workstreams. Without isolation, I found that agents working on one task would inadvertently stage or modify files belonging to another. Separate workspaces also mean separate git branches, which makes the eventual PR a clean diff of just that task's changes.</p>
+            <p>I use <a href="https://cmux.com/"><strong>cmux</strong></a> to spin up a workspace per task — each gets its own terminal session and git branch.</p>
+          </section>
+
+          <section class="s3" aria-labelledby="h-config">
+            <h3 id="h-config">The Agent Configuration</h3>
+            <p>The whole dev process is kicked off with slash commands, the core of which realize the task lifecycle through four steps:</p>
+<pre><code>┌─────────────────┐
+│  /task-selector │  Pick from backlog or plan new work
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   /start-task   │  Create cmux workspace + git branch, claim task
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   /finish-task  │  Push, create PR, transition to review,
+│                 │  verify merge, close task, cleanup
+└─────────────────┘</code></pre>
+            <p>There are two planning phases:</p>
+            <ol>
+              <li>The <strong>brainstorming</strong> skill runs research-driven Q&amp;A to define epics and tasks, then auto-decomposes large tasks into properly-sized subtasks (~5 files, ~150 lines changed per task).</li>
+              <li>The <strong>writing-plans</strong> skill is triggered when the <code>/start-task</code> slash command is invoked for a tasks with an <code>undefined</code> status.</li>
+            </ol>
+          </section>
+        </section>
+
+        <section class="s2" aria-labelledby="h-together">
+          <h2 id="h-together">Putting It Together</h2>
+          <p>The three pillars — issue tracking, workspace isolation, and agentic configuration — form a closed loop.</p>
+          <blockquote><p><strong>Ephemeral Plan</strong> — Because task tracking decomposes work into scoped units and workspace isolation gives each unit its own branch, every task starts with a focused implementation plan that lives only as long as the task itself. The plan doesn't need to survive beyond the PR — it's disposable by design, which is what keeps it specific enough to be useful.</p></blockquote>
+          <p>The result, for me, is a setup where the agent operates with roughly the same structure I'd expect from a human teammate: picking work from a prioritized backlog, working in isolation, following established procedures, reviewing its own output, and keeping documentation current. I've found that the scaffolding doesn't make the agent smarter — it improves <em>consistenty</em>.</p>
+        </section>
+      </div>
+    </article>
+  </div>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <p>© 2026 Sam Graham</p>
+    <ul>
+      <li><a href="#rss">RSS</a></li>
+      <li><a href="https://github.com/">GitHub</a></li>
+      <li><a href="https://www.linkedin.com/">LinkedIn</a></li>
+    </ul>
+  </div>
+</footer>
+<script src="_frame.js"></script>
+</body>
+</html>

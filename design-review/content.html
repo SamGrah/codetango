@@ -1,0 +1,94 @@
+<!--
+  Canonical real content for every design. Copy this text verbatim into each design
+  (wrappers, classes, and element order around it may change; the words may not).
+  Diagram paths are relative to design-review/designs/.
+-->
+
+<!-- ===== Chrome ===== -->
+<header>
+  <a href="?view=home" data-goto="home"><em>code</em><span>Tango</span></a>  <!-- wordmark -->
+  <nav>Posts (current) · About · Search (⌘K) · theme toggle button [data-theme-toggle]</nav>
+</header>
+<footer>© 2026 Sam Graham · RSS · GitHub · LinkedIn</footer>
+
+<!-- ===== Home view: post listing, newest first ===== -->
+<!-- Each row: title (links to post view via data-goto="post"), synopsis, date, read time, category -->
+<ol>
+  <li>
+    <a href="?view=post" data-goto="post">Anatomy of My Agentic Development Setup</a>
+    <p>My agentic development setup isn't one tool — it's three systems working together. Each serves a distinct role, and the value cis dervied from how they overlap.</p>
+    <time datetime="2026-03-14">Mar 14, 2026</time> 6 min read · Agentic Development · tags: agents, orchestration, local-dev, deep-dive
+  </li>
+  <li>
+    <a href="?view=post" data-goto="post">Profiling Agentic Configurations</a>
+    <!-- no synopsis in frontmatter: design must handle a missing synopsis gracefully -->
+    <time datetime="2026-02-10">Feb 10, 2026</time> 1 min read · Agentic Development · tags: agents, orchestration, evaluation, cost-management
+  </li>
+  <li>
+    <a href="?view=post" data-goto="post">How Stub and Mock</a>
+    <p>A quick visual guide to telling stubs and mocks apart in day-to-day testing.</p>
+    <time datetime="2024-05-27">May 27, 2024</time> 1 min read · Testing · tags: mocks, stubs, testing
+  </li>
+  <li>
+    <a href="?view=post" data-goto="post">Beyond Mocks vs Stubs</a>
+    <p>A practical breakdown of mocks vs stubs and when each test double is the right tool.</p>
+    <time datetime="2024-05-26">May 26, 2024</time> 1 min read · Testing · tags: mocks, stubs, testing
+  </li>
+</ol>
+
+<!-- ===== Post view: excerpt of the anatomy post ===== -->
+<article>
+  <h1>Anatomy of My Agentic Development Setup</h1>
+  <p class="synopsis">My agentic development setup isn't one tool — it's three systems working together. Each serves a distinct role, and the value cis dervied from how they overlap.</p>
+  <!-- meta: Sam Graham, Mar 14, 2026, 6 min read, Agentic Development, tags agents/orchestration/local-dev/deep-dive -->
+
+  <p>My dev agent(s) are as crucial to my product outcome as any other first-class team member. Just like any new team member, my agentic setup is based on; issue tracking, workspace isolation, quality gate controls, and the ability to learn over time (self-update). Take a look...</p>
+
+  <h2>The Three Pillars</h2>
+  <p>In order to move from 'vibe' to 'agentic' coding, I've ended up with this taxonomy. First we'll take a look at the three major components of my harness skaffolding. Then I'll describe how the agentic value arises within cross-sections of the components.</p>
+  <p><img src="../../astro/public/diagrams/anatomy-three-pillars.svg" alt="Venn diagram of the three pillars — Task Tracking, Workspace Isolation, and Agentic Config — with Ephemeral Plan, Long Term Memory, and Asynchronous Tasks at their intersections"></p>
+
+  <h3>Task Tracking</h3>
+  <p>The core functionality of the task tracker is the same as JIRA or Trello. Tasks are stored as indiviudal entities mapped to Epics, and may contain subtasks. Each task entity has a status property and the task lifecycle is represented as a progression through the statuses:</p>
+  <p><img src="../../astro/public/diagrams/anatomy-task-lifecycle.svg" alt="Task lifecycle flow: undefined, ready, in progress, in review, completed"><br>
+  <em>Task status lifecycle — states progress from light to dark as work moves toward completion</em></p>
+  <p>I use <a href="https://github.com/beads-project/beads">Beads</a> task manager, which stores tasks, epics, and dependency relationships within the repo in the form of a Dolt database. I use <a href="https://github.com/Dicklesworthstone/beads_viewer">Beads Viewer</a> atop Beads to easily triage and expose task dependencies. The <code>.beads/</code> directory in every workspace is symlinked to a single persistent checkout (<code>beads-sync/</code>), so task state stays consistent no matter which branch I'm on. This is what enables parallelism: multiple agent sessions can work on independent tasks simultaneously, each isolated, all reading from the same task graph.</p>
+<pre><code>BannerFM/
+├── main/                   ← primary checkout
+├── beads-sync/             ← persistent shared task store
+├── fix-auth-bug/           ← task workspace (ephemeral)
+└── add-user-endpoint/      ← task workspace (ephemeral)
+
+Each branch of main symlinks to ./beads --> beads-sync/.beads/</code></pre>
+
+  <h3>Workspace Isolation</h3>
+  <p>Each task needs its own workspace so that changes don't bleed across workstreams. Without isolation, I found that agents working on one task would inadvertently stage or modify files belonging to another. Separate workspaces also mean separate git branches, which makes the eventual PR a clean diff of just that task's changes.</p>
+  <p>I use <a href="https://cmux.com/"><strong>cmux</strong></a> to spin up a workspace per task — each gets its own terminal session and git branch.</p>
+
+  <h3>The Agent Configuration</h3>
+  <p>The whole dev process is kicked off with slash commands, the core of which realize the task lifecycle through four steps:</p>
+<pre><code>┌─────────────────┐
+│  /task-selector │  Pick from backlog or plan new work
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   /start-task   │  Create cmux workspace + git branch, claim task
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   /finish-task  │  Push, create PR, transition to review,
+│                 │  verify merge, close task, cleanup
+└─────────────────┘</code></pre>
+  <p>There are two planning phases:</p>
+  <ol>
+    <li>The <strong>brainstorming</strong> skill runs research-driven Q&amp;A to define epics and tasks, then auto-decomposes large tasks into properly-sized subtasks (~5 files, ~150 lines changed per task).</li>
+    <li>The <strong>writing-plans</strong> skill is triggered when the <code>/start-task</code> slash command is invoked for a tasks with an <code>undefined</code> status.</li>
+  </ol>
+
+  <h2>Putting It Together</h2>
+  <p>The three pillars — issue tracking, workspace isolation, and agentic configuration — form a closed loop.</p>
+  <blockquote><p><strong>Ephemeral Plan</strong> — Because task tracking decomposes work into scoped units and workspace isolation gives each unit its own branch, every task starts with a focused implementation plan that lives only as long as the task itself. The plan doesn't need to survive beyond the PR — it's disposable by design, which is what keeps it specific enough to be useful.</p></blockquote>
+  <p>The result, for me, is a setup where the agent operates with roughly the same structure I'd expect from a human teammate: picking work from a prioritized backlog, working in isolation, following established procedures, reviewing its own output, and keeping documentation current. I've found that the scaffolding doesn't make the agent smarter — it improves <em>consistenty</em>.</p>
+</article>
