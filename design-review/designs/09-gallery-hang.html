@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>codeTango · Gallery Hang</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Tokens ---------- */
+  :root {
+    --wall: #E3ECEA;          /* pale grey-teal gallery wall */
+    --panel: #F6F9F8;         /* hung paper piece */
+    --ink: #172E2A;
+    --muted: #4A5F5B;
+    --accent: #00675B;
+    --rail: #A6BDB8;
+    --wire: #8FA9A4;
+    --hairline: #CBD9D6;
+    --feature: #0F4A43;       /* the one deep-teal piece on the wall */
+    --feature-ink: #E7F3F0;
+    --feature-muted: #A9CFC8;
+    --code-bg: #E8EFED;
+    --code-ink: #1D3330;
+    --wordmark-code: #0F3328;
+    --wordmark-tango: #00675B;
+    --gutter: clamp(1.25rem, 5vw, 4rem);
+    --serif: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+    --sans: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", "Liberation Mono", monospace;
+    color-scheme: light;
+  }
+  html[data-theme="dark"] {
+    --wall: #0E2124;          /* dimmed gallery */
+    --panel: #152E31;
+    --ink: #DCEAE6;
+    --muted: #8EADA8;
+    --accent: #67D3C4;
+    --rail: #2F5155;
+    --wire: #3E6367;
+    --hairline: #234246;
+    --feature: #1C5952;
+    --feature-ink: #EEF7F5;
+    --feature-muted: #B6DCD5;
+    --code-bg: #0F2427;
+    --code-ink: #CFE3DF;
+    --wordmark-code: #C2E4DD;
+    --wordmark-tango: #67D3C4;
+    color-scheme: dark;
+  }
+
+  /* ---------- Base ---------- */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--wall);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  main { flex: 1; }
+  a { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  html[data-view="home"] [data-page="post"],
+  html[data-view="post"] [data-page="home"] { display: none; }
+
+  /* ---------- Chrome ---------- */
+  .site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.4rem var(--gutter);
+  }
+  .wordmark {
+    font-family: var(--serif);
+    font-size: 1.85rem;
+    line-height: 1;
+    text-decoration: none;
+    letter-spacing: -0.01em;
+  }
+  .wordmark em { font-style: italic; color: var(--wordmark-code); }
+  .wordmark span { color: var(--wordmark-tango); }
+  .site-nav { display: flex; align-items: center; gap: 1.3rem; font-size: 0.95rem; }
+  .site-nav a { color: var(--ink); text-decoration-color: var(--rail); }
+  .site-nav a[aria-current="page"] { color: var(--accent); text-decoration-color: currentColor; }
+  .nav-icons { display: inline-flex; align-items: center; gap: 0.5rem; }
+
+  .theme-toggle, .icon-link { display: inline-flex; padding: 0.2rem; background: none; border: 0; border-radius: 6px; cursor: pointer; color: var(--muted); }
+  .theme-toggle:hover, .icon-link:hover { color: var(--accent); }
+  .theme-toggle svg, .icon-link svg { width: 17px; height: 17px; }
+  .icon-moon { display: none; }
+  html[data-theme="dark"] .icon-moon { display: block; }
+  html[data-theme="dark"] .icon-sun { display: none; }
+
+  .site-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 4rem;
+    padding: 1.5rem var(--gutter) 2rem;
+    border-top: 1px solid var(--hairline);
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  .footer-links { display: inline-flex; align-items: center; gap: 1.05rem; }
+  .footer-links a { display: inline-flex; color: var(--muted); }
+  .footer-links a:hover { color: var(--accent); }
+  .footer-links svg { width: 18px; height: 18px; display: block; }
+  .footer-links svg.pp-hat { width: auto; height: 21px; }
+
+  /* ---------- Home: the wall ---------- */
+  .wall-intro {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem 2rem;
+    padding: 2rem var(--gutter) 1.75rem;
+  }
+  .wall-intro h1 {
+    margin: 0;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(2.6rem, 5vw, 3.6rem);
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+  .wall-intro p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+  .wall {
+    list-style: none;
+    margin: 0;
+    padding: 0 var(--gutter) 1.5rem;
+    display: flex;
+    gap: clamp(2.5rem, 5vw, 5rem);
+    min-height: 40rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    border-top: 2px solid var(--rail);
+    scrollbar-width: thin;
+    scrollbar-color: var(--wire) transparent;
+  }
+  .wall:focus-visible { outline-offset: -2px; }
+
+  .hang {
+    flex: none;
+    scroll-snap-align: start;
+    display: grid;
+    grid-template-rows: minmax(2.5rem, 1fr) auto minmax(2.5rem, 1fr);
+    grid-template-columns: 100%;
+  }
+  /* picture wire: a V from the rail hook to the top corners of the piece */
+  .hang::before {
+    content: "";
+    grid-row: 1;
+    grid-column: 1;
+    justify-self: center;
+    width: 62%;
+    background:
+      linear-gradient(to bottom right, transparent calc(50% - 0.6px), var(--wire) 50%, transparent calc(50% + 0.6px)) left / 50% 100% no-repeat,
+      linear-gradient(to top right, transparent calc(50% - 0.6px), var(--wire) 50%, transparent calc(50% + 0.6px)) right / 50% 100% no-repeat;
+  }
+  .hang::after {
+    content: "";
+    grid-row: 1;
+    grid-column: 1;
+    justify-self: center;
+    align-self: start;
+    width: 8px;
+    height: 8px;
+    margin-top: -5px;
+    border-radius: 50%;
+    background: var(--rail);
+  }
+  .hang:nth-child(1) { width: clamp(22rem, 46vw, 44rem); --h: 31rem; }
+  .hang:nth-child(2) { width: clamp(17rem, 27vw, 25rem); --h: 23rem; }
+  .hang:nth-child(3) { width: clamp(19rem, 37vw, 34rem); --h: 27rem; }
+  .hang:nth-child(4) { width: clamp(18rem, 32vw, 30rem); --h: 25rem; }
+
+  .piece {
+    grid-row: 2;
+    grid-column: 1;
+    position: relative;
+    container-type: inline-size;
+    min-height: var(--h);
+    display: flex;
+    flex-direction: column;
+    padding: clamp(1.5rem, 2.5vw, 2.5rem);
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+  }
+  .piece h2 {
+    margin: 0 0 1.25rem;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(2rem, 10cqi, 3.75rem);
+    line-height: 1.02;
+    letter-spacing: -0.012em;
+    text-wrap: balance;
+  }
+  .piece h2 a {
+    color: var(--ink);
+    text-decoration-color: var(--rail);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.14em;
+  }
+  .piece h2 a::after { content: ""; position: absolute; inset: 0; }
+  .piece h2 a:focus-visible { outline: none; }
+  .piece:has(a:focus-visible) { outline: 2px solid var(--accent); outline-offset: 4px; }
+  .piece:hover h2 a { text-decoration-color: var(--accent); }
+  .piece .synopsis { margin: 0; max-width: 36ch; color: var(--muted); font-size: 1rem; line-height: 1.6; }
+
+  .placard {
+    margin: auto 0 0;
+    padding-top: 2rem;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+  .placard time { display: block; color: var(--ink); font-weight: 500; }
+  .placard .medium { display: block; font-style: italic; }
+
+  /* the newest piece is hung in deep teal */
+  .hang:nth-child(1) .piece { background: var(--feature); border-color: var(--feature); }
+  .hang:nth-child(1) .piece h2 a { color: var(--feature-ink); text-decoration-color: var(--feature-muted); }
+  .hang:nth-child(1) .piece:hover h2 a { text-decoration-color: var(--feature-ink); }
+  .hang:nth-child(1) .synopsis,
+  .hang:nth-child(1) .placard { color: var(--feature-muted); }
+  .hang:nth-child(1) .placard time { color: var(--feature-ink); }
+  .hang:nth-child(1) .piece:has(a:focus-visible) { outline-color: var(--accent); }
+
+  @media (max-width: 759.98px) {
+    .site-header { flex-wrap: wrap; }
+    .wall {
+      display: block;
+      min-height: 0;
+      overflow: visible;
+      scroll-snap-type: none;
+      padding-top: 2rem;
+      padding-bottom: 0;
+    }
+    .wall .hang:nth-child(n) { display: block; width: auto; margin-bottom: 1.75rem; }
+    .hang::before, .hang::after { display: none; }
+    .piece { min-height: 0; }
+    .piece h2 { font-size: clamp(1.9rem, 9cqi, 2.6rem); }
+  }
+
+  /* ---------- Post ---------- */
+  .exhibit { padding: 0 var(--gutter); }
+  .opening, .sheet { max-width: 46rem; margin-inline: auto; }
+  .opening {
+    padding: clamp(2.5rem, 7vw, 5rem) clamp(0rem, 4vw, 3.5rem) 2.75rem;
+  }
+  .opening h1 {
+    margin: 0 0 1.75rem;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(2.6rem, 7vw, 4.6rem);
+    line-height: 1.0;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+  .opening-body { display: grid; gap: 1.5rem; }
+  .opening .synopsis {
+    margin: 0;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 1.12rem;
+    line-height: 1.6;
+  }
+  .opening .placard { margin: 0; padding: 0.9rem 0 0; border-top: 2px solid var(--accent); width: fit-content; min-width: 12rem; }
+  .opening .placard .who { display: block; color: var(--ink); font-weight: 600; }
+  .opening .placard time { font-weight: 400; color: var(--muted); }
+  @media (min-width: 760px) {
+    .opening-body { grid-template-columns: minmax(0, 1fr) 13rem; gap: 2.5rem; align-items: start; }
+    .opening .placard { margin-top: 0.35rem; width: auto; }
+  }
+
+  .sheet {
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+    padding: clamp(1.5rem, 5vw, 3.5rem);
+    font-size: 1.0625rem;
+    line-height: 1.75;
+  }
+  .sheet > :first-child { margin-top: 0; }
+  .sheet > :last-child { margin-bottom: 0; }
+  .sheet p, .sheet ol, .sheet pre, .sheet blockquote { margin: 0 0 1.25rem; }
+  .sheet h2 {
+    margin: 3rem 0 0.9rem;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(1.9rem, 4vw, 2.4rem);
+    line-height: 1.1;
+  }
+  .sheet h3 { margin: 2.25rem 0 0.5rem; font-size: 1.15rem; font-weight: 600; line-height: 1.35; }
+  .sheet img { display: block; max-width: 100%; height: auto; margin: 0.5rem auto; }
+  .sheet .caption { display: block; margin-top: 0.4rem; font-size: 0.9rem; color: var(--muted); text-align: center; }
+  html[data-theme="dark"] .sheet img[src*="/diagrams/"] { background: #EEF4F2; border-radius: 10px; padding: 1rem; }
+
+  .sheet code { font-family: var(--mono); font-size: 0.88em; background: var(--code-bg); color: var(--code-ink); padding: 0.1em 0.35em; border-radius: 3px; }
+  .sheet pre {
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 1.1rem 1.25rem;
+    border-left: 2px solid var(--accent);
+    overflow-x: auto;
+    white-space: pre;
+    font-family: var(--mono);
+    font-size: 0.84rem;
+    line-height: 1.5;
+    -webkit-text-size-adjust: none;
+  }
+  .sheet pre code { background: none; padding: 0; font-size: inherit; border-radius: 0; }
+  .sheet ol { padding-left: 1.4rem; }
+  .sheet li + li { margin-top: 0.5rem; }
+  .sheet blockquote {
+    margin-inline: 0;
+    padding: 0.2rem 0 0.2rem 1.4rem;
+    border-left: 2px solid var(--accent);
+    color: var(--ink);
+  }
+  .sheet blockquote p { margin: 0; }
+
+  /* ---------- Motion ---------- */
+  @media (prefers-reduced-motion: no-preference) {
+    .wall { scroll-behavior: smooth; }
+    body, .piece, .sheet, .site-footer, .wall, a, .theme-toggle, .icon-link {
+      transition: background-color 220ms ease, color 220ms ease, border-color 220ms ease, text-decoration-color 160ms ease;
+    }
+  }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <a class="wordmark" href="?view=home" data-goto="home"><em>code</em><span>Tango</span></a>
+  <nav class="site-nav" aria-label="Main">
+    <a href="?view=home" data-goto="home" aria-current="page">Posts</a>
+    <a href="/about">About</a>
+    <span class="nav-icons">
+      <button class="icon-link" aria-label="Search" title="Search (⌘K or /)">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle>
+          <path d="m20 20-3.8-3.8"></path>
+        </svg>
+      </button>
+      <button class="theme-toggle" data-theme-toggle aria-label="Toggle color theme" title="Toggle color theme">
+        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+        </svg>
+        <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"></path>
+        </svg>
+      </button>
+    </span>
+  </nav>
+</header>
+
+<main data-page="home">
+  <div class="wall-intro">
+    <h1>Posts</h1>
+    <p>Newest first. Scroll sideways to walk the wall.</p>
+  </div>
+  <ol class="wall" tabindex="0" aria-label="Posts, newest first. Scrolls sideways.">
+    <li class="hang">
+      <div class="piece">
+        <h2><a href="?view=post" data-goto="post">Anatomy of My Agentic Development Setup</a></h2>
+        <p class="synopsis">My agentic development setup isn't one tool — it's three systems working together. Each serves a distinct role, and the value cis dervied from how they overlap.</p>
+        <p class="placard">
+          <time datetime="2026-03-14">Mar 14, 2026</time>
+          6 min read, Agentic Development
+          <span class="medium">agents, orchestration, local-dev, deep-dive</span>
+        </p>
+      </div>
+    </li>
+    <li class="hang">
+      <div class="piece">
+        <h2><a href="?view=post" data-goto="post">Profiling Agentic Configurations</a></h2>
+        <p class="placard">
+          <time datetime="2026-02-10">Feb 10, 2026</time>
+          1 min read, Agentic Development
+          <span class="medium">agents, orchestration, evaluation, cost-management</span>
+        </p>
+      </div>
+    </li>
+    <li class="hang">
+      <div class="piece">
+        <h2><a href="?view=post" data-goto="post">How Stub and Mock</a></h2>
+        <p class="synopsis">A quick visual guide to telling stubs and mocks apart in day-to-day testing.</p>
+        <p class="placard">
+          <time datetime="2024-05-27">May 27, 2024</time>
+          1 min read, Testing
+          <span class="medium">mocks, stubs, testing</span>
+        </p>
+      </div>
+    </li>
+    <li class="hang">
+      <div class="piece">
+        <h2><a href="?view=post" data-goto="post">Beyond Mocks vs Stubs</a></h2>
+        <p class="synopsis">A practical breakdown of mocks vs stubs and when each test double is the right tool.</p>
+        <p class="placard">
+          <time datetime="2024-05-26">May 26, 2024</time>
+          1 min read, Testing
+          <span class="medium">mocks, stubs, testing</span>
+        </p>
+      </div>
+    </li>
+  </ol>
+</main>
+
+<main data-page="post">
+  <article class="exhibit">
+    <header class="opening">
+      <h1>Anatomy of My Agentic Development Setup</h1>
+      <div class="opening-body">
+        <p class="synopsis">My agentic development setup isn't one tool — it's three systems working together. Each serves a distinct role, and the value cis dervied from how they overlap.</p>
+        <p class="placard">
+          <span class="who">Sam Graham</span>
+          <time datetime="2026-03-14">Mar 14, 2026</time>
+          6 min read, Agentic Development
+          <span class="medium">agents, orchestration, local-dev, deep-dive</span>
+        </p>
+      </div>
+    </header>
+
+    <div class="sheet">
+      <p>My dev agent(s) are as crucial to my product outcome as any other first-class team member. Just like any new team member, my agentic setup is based on; issue tracking, workspace isolation, quality gate controls, and the ability to learn over time (self-update). Take a look...</p>
+
+      <h2>The Three Pillars</h2>
+      <p>In order to move from 'vibe' to 'agentic' coding, I've ended up with this taxonomy. First we'll take a look at the three major components of my harness skaffolding. Then I'll describe how the agentic value arises within cross-sections of the components.</p>
+      <p><img src="../../astro/public/diagrams/anatomy-three-pillars.svg" alt="Venn diagram of the three pillars — Task Tracking, Workspace Isolation, and Agentic Config — with Ephemeral Plan, Long Term Memory, and Asynchronous Tasks at their intersections"></p>
+
+      <h3>Task Tracking</h3>
+      <p>The core functionality of the task tracker is the same as JIRA or Trello. Tasks are stored as indiviudal entities mapped to Epics, and may contain subtasks. Each task entity has a status property and the task lifecycle is represented as a progression through the statuses:</p>
+      <p><img src="../../astro/public/diagrams/anatomy-task-lifecycle.svg" alt="Task lifecycle flow: undefined, ready, in progress, in review, completed"><br>
+      <em class="caption">Task status lifecycle — states progress from light to dark as work moves toward completion</em></p>
+      <p>I use <a href="https://github.com/beads-project/beads">Beads</a> task manager, which stores tasks, epics, and dependency relationships within the repo in the form of a Dolt database. I use <a href="https://github.com/Dicklesworthstone/beads_viewer">Beads Viewer</a> atop Beads to easily triage and expose task dependencies. The <code>.beads/</code> directory in every workspace is symlinked to a single persistent checkout (<code>beads-sync/</code>), so task state stays consistent no matter which branch I'm on. This is what enables parallelism: multiple agent sessions can work on independent tasks simultaneously, each isolated, all reading from the same task graph.</p>
+<pre><code>BannerFM/
+├── main/                   ← primary checkout
+├── beads-sync/             ← persistent shared task store
+├── fix-auth-bug/           ← task workspace (ephemeral)
+└── add-user-endpoint/      ← task workspace (ephemeral)
+
+Each branch of main symlinks to ./beads --> beads-sync/.beads/</code></pre>
+
+      <h3>Workspace Isolation</h3>
+      <p>Each task needs its own workspace so that changes don't bleed across workstreams. Without isolation, I found that agents working on one task would inadvertently stage or modify files belonging to another. Separate workspaces also mean separate git branches, which makes the eventual PR a clean diff of just that task's changes.</p>
+      <p>I use <a href="https://cmux.com/"><strong>cmux</strong></a> to spin up a workspace per task — each gets its own terminal session and git branch.</p>
+
+      <h3>The Agent Configuration</h3>
+      <p>The whole dev process is kicked off with slash commands, the core of which realize the task lifecycle through four steps:</p>
+<pre><code>┌─────────────────┐
+│  /task-selector │  Pick from backlog or plan new work
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   /start-task   │  Create cmux workspace + git branch, claim task
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   /finish-task  │  Push, create PR, transition to review,
+│                 │  verify merge, close task, cleanup
+└─────────────────┘</code></pre>
+      <p>There are two planning phases:</p>
+      <ol>
+        <li>The <strong>brainstorming</strong> skill runs research-driven Q&amp;A to define epics and tasks, then auto-decomposes large tasks into properly-sized subtasks (~5 files, ~150 lines changed per task).</li>
+        <li>The <strong>writing-plans</strong> skill is triggered when the <code>/start-task</code> slash command is invoked for a tasks with an <code>undefined</code> status.</li>
+      </ol>
+
+      <h2>Putting It Together</h2>
+      <p>The three pillars — issue tracking, workspace isolation, and agentic configuration — form a closed loop.</p>
+      <blockquote><p><strong>Ephemeral Plan</strong> — Because task tracking decomposes work into scoped units and workspace isolation gives each unit its own branch, every task starts with a focused implementation plan that lives only as long as the task itself. The plan doesn't need to survive beyond the PR — it's disposable by design, which is what keeps it specific enough to be useful.</p></blockquote>
+      <p>The result, for me, is a setup where the agent operates with roughly the same structure I'd expect from a human teammate: picking work from a prioritized backlog, working in isolation, following established procedures, reviewing its own output, and keeping documentation current. I've found that the scaffolding doesn't make the agent smarter — it improves <em>consistenty</em>.</p>
+    </div>
+  </article>
+</main>
+
+<footer class="site-footer">
+  <span>© 2026 Sam Graham</span>
+<span class="footer-links">
+  <a href="/rss.xml" aria-label="RSS feed">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19 7.38 20 6.18 20 5 20 4 19 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44M4 10.1A9.9 9.9 0 0 1 13.9 20h-2.83A7.07 7.07 0 0 0 4 12.93V10.1Z"/></svg>
+  </a>
+  <a href="https://github.com/SamGrah" aria-label="GitHub">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+  </a>
+  <a href="https://www.linkedin.com/in/samgr/" aria-label="LinkedIn">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+  </a>
+  <a href="https://www.google.com/search?q=silicon+valley+hbo" title="Middle-out compression" aria-label="Pied Piper">
+    <svg class="pp-hat" viewBox="0 0 640 512" fill="currentColor" aria-hidden="true"><path d="M640 24.9c-80.8 53.6-89.4 92.5-96.4 104.4-6.7 12.2-11.7 60.3-23.3 83.6-11.7 23.6-54.2 42.2-66.1 50-11.7 7.8-28.3 38.1-41.9 64.2-108.1-4.4-167.4 38.8-259.2 93.6 29.4-9.7 43.3-16.7 43.3-16.7 94.2-36 139.3-68.3 281.1-49.2 1.1 0 1.9 .6 2.8 .8 3.9 2.2 5.3 6.9 3.1 10.8l-53.9 95.8c-2.5 4.7-7.8 7.2-13.1 6.1-126.8-23.8-226.9 17.3-318.9 18.6-73.4 1.1-97.5-33.5-97.5-35.1 0-1.1 .6-1.7 1.7-1.7 0 0 38.3 0 103.1-15.3 73.6-140.3 139.2-189.4 210.6-189.4 0 0 71.7 0 90.6 61.9 22.8-39.7 28.3-49.2 28.3-49.2 5.3-9.4 35-77.2 86.4-141.4 51.5-64 90.4-79.9 119.3-91.8z"/></svg>
+  </a>
+</span>
+</footer>
+<script src="_frame.js"></script>
+</body>
+</html>

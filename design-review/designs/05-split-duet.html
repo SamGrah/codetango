@@ -9,7 +9,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&display=swap" rel="stylesheet">
 <style>
 /*
-  Split Duet
+  Split Duet (revision 2)
+  Home: a fixed teal partner on the left, the calm floor on the right.
+  Post: the partner leads from above as a full-width teal band; the article
+  follows on the floor in one centred column that the band shares.
   Palette
     Partner Teal   #0B4F49  painted panel, light
     Night Partner  #06302C  painted panel, dark
@@ -40,6 +43,11 @@
   --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
   --text-face: "Source Serif 4", Georgia, "Times New Roman", serif;
   --mono: ui-monospace, "SF Mono", Menlo, "Cascadia Mono", Consolas, "DejaVu Sans Mono", monospace;
+
+  /* One centred column shared by every stacked block */
+  --gutter: clamp(1.25rem, 5vw, 3.5rem);
+  --col: 38rem;
+  --inset: max(var(--gutter), calc((100% - var(--col)) / 2));
 
   color-scheme: light;
 }
@@ -79,14 +87,13 @@ body {
   line-height: 1.7;
   font-optical-sizing: auto;
   text-rendering: optimizeLegibility;
+  overflow-x: hidden;
 }
 ::selection { background: var(--panel-accent); color: #06302C; }
 
 a { color: var(--link); text-decoration: underline; text-decoration-color: var(--link-line); text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
 a:hover { text-decoration-color: currentColor; text-decoration-thickness: 2px; }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 2px; }
-
-.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
 
 /* ---------- The painted partner ---------- */
 .site-head,
@@ -102,10 +109,10 @@ a:hover { text-decoration-color: currentColor; text-decoration-thickness: 2px; }
 .site-head {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 0.75rem 2rem;
-  padding: 1.5rem clamp(1.25rem, 5vw, 3.5rem) 0;
+  padding: 1.5rem var(--inset) 0;
 }
 .wordmark {
   font-size: 1.75rem;
@@ -114,36 +121,38 @@ a:hover { text-decoration-color: currentColor; text-decoration-thickness: 2px; }
   font-stretch: 85%;
   text-decoration: none !important;
 }
-.wordmark em { font-style: normal; font-weight: 300; color: var(--panel-text); }
+.wordmark em {
+  font-family: var(--text-face);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--panel-text);
+}
 .wordmark span { font-weight: 800; color: var(--panel-accent); }
 
-.nav { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 1.5rem; font-size: 1rem; font-weight: 500; }
-.nav a { text-decoration-thickness: 1px; text-underline-offset: 0.3em; }
+.nav { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 1.5rem; font-size: 1rem; font-weight: 500; }
+.nav a { text-underline-offset: 0.3em; }
 .nav a[aria-current="page"] { text-decoration-color: var(--panel-accent); text-decoration-thickness: 3px; }
-.nav button {
-  font: inherit;
-  color: var(--panel-text);
+.nav-tools { display: inline-flex; align-items: center; gap: 0.6rem; }
+
+.theme-toggle, .icon-link {
+  display: inline-flex;
+  padding: 0.2rem;
   background: none;
   border: 0;
-  padding: 0;
+  border-radius: 6px;
   cursor: pointer;
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.4em;
-  text-decoration: underline;
-  text-decoration-color: var(--panel-rule);
-  text-underline-offset: 0.3em;
+  color: var(--panel-text);
 }
-.nav button:hover { text-decoration-color: var(--panel-accent); }
-.nav kbd { font-family: var(--display); font-size: 0.8em; color: var(--panel-soft); border: 1px solid var(--panel-rule); border-radius: 4px; padding: 0 0.3em; }
-.theme-name-dark { display: none; }
-html[data-theme="dark"] .theme-name-light { display: none; }
-html[data-theme="dark"] .theme-name-dark { display: inline; }
-.theme-icon { display: inline-block; width: 0.8em; height: 0.8em; border-radius: 50%; border: 1.5px solid currentColor; background: transparent; align-self: center; }
-html[data-theme="dark"] .theme-icon { background: currentColor; }
+.theme-toggle:hover, .icon-link:hover { color: var(--panel-accent); }
+.theme-toggle:focus-visible, .icon-link:focus-visible { border-radius: 6px; }
+.theme-toggle svg, .icon-link svg { width: 17px; height: 17px; }
+.icon-moon { display: none; }
+html[data-theme="dark"] .icon-moon { display: block; }
+html[data-theme="dark"] .icon-sun { display: none; }
 
 .lede {
-  padding: 3rem clamp(1.25rem, 5vw, 3.5rem) 3rem;
+  padding: 3rem var(--inset);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -164,11 +173,11 @@ html[data-theme="dark"] .theme-icon { background: currentColor; }
   font-stretch: 76%;
   line-height: 0.94;
   letter-spacing: -0.03em;
-  max-width: 12ch;
+  max-width: 14ch;
 }
 .lede .synopsis {
   margin: 1.5rem 0 0;
-  max-width: 32rem;
+  max-width: 34rem;
   font-family: var(--text-face);
   font-style: italic;
   font-size: 1.2rem;
@@ -179,7 +188,6 @@ html[data-theme="dark"] .theme-icon { background: currentColor; }
   margin: 1.75rem 0 0;
   padding-top: 1rem;
   border-top: 1px solid var(--panel-rule);
-  max-width: 32rem;
   font-size: 0.95rem;
   line-height: 1.6;
   color: var(--panel-soft);
@@ -190,10 +198,9 @@ html[data-theme="dark"] .theme-icon { background: currentColor; }
 /* ---------- The calm floor ---------- */
 .reading,
 .prose {
-  padding: 3rem clamp(1.25rem, 5vw, 3.5rem) 4rem;
+  padding: 3rem var(--inset) 4rem;
   min-width: 0;
 }
-.reading > *, .prose > * { max-width: 36rem; }
 
 .posts { list-style: none; margin: 0; padding: 0; }
 .posts > li { padding: 1.75rem 0; border-top: 1px solid var(--rule); }
@@ -206,8 +213,9 @@ html[data-theme="dark"] .theme-icon { background: currentColor; }
 .row-meta time { color: var(--text); font-weight: 600; }
 .row-tags { display: block; }
 
-.prose { font-size: 1.1875rem; line-height: 1.72; }
+.prose { font-size: 1.1875rem; line-height: 1.72; padding-top: 3.25rem; }
 .prose p, .prose ol, .prose pre, .prose blockquote { margin: 0 0 1.35rem; }
+.prose > :first-child { margin-top: 0; }
 .prose h2 { font-family: var(--display); font-weight: 720; font-stretch: 82%; font-size: 2rem; line-height: 1.08; letter-spacing: -0.02em; margin: 3rem 0 1rem; }
 .prose h3 { font-family: var(--display); font-weight: 650; font-stretch: 90%; font-size: 1.35rem; line-height: 1.2; margin: 2.25rem 0 0.6rem; }
 .prose ol { padding-left: 1.4rem; }
@@ -233,25 +241,46 @@ html[data-theme="dark"] .prose img { padding: 1rem; }
 .prose blockquote p { margin: 0; }
 
 .site-foot {
-  padding: 1.75rem clamp(1.25rem, 5vw, 3.5rem) 2.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  padding: 1.75rem var(--inset) 2.5rem;
   border-top: 1px solid var(--rule);
   font-family: var(--display);
   font-size: 0.92rem;
   color: var(--muted);
 }
-.site-foot ul { display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; list-style: none; margin: 0; padding: 0; }
-.site-foot li:first-child { margin-right: auto; }
+.footer-links { display: inline-flex; align-items: center; gap: 1.05rem; }
+.footer-links a { display: inline-flex; color: var(--muted); border-radius: 4px; }
+.footer-links a:hover { color: var(--link); }
+.footer-links svg { width: 18px; height: 18px; display: block; }
+.footer-links svg.pp-hat { width: auto; height: 21px; }
 
-/* ---------- The split ---------- */
+/* ---------- Post, wide: the partner leads from above ---------- */
 @media (min-width: 1000px) {
-  body::before {
+  html[data-view="post"] .site-head { padding-top: 2rem; }
+  html[data-view="post"] .lede {
+    padding-top: clamp(4rem, 11vh, 7rem);
+    padding-bottom: clamp(3rem, 8vh, 4.5rem);
+    /* the band's last line is a spark hairline, the hand-off to the floor */
+    box-shadow: inset 0 -3px 0 var(--panel-accent);
+  }
+  html[data-view="post"] .post-title { font-size: clamp(3rem, 5vw, 4.75rem); }
+  html[data-view="post"] .prose { padding-top: 4rem; }
+}
+
+/* ---------- Home, wide: the split ---------- */
+@media (min-width: 1000px) {
+  html[data-view="home"] body::before {
     content: "";
     position: fixed;
     inset: 0 50% 0 0;
     background: var(--panel);
     z-index: 0;
   }
-  .site-head {
+  html[data-view="home"] .site-head {
     position: fixed;
     top: 0; left: 0;
     width: 50%;
@@ -259,7 +288,7 @@ html[data-theme="dark"] .prose img { padding: 1rem; }
     padding: 2.25rem clamp(2.5rem, 4.5vw, 5rem) 0;
     background: transparent;
   }
-  .lede {
+  html[data-view="home"] .lede {
     position: fixed;
     top: 0; left: 0;
     width: 50%;
@@ -271,28 +300,25 @@ html[data-theme="dark"] .prose img { padding: 1rem; }
     background: transparent;
     padding: 8rem clamp(2.5rem, 4.5vw, 5rem) clamp(2.5rem, 7vh, 5rem);
   }
-  .lede > * { flex-shrink: 0; }
-  .lede > :first-child { margin-top: auto; }
+  html[data-view="home"] .lede > * { flex-shrink: 0; }
+  html[data-view="home"] .lede > :first-child { margin-top: auto; }
   .home-line { font-size: clamp(2.6rem, 4.3vw, 4.6rem); max-width: 13ch; }
-  .post-title { font-size: clamp(2.8rem, 5.2vw, 6rem); }
-  .reading, .prose, .site-foot {
+  html[data-view="home"] .reading,
+  html[data-view="home"] .site-foot {
     margin-left: 50%;
     padding-left: clamp(2.5rem, 5vw, 6rem);
     padding-right: clamp(2rem, 4vw, 5rem);
   }
-  .reading, .prose { padding-top: 6.5rem; min-height: 100vh; }
-  .site-foot { border-top-color: var(--rule); }
-}
-@media (min-width: 1000px) and (max-height: 720px) {
-  .post-title { font-size: clamp(2.4rem, 4vw, 3.6rem); }
-  .lede .synopsis { font-size: 1.05rem; }
+  html[data-view="home"] .reading { padding-top: 6.5rem; min-height: 100vh; }
+  html[data-view="home"] .reading > * { max-width: 36rem; }
+  html[data-view="home"] .site-foot { justify-content: flex-start; gap: 0.75rem 2.5rem; }
 }
 
 @media (prefers-reduced-motion: no-preference) {
   body, body::before, .site-head, .lede, .site-foot, .posts > li, .prose pre, .prose code, .prose img {
     transition: background-color 220ms ease, color 220ms ease, border-color 220ms ease;
   }
-  a { transition: color 150ms ease, text-decoration-color 150ms ease; }
+  a, .theme-toggle, .icon-link { transition: color 150ms ease, text-decoration-color 150ms ease; }
   .lede h1 { animation: enter 520ms cubic-bezier(0.22, 1, 0.36, 1) both; }
   @keyframes enter {
     from { opacity: 0; transform: translateY(0.4em); }
@@ -304,16 +330,27 @@ html[data-theme="dark"] .prose img { padding: 1rem; }
 <body>
 
 <header class="site-head">
-  <a class="wordmark" href="?view=home" data-goto="home" aria-label="codeTango home"><em>code</em><span>Tango</span></a>
+  <a class="wordmark" href="?view=home" data-goto="home"><em>code</em><span>Tango</span></a>
   <nav class="nav" aria-label="Main">
     <a href="?view=home" data-goto="home" aria-current="page">Posts</a>
     <a href="#about">About</a>
-    <button type="button" aria-label="Search (⌘K)"><span>Search</span><kbd>⌘K</kbd></button>
-    <button type="button" data-theme-toggle>
-      <span class="theme-icon" aria-hidden="true"></span>
-      <span class="vh">Switch color theme. Current theme:</span>
-      <span class="theme-name-light">Light</span><span class="theme-name-dark">Dark</span>
-    </button>
+    <span class="nav-tools">
+      <button class="icon-link" aria-label="Search" title="Search (⌘K or /)">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle>
+          <path d="m20 20-3.8-3.8"></path>
+        </svg>
+      </button>
+      <button class="theme-toggle" data-theme-toggle aria-label="Toggle color theme" title="Toggle color theme">
+        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+        </svg>
+        <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"></path>
+        </svg>
+      </button>
+    </span>
   </nav>
 </header>
 
@@ -412,12 +449,21 @@ Each branch of main symlinks to ./beads --> beads-sync/.beads/</code></pre>
 </main>
 
 <footer class="site-foot">
-  <ul>
-    <li>© 2026 Sam Graham</li>
-    <li><a href="#rss">RSS</a></li>
-    <li><a href="#github">GitHub</a></li>
-    <li><a href="#linkedin">LinkedIn</a></li>
-  </ul>
+  <span>© 2026 Sam Graham</span>
+<span class="footer-links">
+  <a href="/rss.xml" aria-label="RSS feed">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19 7.38 20 6.18 20 5 20 4 19 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44M4 10.1A9.9 9.9 0 0 1 13.9 20h-2.83A7.07 7.07 0 0 0 4 12.93V10.1Z"/></svg>
+  </a>
+  <a href="https://github.com/SamGrah" aria-label="GitHub">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+  </a>
+  <a href="https://www.linkedin.com/in/samgr/" aria-label="LinkedIn">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+  </a>
+  <a href="https://www.google.com/search?q=silicon+valley+hbo" title="Middle-out compression" aria-label="Pied Piper">
+    <svg class="pp-hat" viewBox="0 0 640 512" fill="currentColor" aria-hidden="true"><path d="M640 24.9c-80.8 53.6-89.4 92.5-96.4 104.4-6.7 12.2-11.7 60.3-23.3 83.6-11.7 23.6-54.2 42.2-66.1 50-11.7 7.8-28.3 38.1-41.9 64.2-108.1-4.4-167.4 38.8-259.2 93.6 29.4-9.7 43.3-16.7 43.3-16.7 94.2-36 139.3-68.3 281.1-49.2 1.1 0 1.9 .6 2.8 .8 3.9 2.2 5.3 6.9 3.1 10.8l-53.9 95.8c-2.5 4.7-7.8 7.2-13.1 6.1-126.8-23.8-226.9 17.3-318.9 18.6-73.4 1.1-97.5-33.5-97.5-35.1 0-1.1 .6-1.7 1.7-1.7 0 0 38.3 0 103.1-15.3 73.6-140.3 139.2-189.4 210.6-189.4 0 0 71.7 0 90.6 61.9 22.8-39.7 28.3-49.2 28.3-49.2 5.3-9.4 35-77.2 86.4-141.4 51.5-64 90.4-79.9 119.3-91.8z"/></svg>
+  </a>
+</span>
 </footer>
 
 <script src="_frame.js"></script>

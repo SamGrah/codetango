@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-view="home">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>codeTango: Variable Weather</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Recursive:slnt,wght,CASL,CRSV,MONO@-15..0,300..1000,0..1,0..1,0..1&display=swap">
+<style>
+  /* ---------- Axes: one variable family, five registered dials ---------- */
+  @property --mono { syntax: "<number>"; inherits: true; initial-value: 0; }
+  @property --casl { syntax: "<number>"; inherits: true; initial-value: 0; }
+  @property --wght { syntax: "<number>"; inherits: true; initial-value: 400; }
+  @property --slnt { syntax: "<number>"; inherits: true; initial-value: 0; }
+  @property --crsv { syntax: "<number>"; inherits: true; initial-value: 0.5; }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+    font-variation-settings: "MONO" var(--mono), "CASL" var(--casl), "wght" var(--wght), "slnt" var(--slnt), "CRSV" var(--crsv);
+  }
+
+  /* ---------- Tokens ---------- */
+  :root {
+    --bg: #ffffff;
+    --text: #1f2a27;
+    --text-muted: #5f6f6b;
+    --accent: #00796b;
+    --accent-line: rgba(0, 121, 107, 0.45);
+    --wordmark-code: #0f3328;
+    --wordmark-tango: #00796b;
+    --border: #e4eae8;
+    --code-bg: #f4f7f6;
+    --pre-text: #1f2a27;
+
+    --mono-stack: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "DejaVu Sans Mono", "Liberation Mono", monospace;
+    --chrome-w: 60rem;
+    --list-w: 54rem;
+    --read-w: 40rem;
+  }
+  html[data-theme="dark"] {
+    --bg: #0a1a1e;
+    --text: #dbeae7;
+    --text-muted: #83a5a1;
+    --accent: #5ed4c5;
+    --accent-line: rgba(94, 212, 197, 0.5);
+    --wordmark-code: #c2e4dd;
+    --wordmark-tango: #5ed4c5;
+    --border: #17383d;
+    --code-bg: #0e2a2f;
+    --pre-text: #cfe3df;
+    color-scheme: dark;
+  }
+
+  html[data-view="home"] [data-page="post"],
+  html[data-view="post"] [data-page="home"] { display: none; }
+
+  html { -webkit-text-size-adjust: 100%; scrollbar-gutter: stable; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Recursive", system-ui, sans-serif;
+    font-synthesis: none;
+    font-size: 1.125rem;
+    line-height: 1.68;
+    --wght: 400;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  a { color: var(--accent); text-decoration-line: underline; text-decoration-thickness: 1px; text-decoration-color: var(--accent-line); text-underline-offset: 0.2em; }
+  a:hover { text-decoration-color: currentColor; text-decoration-thickness: 2px; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+  em { font-style: italic; --slnt: -15; }
+  strong { font-weight: 700; --wght: 700; }
+
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+  /* ---------- Header ---------- */
+  .site-header {
+    max-width: var(--chrome-w);
+    margin: 0 auto;
+    padding: 1.6rem 1.25rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .wordmark {
+    font-size: 1.6rem;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .wordmark em {
+    color: var(--wordmark-code);
+    --mono: 1; --casl: 1; --slnt: -15; --crsv: 1; --wght: 560;
+    margin-right: 0.04em;
+  }
+  .wordmark span {
+    color: var(--wordmark-tango);
+    --mono: 0; --casl: 0; --slnt: 0; --crsv: 0; --wght: 860;
+  }
+  .wordmark:hover { text-decoration: none; }
+
+  .site-nav { display: flex; align-items: center; gap: 1.15rem; font-size: 0.97rem; --wght: 500; }
+  .site-nav a { color: var(--text-muted); text-decoration: none; }
+  .site-nav a:hover { color: var(--text); }
+  html[data-view="home"] .site-nav .nav-posts { color: var(--text); text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 0.35em; }
+  .nav-icons { display: inline-flex; align-items: center; gap: 0.45rem; margin-left: 0.15rem; }
+
+  .theme-toggle, .icon-link { display: inline-flex; padding: 0.2rem; background: none; border: 0; border-radius: 6px; cursor: pointer; color: var(--text-muted); }
+  .theme-toggle:hover, .icon-link:hover { color: var(--accent); }
+  .theme-toggle svg, .icon-link svg { width: 17px; height: 17px; }
+  .icon-moon { display: none; }
+  html[data-theme="dark"] .icon-moon { display: block; }
+  html[data-theme="dark"] .icon-sun { display: none; }
+
+  /* ---------- Home: the listing ---------- */
+  .listing-wrap {
+    max-width: var(--list-w);
+    margin: 0 auto;
+    padding: 4.5rem 1.25rem 3rem;
+  }
+  .listing { list-style: none; margin: 0; padding: 0; }
+  .entry {
+    display: grid;
+    grid-template-columns: 1fr;
+    padding: 0 0 3.25rem;
+  }
+  .entry-title {
+    margin: 0;
+    font-size: clamp(1.4rem, 1.05rem + 1.5vw, 1.95rem);
+    line-height: 1.22;
+    font-weight: normal;
+  }
+  /* Mono stays on at rest and on hover: every other axis moves, the advance widths never do. */
+  .entry-title a {
+    --mono: 1; --casl: 1; --wght: 400; --slnt: 0;
+    color: var(--text);
+    text-decoration-color: var(--accent-line);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.22em;
+  }
+  .entry-title a:hover,
+  .entry-title a:focus-visible {
+    --casl: 0; --wght: 780;
+    color: var(--accent);
+    text-decoration-color: currentColor;
+  }
+  .entry-synopsis {
+    margin: 0.7rem 0 0;
+    max-width: 38rem;
+    color: var(--text);
+  }
+  .entry-meta {
+    margin: 0.75rem 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 1.25rem;
+    row-gap: 0.15rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+  .entry-meta .cat { --casl: 1; --slnt: -10; font-style: italic; }
+
+  @media (min-width: 52rem) {
+    .entry { grid-template-columns: 8.5rem 1fr; column-gap: 2rem; }
+    .entry-date {
+      grid-column: 1; grid-row: 1;
+      text-align: right;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      padding-top: 0.55rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .entry-body { grid-column: 2; grid-row: 1; }
+    .entry-meta .date { display: none; }
+  }
+  @media (max-width: 51.99rem) {
+    .entry-date { display: none; }
+  }
+
+  /* ---------- Post ---------- */
+  .post {
+    max-width: calc(var(--read-w) + 2.5rem);
+    margin: 0 auto;
+    padding: 4.5rem 1.25rem 3rem;
+  }
+  .post-head { margin-bottom: 2.75rem; }
+  .post h1 {
+    margin: 0;
+    font-size: clamp(2rem, 1.35rem + 2.6vw, 2.9rem);
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    font-weight: normal;
+    --wght: 820; --casl: 0; --mono: 0;
+    text-wrap: balance;
+  }
+  .post .synopsis {
+    margin: 1.1rem 0 0;
+    font-size: 1.2rem;
+    line-height: 1.55;
+    color: var(--text-muted);
+    font-style: italic;
+    --slnt: -15; --casl: 1; --wght: 400;
+  }
+  .post-meta {
+    margin: 1.25rem 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 1.25rem;
+    row-gap: 0.15rem;
+    font-size: 0.92rem;
+    color: var(--text-muted);
+  }
+  .post-meta .author { color: var(--text); --wght: 600; }
+
+  .prose > * { margin: 0 0 1.35rem; }
+  .prose h2, .prose h3 { font-weight: normal; line-height: 1.2; text-wrap: balance; }
+  .prose h2 {
+    font-size: clamp(1.55rem, 1.25rem + 1.2vw, 2rem);
+    margin: 3.4rem 0 1rem;
+    --wght: 780; --casl: 0; --mono: 0; --slnt: 0;
+  }
+  .prose h3 {
+    font-size: clamp(1.22rem, 1.1rem + 0.5vw, 1.4rem);
+    margin: 2.5rem 0 0.7rem;
+    --wght: 700; --casl: 0; --mono: 0; --slnt: 0;
+  }
+  .prose code {
+    --mono: 1; --casl: 0; --wght: 450;
+    font-size: 0.88em;
+    background: var(--code-bg);
+    padding: 0.1em 0.32em;
+    border-radius: 4px;
+  }
+  .prose pre {
+    margin: 0 0 1.6rem;
+    padding: 1.1rem 1.25rem;
+    background: var(--code-bg);
+    color: var(--pre-text);
+    border-radius: 8px;
+    overflow-x: auto;
+    white-space: pre;
+    font-size: 0.86rem;
+    line-height: 1.5;
+  }
+  .prose pre code {
+    font-family: var(--mono-stack);
+    background: none;
+    padding: 0;
+    font-size: inherit;
+    border-radius: 0;
+  }
+  .prose figure { margin: 1.9rem 0 2.1rem; }
+  .prose figure img { display: block; width: 100%; max-width: 100%; height: auto; margin: 0 auto; }
+  .prose figure.lifecycle img { max-width: 44rem; }
+  html[data-theme="dark"] .prose figure img { background: #EEF4F2; border-radius: 10px; padding: 0.9rem; }
+  .prose figcaption { margin-top: 0.7rem; font-size: 0.92rem; line-height: 1.5; color: var(--text-muted); text-align: center; }
+  .prose ol { padding-left: 1.5rem; }
+  .prose ol li { margin-bottom: 0.6rem; padding-left: 0.3rem; }
+  .prose ol li::marker { color: var(--accent); --wght: 700; }
+  .prose blockquote {
+    margin: 2rem 0;
+    padding: 0.2rem 0 0.2rem 1.35rem;
+    border-left: 3px solid var(--accent);
+  }
+  .prose blockquote p { margin: 0; }
+
+  .post-tags {
+    margin: 3rem 0 0;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.1rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+  .post-tags li { list-style: none; --mono: 1; --casl: 1; }
+  .post-tags { padding-left: 0; }
+
+  /* ---------- Footer ---------- */
+  .site-footer {
+    max-width: var(--chrome-w);
+    margin: 2rem auto 0;
+    padding: 1.5rem 1.25rem 2.5rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+  .footer-links { display: inline-flex; align-items: center; gap: 1.05rem; }
+  .footer-links a { display: inline-flex; color: var(--text-muted); text-decoration: none; }
+  .footer-links a:hover { color: var(--accent); }
+  .footer-links svg { width: 18px; height: 18px; display: block; }
+  .footer-links svg.pp-hat { width: auto; height: 21px; }
+
+  /* ---------- Motion: only ever in answer to the reader ---------- */
+  @media (prefers-reduced-motion: no-preference) {
+    body, .site-header, .site-nav a, .theme-toggle, .icon-link, .footer-links a, .site-footer, .prose pre, .prose code {
+      transition: background-color 220ms ease, color 220ms ease, border-color 220ms ease;
+    }
+    .entry-title a {
+      transition:
+        --casl 300ms cubic-bezier(0.22, 1, 0.36, 1),
+        --wght 300ms cubic-bezier(0.22, 1, 0.36, 1),
+        color 220ms ease,
+        text-decoration-color 220ms ease;
+    }
+
+    /* Headings arrive as code and settle into prose as they scroll into view. */
+    @supports (animation-timeline: view()) {
+      @keyframes settle-narrow {
+        from { --casl: 1; --slnt: -12; }
+      }
+      @keyframes settle-wide {
+        from { --mono: 1; --casl: 1; --slnt: -12; --wght: 340; }
+      }
+      .prose h2, .prose h3 {
+        animation: settle-narrow linear both;
+        animation-timeline: view();
+        animation-range: entry 25% cover 42%;
+      }
+      @media (min-width: 52rem) {
+        .prose h2, .prose h3 { animation-name: settle-wide; }
+      }
+    }
+  }
+
+  @media (max-width: 30rem) {
+    body { font-size: 1.0625rem; }
+    .site-nav { gap: 0.9rem; }
+    .listing-wrap, .post { padding-top: 3rem; }
+    .prose pre { margin-left: -1.25rem; margin-right: -1.25rem; border-radius: 0; padding-left: 1.25rem; padding-right: 1.25rem; }
+    html[data-theme="dark"] .prose figure img { padding: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="wordmark" href="?view=home" data-goto="home"><em>code</em><span>Tango</span></a>
+  <nav class="site-nav" aria-label="Main">
+    <a class="nav-posts" href="?view=home" data-goto="home">Posts</a>
+    <a href="#">About</a>
+    <span class="nav-icons">
+      <button class="icon-link" aria-label="Search" title="Search (⌘K or /)">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle>
+          <path d="m20 20-3.8-3.8"></path>
+        </svg>
+      </button>
+      <button class="theme-toggle" data-theme-toggle aria-label="Toggle color theme" title="Toggle color theme">
+        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+        </svg>
+        <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"></path>
+        </svg>
+      </button>
+    </span>
+  </nav>
+</header>
+
+<!-- ===== Home ===== -->
+<main data-page="home" class="listing-wrap">
+  <h1 class="sr-only">Posts</h1>
+  <ol class="listing" reversed>
+    <li class="entry">
+      <time class="entry-date" datetime="2026-03-14">Mar 14, 2026</time>
+      <div class="entry-body">
+        <h2 class="entry-title"><a href="?view=post" data-goto="post">Anatomy of My Agentic Development Setup</a></h2>
+        <p class="entry-synopsis">My agentic development setup isn't one tool — it's three systems working together. Each serves a distinct role, and the value cis dervied from how they overlap.</p>
+        <p class="entry-meta"><time class="date" datetime="2026-03-14">Mar 14, 2026</time><span>6 min read</span><span class="cat">Agentic Development</span></p>
+      </div>
+    </li>
+    <li class="entry">
+      <time class="entry-date" datetime="2026-02-10">Feb 10, 2026</time>
+      <div class="entry-body">
+        <h2 class="entry-title"><a href="?view=post" data-goto="post">Profiling Agentic Configurations</a></h2>
+        <p class="entry-meta"><time class="date" datetime="2026-02-10">Feb 10, 2026</time><span>1 min read</span><span class="cat">Agentic Development</span></p>
+      </div>
+    </li>
+    <li class="entry">
+      <time class="entry-date" datetime="2024-05-27">May 27, 2024</time>
+      <div class="entry-body">
+        <h2 class="entry-title"><a href="?view=post" data-goto="post">How Stub and Mock</a></h2>
+        <p class="entry-synopsis">A quick visual guide to telling stubs and mocks apart in day-to-day testing.</p>
+        <p class="entry-meta"><time class="date" datetime="2024-05-27">May 27, 2024</time><span>1 min read</span><span class="cat">Testing</span></p>
+      </div>
+    </li>
+    <li class="entry">
+      <time class="entry-date" datetime="2024-05-26">May 26, 2024</time>
+      <div class="entry-body">
+        <h2 class="entry-title"><a href="?view=post" data-goto="post">Beyond Mocks vs Stubs</a></h2>
+        <p class="entry-synopsis">A practical breakdown of mocks vs stubs and when each test double is the right tool.</p>
+        <p class="entry-meta"><time class="date" datetime="2024-05-26">May 26, 2024</time><span>1 min read</span><span class="cat">Testing</span></p>
+      </div>
+    </li>
+  </ol>
+</main>
+
+<!-- ===== Post ===== -->
+<main data-page="post">
+  <article class="post">
+    <header class="post-head">
+      <h1>Anatomy of My Agentic Development Setup</h1>
+      <p class="synopsis">My agentic development setup isn't one tool — it's three systems working together. Each serves a distinct role, and the value cis dervied from how they overlap.</p>
+      <p class="post-meta"><span class="author">Sam Graham</span><time datetime="2026-03-14">Mar 14, 2026</time><span>6 min read</span><span>Agentic Development</span></p>
+    </header>
+
+    <div class="prose">
+      <p>My dev agent(s) are as crucial to my product outcome as any other first-class team member. Just like any new team member, my agentic setup is based on; issue tracking, workspace isolation, quality gate controls, and the ability to learn over time (self-update). Take a look...</p>
+
+      <h2>The Three Pillars</h2>
+      <p>In order to move from 'vibe' to 'agentic' coding, I've ended up with this taxonomy. First we'll take a look at the three major components of my harness skaffolding. Then I'll describe how the agentic value arises within cross-sections of the components.</p>
+      <figure>
+        <img src="../../astro/public/diagrams/anatomy-three-pillars.svg" width="800" height="450" alt="Venn diagram of the three pillars — Task Tracking, Workspace Isolation, and Agentic Config — with Ephemeral Plan, Long Term Memory, and Asynchronous Tasks at their intersections">
+      </figure>
+
+      <h3>Task Tracking</h3>
+      <p>The core functionality of the task tracker is the same as JIRA or Trello. Tasks are stored as indiviudal entities mapped to Epics, and may contain subtasks. Each task entity has a status property and the task lifecycle is represented as a progression through the statuses:</p>
+      <figure class="lifecycle">
+        <img src="../../astro/public/diagrams/anatomy-task-lifecycle.svg" width="705" height="70" alt="Task lifecycle flow: undefined, ready, in progress, in review, completed">
+        <figcaption><em>Task status lifecycle — states progress from light to dark as work moves toward completion</em></figcaption>
+      </figure>
+      <p>I use <a href="https://github.com/beads-project/beads">Beads</a> task manager, which stores tasks, epics, and dependency relationships within the repo in the form of a Dolt database. I use <a href="https://github.com/Dicklesworthstone/beads_viewer">Beads Viewer</a> atop Beads to easily triage and expose task dependencies. The <code>.beads/</code> directory in every workspace is symlinked to a single persistent checkout (<code>beads-sync/</code>), so task state stays consistent no matter which branch I'm on. This is what enables parallelism: multiple agent sessions can work on independent tasks simultaneously, each isolated, all reading from the same task graph.</p>
+<pre><code>BannerFM/
+├── main/                   ← primary checkout
+├── beads-sync/             ← persistent shared task store
+├── fix-auth-bug/           ← task workspace (ephemeral)
+└── add-user-endpoint/      ← task workspace (ephemeral)
+
+Each branch of main symlinks to ./beads --> beads-sync/.beads/</code></pre>
+
+      <h3>Workspace Isolation</h3>
+      <p>Each task needs its own workspace so that changes don't bleed across workstreams. Without isolation, I found that agents working on one task would inadvertently stage or modify files belonging to another. Separate workspaces also mean separate git branches, which makes the eventual PR a clean diff of just that task's changes.</p>
+      <p>I use <a href="https://cmux.com/"><strong>cmux</strong></a> to spin up a workspace per task — each gets its own terminal session and git branch.</p>
+
+      <h3>The Agent Configuration</h3>
+      <p>The whole dev process is kicked off with slash commands, the core of which realize the task lifecycle through four steps:</p>
+<pre><code>┌─────────────────┐
+│  /task-selector │  Pick from backlog or plan new work
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   /start-task   │  Create cmux workspace + git branch, claim task
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   /finish-task  │  Push, create PR, transition to review,
+│                 │  verify merge, close task, cleanup
+└─────────────────┘</code></pre>
+      <p>There are two planning phases:</p>
+      <ol>
+        <li>The <strong>brainstorming</strong> skill runs research-driven Q&amp;A to define epics and tasks, then auto-decomposes large tasks into properly-sized subtasks (~5 files, ~150 lines changed per task).</li>
+        <li>The <strong>writing-plans</strong> skill is triggered when the <code>/start-task</code> slash command is invoked for a tasks with an <code>undefined</code> status.</li>
+      </ol>
+
+      <h2>Putting It Together</h2>
+      <p>The three pillars — issue tracking, workspace isolation, and agentic configuration — form a closed loop.</p>
+      <blockquote><p><strong>Ephemeral Plan</strong> — Because task tracking decomposes work into scoped units and workspace isolation gives each unit its own branch, every task starts with a focused implementation plan that lives only as long as the task itself. The plan doesn't need to survive beyond the PR — it's disposable by design, which is what keeps it specific enough to be useful.</p></blockquote>
+      <p>The result, for me, is a setup where the agent operates with roughly the same structure I'd expect from a human teammate: picking work from a prioritized backlog, working in isolation, following established procedures, reviewing its own output, and keeping documentation current. I've found that the scaffolding doesn't make the agent smarter — it improves <em>consistenty</em>.</p>
+    </div>
+
+    <ul class="post-tags" aria-label="Tags">
+      <li>agents</li>
+      <li>orchestration</li>
+      <li>local-dev</li>
+      <li>deep-dive</li>
+    </ul>
+  </article>
+</main>
+
+<footer class="site-footer">
+  <span>© 2026 Sam Graham</span>
+<span class="footer-links">
+  <a href="/rss.xml" aria-label="RSS feed">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19 7.38 20 6.18 20 5 20 4 19 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44M4 10.1A9.9 9.9 0 0 1 13.9 20h-2.83A7.07 7.07 0 0 0 4 12.93V10.1Z"/></svg>
+  </a>
+  <a href="https://github.com/SamGrah" aria-label="GitHub">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+  </a>
+  <a href="https://www.linkedin.com/in/samgr/" aria-label="LinkedIn">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+  </a>
+  <a href="https://www.google.com/search?q=silicon+valley+hbo" title="Middle-out compression" aria-label="Pied Piper">
+    <svg class="pp-hat" viewBox="0 0 640 512" fill="currentColor" aria-hidden="true"><path d="M640 24.9c-80.8 53.6-89.4 92.5-96.4 104.4-6.7 12.2-11.7 60.3-23.3 83.6-11.7 23.6-54.2 42.2-66.1 50-11.7 7.8-28.3 38.1-41.9 64.2-108.1-4.4-167.4 38.8-259.2 93.6 29.4-9.7 43.3-16.7 43.3-16.7 94.2-36 139.3-68.3 281.1-49.2 1.1 0 1.9 .6 2.8 .8 3.9 2.2 5.3 6.9 3.1 10.8l-53.9 95.8c-2.5 4.7-7.8 7.2-13.1 6.1-126.8-23.8-226.9 17.3-318.9 18.6-73.4 1.1-97.5-33.5-97.5-35.1 0-1.1 .6-1.7 1.7-1.7 0 0 38.3 0 103.1-15.3 73.6-140.3 139.2-189.4 210.6-189.4 0 0 71.7 0 90.6 61.9 22.8-39.7 28.3-49.2 28.3-49.2 5.3-9.4 35-77.2 86.4-141.4 51.5-64 90.4-79.9 119.3-91.8z"/></svg>
+  </a>
+</span>
+</footer>
+
+<script src="_frame.js"></script>
+</body>
+</html>

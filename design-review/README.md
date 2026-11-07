@@ -20,4 +20,4 @@ Keys: `1`–`0` pick a design, `←`/`→` previous or next, `v` home or post, `
 - `designs.js` is the manifest: concept, palette, type and trade-offs for each design.
 - `content.html` is the real post content every mockup uses, word for word.
 
-Round 2: 01–03 are the designs starred in round 1 (03 Cyanotype revised from your notes), and 04–10 are new, riskier directions. The reviewer marks each design that breaks the current style guide and says which rule it breaks.
+Round 3: 01–05 are the starred designs, revised from your notes, and 06–10 are new, experimental directions. Every design uses the live site's chrome from `chrome.html`: italic "code" in the wordmark, the sun/moon theme toggle, and the footer icon links including the Pied Piper hat. The reviewer marks each design that breaks the current style guide and says which rule it breaks.
