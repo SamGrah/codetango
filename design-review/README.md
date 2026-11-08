@@ -20,4 +20,4 @@ Keys: `1`–`0` pick a design, `←`/`→` previous or next, `v` home or post, `
 - `designs.js` is the manifest: concept, palette, type and trade-offs for each design.
 - `content.html` is the real post content every mockup uses, word for word.
 
-Round 3: 01–05 are the starred designs, revised from your notes, and 06–10 are new, experimental directions. Every design uses the live site's chrome from `chrome.html`: italic "code" in the wordmark, the sun/moon theme toggle, and the footer icon links including the Pied Piper hat. The reviewer marks each design that breaks the current style guide and says which rule it breaks.
+Round 4: Modular Poster was chosen. 01 is the round 3 original, kept as a baseline, and 02–04 are conservative, moderate and very creative refinements of it, each with a wider (about 44rem) post body. Earlier rounds' designs are in git history. Every design uses the live site's chrome from `chrome.html`: italic "code" in the wordmark, the sun/moon theme toggle, and the footer icon links including the Pied Piper hat. The reviewer marks each design that breaks the current style guide and says which rule it breaks.
