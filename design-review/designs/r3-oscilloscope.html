@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="en" data-theme="dark" data-view="home">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>codeTango: Oscilloscope</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,600;1,500;1,600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Tokens ---------- */
+  :root {
+    /* Light: the instrument's front panel */
+    --panel: #dce3e3;          /* enamel grey */
+    --surface: #f6f8f8;        /* calm reading plate */
+    --surface-edge: #c3cdcd;
+    --text: #1b2725;
+    --muted: #4e605c;
+    --legend: #005b50;         /* screen-printed teal ink */
+    --link: #00675b;
+    --trace: #00796b;
+    --trace-glow: none;
+    --grid: rgba(0, 91, 80, 0.10);
+    --grid-axis: rgba(0, 91, 80, 0.22);
+    --hairline: #d5dddd;
+    --code-bg: #e9eeee;
+    --code-edge: #d2dbdb;
+    --quote-bg: #eef3f2;
+    --glow-h: none;
+    --glow-mark: none;
+    --focus: #00675b;
+    --diagram-bg: transparent;
+    --wordmark-code: #0f3328;
+    --wordmark-tango: #00675b;
+  }
+  html[data-theme="dark"] {
+    /* Dark: the screen. P31 phosphor on teal-black glass */
+    --panel: #061412;          /* glass */
+    --surface: #0b1e1c;        /* reading surface, no texture */
+    --surface-edge: #17332f;
+    --text: #d3e4df;
+    --muted: #8fb0a9;
+    --legend: #4fe3c1;         /* phosphor */
+    --link: #6fe8cc;
+    --trace: #4fe3c1;
+    --trace-glow: drop-shadow(0 0 2px rgba(79, 227, 193, 0.75)) drop-shadow(0 0 7px rgba(79, 227, 193, 0.35));
+    --grid: rgba(79, 227, 193, 0.055);
+    --grid-axis: rgba(79, 227, 193, 0.13);
+    --hairline: #173430;
+    --code-bg: #071715;
+    --code-edge: #17332f;
+    --quote-bg: #0e2522;
+    --glow-h: 0 0 1px rgba(79, 227, 193, 0.55), 0 0 10px rgba(79, 227, 193, 0.28), 0 0 24px rgba(79, 227, 193, 0.12);
+    --glow-mark: 0 0 1px rgba(79, 227, 193, 0.7), 0 0 9px rgba(79, 227, 193, 0.4), 0 0 22px rgba(79, 227, 193, 0.18);
+    --focus: #4fe3c1;
+    --diagram-bg: #eef4f2;
+    --wordmark-code: #c2ece1;
+    --wordmark-tango: #4fe3c1;
+    color-scheme: dark;
+  }
+
+  html[data-view="home"] [data-page="post"],
+  html[data-view="post"] [data-page="home"] { display: none; }
+
+  /* ---------- Base ---------- */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    font-size: 17.5px;
+    line-height: 1.7;
+    color: var(--text);
+    background-color: var(--panel);
+    overflow-x: hidden;
+  }
+  /* Graticule lives on the glass behind everything; the reading surface covers it. */
+  html[data-theme="dark"] body {
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 64px 64px;
+    background-position: center top;
+  }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 3px; }
+
+  .chrome-font { font-family: "Chakra Petch", system-ui, sans-serif; }
+
+  /* ---------- Header: the screen strip ---------- */
+  .site-header {
+    position: relative;
+    padding: 1.4rem 1.25rem 0;
+  }
+  html[data-theme="light"] .site-header {
+    background: linear-gradient(var(--panel), var(--panel));
+  }
+  .header-row {
+    max-width: 48rem;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .wordmark {
+    font-family: "Chakra Petch", system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 1.6rem;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    text-shadow: var(--glow-mark);
+  }
+  .wordmark em { font-style: italic; font-weight: 500; color: var(--wordmark-code); }
+  .wordmark span { color: var(--wordmark-tango); }
+
+  .site-nav { display: flex; align-items: center; gap: 1.1rem; }
+  .site-nav a {
+    font-family: "Chakra Petch", system-ui, sans-serif;
+    font-weight: 500;
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0.15rem 0;
+    border-bottom: 1px solid transparent;
+  }
+  .site-nav a:hover { color: var(--legend); }
+  .site-nav a[aria-current="page"] {
+    color: var(--legend);
+    border-bottom-color: currentColor;
+    text-shadow: var(--glow-mark);
+  }
+  .nav-icons { display: inline-flex; align-items: center; gap: 0.5rem; }
+  .theme-toggle, .icon-link {
+    display: inline-flex; padding: 0.2rem; background: none; border: 0;
+    border-radius: 6px; cursor: pointer; color: var(--muted);
+  }
+  .theme-toggle:hover, .icon-link:hover { color: var(--legend); }
+  .theme-toggle svg, .icon-link svg { width: 17px; height: 17px; }
+  .icon-moon { display: none; }
+  html[data-theme="dark"] .icon-moon { display: block; }
+  html[data-theme="dark"] .icon-sun { display: none; }
+  html[data-theme="dark"] .theme-toggle:hover svg,
+  html[data-theme="dark"] .icon-link:hover svg { filter: drop-shadow(0 0 4px rgba(79, 227, 193, 0.5)); }
+
+  /* The trace window: centre axis with graticule ticks, and the signal burst */
+  .scope {
+    position: relative;
+    height: 56px;
+    margin: 1.1rem -1.25rem 0;
+    color: var(--trace);
+    background-image:
+      linear-gradient(var(--grid-axis), var(--grid-axis)),
+      repeating-linear-gradient(90deg, var(--grid-axis) 0 1px, transparent 1px 12.8px);
+    background-size: 100% 1px, 100% 9px;
+    background-position: 0 50%, 0 50%;
+    background-repeat: no-repeat, repeat-x;
+    border-bottom: 1px solid var(--hairline);
+  }
+  html[data-theme="light"] .scope { border-bottom-color: var(--surface-edge); }
+  .scope svg {
+    position: absolute; inset: 8px 0; width: 100%; height: 40px;
+    filter: var(--trace-glow);
+    overflow: visible;
+  }
+  /* Stroke props are inherited through <use> into the symbol path */
+  svg.trace {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+
+  /* ---------- Reading surface ---------- */
+  .stage {
+    flex: 1;
+    padding: 2.5rem 1.25rem 3.5rem;
+  }
+  .surface {
+    max-width: 48rem;
+    margin: 0 auto;
+    background: var(--surface);
+    border: 1px solid var(--surface-edge);
+    border-radius: 4px;
+    padding: 2.75rem clamp(1.25rem, 5vw, 3.25rem) 3rem;
+  }
+  html[data-theme="light"] .surface { box-shadow: 0 1px 0 #ffffff inset, 0 1px 2px rgba(27, 39, 37, 0.06); }
+  .column { max-width: 40rem; margin: 0 auto; }
+
+  h1, h2, h3 {
+    font-family: "Chakra Petch", system-ui, sans-serif;
+    font-weight: 600;
+    color: var(--legend);
+    text-shadow: var(--glow-h);
+    letter-spacing: 0.005em;
+    text-wrap: balance;
+  }
+  h1 { font-size: clamp(1.9rem, 5vw, 2.45rem); line-height: 1.15; margin: 0 0 1rem; }
+  h2 { font-size: 1.55rem; line-height: 1.25; margin: 0 0 0.75rem; }
+  h3 { font-size: 1.2rem; line-height: 1.3; margin: 2.2rem 0 0.5rem; }
+
+  p { margin: 0 0 1.15rem; }
+  a { color: var(--link); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:hover { text-decoration-thickness: 2px; }
+  strong { font-weight: 600; }
+
+  /* Section divider: the same trace, in the column */
+  .divider {
+    display: block;
+    color: var(--trace);
+    margin: 2.75rem 0 1.6rem;
+    height: 24px;
+  }
+  .divider svg { display: block; width: 100%; height: 24px; overflow: visible; filter: var(--trace-glow); }
+  .divider svg.trace { stroke-width: 1.3; }
+
+  /* ---------- Home ---------- */
+  .listing-title { margin-bottom: 1.75rem; }
+  .posts { list-style: none; margin: 0; padding: 0; }
+  .posts li { padding: 1.5rem 0 1.55rem; border-top: 1px solid var(--hairline); }
+  .posts li:first-child { border-top: 0; padding-top: 0.25rem; }
+  .post-link {
+    font-family: "Chakra Petch", system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 1.38rem;
+    line-height: 1.3;
+    color: var(--legend);
+    text-decoration: none;
+    text-shadow: var(--glow-h);
+  }
+  .post-link:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+  .posts h2 { margin: 0 0 0.4rem; font-size: inherit; text-shadow: none; }
+  .posts p { margin: 0 0 0.55rem; color: var(--text); }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 0.2rem 1.1rem;
+    font-size: 0.9rem; line-height: 1.5; color: var(--muted);
+  }
+  .meta .cat { font-family: "Chakra Petch", system-ui, sans-serif; font-weight: 500; color: var(--legend); }
+
+  /* ---------- Post ---------- */
+  .synopsis { font-style: italic; color: var(--muted); font-size: 1.1rem; line-height: 1.6; margin-bottom: 1.1rem; }
+  .post-meta { margin-bottom: 0.4rem; }
+  .tags { font-size: 0.9rem; color: var(--muted); margin: 0 0 2.25rem; }
+  .post-head { padding-bottom: 0.25rem; border-bottom: 1px solid var(--hairline); margin-bottom: 2rem; }
+
+  article img { display: block; max-width: 100%; height: auto; margin: 0.5rem auto 0; }
+  html[data-theme="dark"] article img { background: var(--diagram-bg); border-radius: 10px; padding: 0.9rem; }
+  .caption { display: block; text-align: center; font-size: 0.92rem; color: var(--muted); margin-top: 0.6rem; }
+
+  pre {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "DejaVu Sans Mono", monospace;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    white-space: pre;
+    overflow-x: auto;
+    background: var(--code-bg);
+    border: 1px solid var(--code-edge);
+    border-radius: 4px;
+    padding: 1rem 1.15rem;
+    margin: 0 0 1.4rem;
+    color: var(--text);
+  }
+  pre code { font: inherit; background: none; padding: 0; border: 0; }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    border: 1px solid var(--code-edge);
+    border-radius: 3px;
+    padding: 0.05em 0.3em;
+  }
+  article ol { padding-left: 1.4rem; margin: 0 0 1.3rem; }
+  article ol li { margin-bottom: 0.55rem; padding-left: 0.2rem; }
+  article ol li::marker { font-family: "Chakra Petch", system-ui, sans-serif; font-weight: 600; color: var(--legend); }
+  blockquote {
+    margin: 1.6rem 0;
+    padding: 1rem 1.25rem;
+    background: var(--quote-bg);
+    border-left: 2px solid var(--trace);
+    border-radius: 0 4px 4px 0;
+  }
+  blockquote p:last-child { margin-bottom: 0; }
+
+  /* ---------- Footer ---------- */
+  .site-footer {
+    padding: 0 1.25rem 2.5rem;
+    color: var(--muted);
+    font-family: "Chakra Petch", system-ui, sans-serif;
+    font-size: 0.95rem;
+  }
+  .footer-inner {
+    max-width: 48rem; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    padding-top: 1.25rem;
+  }
+  .footer-links { display: inline-flex; align-items: center; gap: 1.05rem; }
+  .footer-links a { display: inline-flex; color: var(--muted); border-radius: 4px; }
+  .footer-links a:hover { color: var(--legend); }
+  .footer-links svg { width: 18px; height: 18px; display: block; }
+  .footer-links svg.pp-hat { width: auto; height: 21px; }
+
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+  /* ---------- Narrow ---------- */
+  @media (max-width: 640px) {
+    body { font-size: 17px; }
+    .stage { padding: 0 0 2.5rem; }
+    .surface { border-left: 0; border-right: 0; border-radius: 0; padding-top: 2rem; }
+    .scope { height: 44px; }
+    .scope svg { inset: 6px 0; height: 32px; }
+    .wordmark { font-size: 1.4rem; }
+  }
+
+  /* ---------- Motion ---------- */
+  @media (prefers-reduced-motion: no-preference) {
+    body, .surface, pre, code, blockquote, .site-nav a, .post-link, h1, h2, h3, .wordmark em, .wordmark span, .theme-toggle, .icon-link, .footer-links a {
+      transition: color 220ms ease, background-color 220ms ease, border-color 220ms ease, text-shadow 220ms ease;
+    }
+    .scope svg.trace {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      animation: sweep 1100ms cubic-bezier(0.45, 0, 0.25, 1) 150ms forwards;
+    }
+    @keyframes sweep { to { stroke-dashoffset: 0; } }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="burst-wide" viewBox="0 0 1200 40" preserveAspectRatio="none">
+      <path pathLength="1" fill="none" vector-effect="non-scaling-stroke" d="M0 20 L201 20 L204 20.0 L207 19.9 L210 19.9 L213 19.9 L216 19.9 L219 20.0 L222 20.0 L225 20.1 L228 20.1 L231 20.1 L234 20.1 L237 20.1 L240 20.0 L243 19.9 L246 19.8 L249 19.8 L252 19.8 L255 19.8 L258 19.9 L261 20.0 L264 20.2 L267 20.3 L270 20.3 L273 20.3 L276 20.2 L279 20.1 L282 19.9 L285 19.7 L288 19.5 L291 19.5 L294 19.5 L297 19.7 L300 20.0 L303 20.3 L306 20.6 L309 20.8 L312 20.8 L315 20.6 L318 20.3 L321 19.8 L324 19.4 L327 19.0 L330 18.8 L333 18.9 L336 19.2 L339 19.8 L342 20.5 L345 21.1 L348 21.6 L351 21.7 L354 21.5 L357 20.9 L360 20.0 L363 19.0 L366 18.2 L369 17.7 L372 17.6 L375 18.2 L378 19.2 L381 20.4 L384 21.8 L387 22.8 L390 23.3 L393 23.0 L396 22.1 L399 20.6 L402 18.8 L405 17.2 L408 16.0 L411 15.7 L414 16.3 L417 17.9 L420 20.0 L423 22.3 L426 24.3 L429 25.4 L432 25.4 L435 24.1 L438 21.9 L441 19.0 L444 16.2 L447 14.1 L450 13.1 L453 13.7 L456 15.7 L459 18.8 L462 22.4 L465 25.6 L468 27.8 L471 28.3 L474 27.0 L477 24.0 L480 20.0 L483 15.8 L486 12.3 L489 10.3 L492 10.5 L495 12.8 L498 16.8 L501 21.7 L504 26.4 L507 29.9 L510 31.3 L513 30.3 L516 26.9 L519 21.9 L522 16.2 L525 11.3 L528 8.1 L531 7.4 L534 9.6 L537 14.1 L540 20.0 L543 26.1 L546 31.0 L549 33.5 L552 33.2 L555 29.9 L558 24.4 L561 17.8 L564 11.6 L567 7.1 L570 5.5 L573 7.0 L576 11.4 L579 17.7 L582 24.6 L585 30.5 L588 34.2 L591 34.8 L594 32.1 L597 26.8 L600 20.0 L603 13.2 L606 7.9 L609 5.2 L612 5.8 L615 9.5 L618 15.4 L621 22.3 L624 28.6 L627 33.0 L630 34.5 L633 32.9 L636 28.4 L639 22.2 L642 15.6 L645 10.1 L648 6.8 L651 6.5 L654 9.0 L657 13.9 L660 20.0 L663 25.9 L666 30.4 L669 32.6 L672 31.9 L675 28.7 L678 23.8 L681 18.1 L684 13.1 L687 9.7 L690 8.7 L693 10.1 L696 13.6 L699 18.3 L702 23.2 L705 27.2 L708 29.5 L711 29.7 L714 27.7 L717 24.2 L720 20.0 L723 16.0 L726 13.0 L729 11.7 L732 12.2 L735 14.4 L738 17.6 L741 21.2 L744 24.3 L747 26.3 L750 26.9 L753 25.9 L756 23.8 L759 21.0 L762 18.1 L765 15.9 L768 14.6 L771 14.6 L774 15.7 L777 17.7 L780 20.0 L783 22.1 L786 23.7 L789 24.3 L792 24.0 L795 22.8 L798 21.2 L801 19.4 L804 17.9 L807 17.0 L810 16.7 L813 17.2 L816 18.2 L819 19.6 L822 20.8 L825 21.8 L828 22.4 L831 22.3 L834 21.8 L837 21.0 L840 20.0 L843 19.1 L846 18.5 L849 18.3 L852 18.4 L855 18.9 L858 19.5 L861 20.2 L864 20.8 L867 21.1 L870 21.2 L873 21.0 L876 20.6 L879 20.2 L882 19.7 L885 19.4 L888 19.2 L891 19.2 L894 19.4 L897 19.7 L900 20.0 L903 20.3 L906 20.5 L909 20.5 L912 20.5 L915 20.3 L918 20.1 L921 19.9 L924 19.8 L927 19.7 L930 19.7 L933 19.7 L936 19.8 L939 20.0 L942 20.1 L945 20.2 L948 20.2 L951 20.2 L954 20.2 L957 20.1 L960 20.0 L963 19.9 L966 19.9 L969 19.9 L972 19.9 L975 19.9 L978 20.0 L981 20.0 L984 20.1 L987 20.1 L990 20.1 L993 20.1 L996 20.0 L999 20.0 L1200 20"/>
+    </symbol>
+    <symbol id="burst" viewBox="0 0 480 24" preserveAspectRatio="none">
+      <path fill="none" vector-effect="non-scaling-stroke" d="M0 12 L96 12 L108 12.1 L118 12.1 L120 12.0 L122 11.9 L124 11.8 L126 11.7 L132 11.7 L134 11.9 L136 12.1 L138 12.4 L140 12.6 L142 12.7 L144 12.8 L146 12.7 L148 12.4 L150 12.0 L152 11.5 L154 11.0 L156 10.6 L158 10.4 L160 10.5 L162 10.9 L164 11.6 L166 12.5 L168 13.4 L170 14.2 L172 14.7 L174 14.8 L176 14.3 L178 13.3 L180 12.0 L182 10.5 L184 9.0 L186 8.0 L188 7.6 L190 7.9 L192 9.1 L194 10.9 L196 13.1 L198 15.3 L200 17.1 L202 18.1 L204 18.1 L206 17.0 L208 14.8 L210 12.0 L212 9.0 L214 6.4 L216 4.6 L218 4.1 L220 5.0 L222 7.1 L224 10.2 L226 13.8 L228 17.1 L230 19.6 L232 20.8 L234 20.5 L236 18.7 L238 15.7 L240 12.0 L242 8.3 L244 5.3 L246 3.5 L248 3.2 L250 4.4 L252 6.9 L254 10.2 L256 13.8 L258 16.9 L260 19.0 L262 19.9 L264 19.4 L266 17.6 L268 15.0 L270 12.0 L272 9.2 L274 7.0 L276 5.9 L278 5.9 L280 6.9 L282 8.7 L284 10.9 L286 13.1 L288 14.9 L290 16.1 L292 16.4 L294 16.0 L296 15.0 L298 13.5 L300 12.0 L302 10.7 L304 9.7 L306 9.2 L308 9.3 L310 9.8 L312 10.6 L314 11.5 L316 12.4 L318 13.1 L320 13.5 L322 13.6 L324 13.4 L326 13.0 L328 12.5 L330 12.0 L332 11.6 L334 11.3 L336 11.2 L338 11.3 L340 11.4 L342 11.6 L344 11.9 L346 12.1 L348 12.3 L356 12.2 L358 12.1 L360 12.0 L362 11.9 L372 11.9 L374 12.0 L480 12"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="site-header">
+  <div class="header-row">
+    <a class="wordmark" href="?view=home" data-goto="home"><em>code</em><span>Tango</span></a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="?view=home" data-goto="home" aria-current="page">Posts</a>
+      <a href="#about">About</a>
+      <span class="nav-icons">
+        <button class="icon-link" aria-label="Search" title="Search (⌘K or /)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"></circle>
+            <path d="m20 20-3.8-3.8"></path>
+          </svg>
+        </button>
+        <button class="theme-toggle" data-theme-toggle aria-label="Toggle color theme" title="Toggle color theme">
+          <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+          </svg>
+          <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"></path>
+          </svg>
+        </button>
+      </span>
+    </nav>
+  </div>
+  <div class="scope" aria-hidden="true">
+    <svg class="trace" focusable="false"><use href="#burst-wide"/></svg>
+  </div>
+</header>
+
+<main class="stage" data-page="home">
+  <div class="surface">
+    <div class="column">
+      <h1 class="listing-title">Posts</h1>
+      <ol class="posts">
+        <li>
+          <h2><a class="post-link" href="?view=post" data-goto="post">Anatomy of My Agentic Development Setup</a></h2>
+          <p>My agentic development setup isn't one tool — it's three systems working together. Each serves a distinct role, and the value cis dervied from how they overlap.</p>
+          <div class="meta"><time datetime="2026-03-14">Mar 14, 2026</time><span>6 min read</span><span class="cat">Agentic Development</span></div>
+        </li>
+        <li>
+          <h2><a class="post-link" href="?view=post" data-goto="post">Profiling Agentic Configurations</a></h2>
+          <div class="meta"><time datetime="2026-02-10">Feb 10, 2026</time><span>1 min read</span><span class="cat">Agentic Development</span></div>
+        </li>
+        <li>
+          <h2><a class="post-link" href="?view=post" data-goto="post">How Stub and Mock</a></h2>
+          <p>A quick visual guide to telling stubs and mocks apart in day-to-day testing.</p>
+          <div class="meta"><time datetime="2024-05-27">May 27, 2024</time><span>1 min read</span><span class="cat">Testing</span></div>
+        </li>
+        <li>
+          <h2><a class="post-link" href="?view=post" data-goto="post">Beyond Mocks vs Stubs</a></h2>
+          <p>A practical breakdown of mocks vs stubs and when each test double is the right tool.</p>
+          <div class="meta"><time datetime="2024-05-26">May 26, 2024</time><span>1 min read</span><span class="cat">Testing</span></div>
+        </li>
+      </ol>
+    </div>
+  </div>
+</main>
+
+<main class="stage" data-page="post">
+  <div class="surface">
+    <article class="column">
+      <div class="post-head">
+        <h1>Anatomy of My Agentic Development Setup</h1>
+        <p class="synopsis">My agentic development setup isn't one tool — it's three systems working together. Each serves a distinct role, and the value cis dervied from how they overlap.</p>
+        <div class="meta post-meta"><span>Sam Graham</span><time datetime="2026-03-14">Mar 14, 2026</time><span>6 min read</span><span class="cat">Agentic Development</span></div>
+        <p class="tags">Tagged agents, orchestration, local-dev, deep-dive</p>
+      </div>
+
+      <p>My dev agent(s) are as crucial to my product outcome as any other first-class team member. Just like any new team member, my agentic setup is based on; issue tracking, workspace isolation, quality gate controls, and the ability to learn over time (self-update). Take a look...</p>
+
+      <span class="divider" aria-hidden="true"><svg class="trace" focusable="false"><use href="#burst"/></svg></span>
+      <h2>The Three Pillars</h2>
+      <p>In order to move from 'vibe' to 'agentic' coding, I've ended up with this taxonomy. First we'll take a look at the three major components of my harness skaffolding. Then I'll describe how the agentic value arises within cross-sections of the components.</p>
+      <p><img src="../../astro/public/diagrams/anatomy-three-pillars.svg" alt="Venn diagram of the three pillars — Task Tracking, Workspace Isolation, and Agentic Config — with Ephemeral Plan, Long Term Memory, and Asynchronous Tasks at their intersections"></p>
+
+      <h3>Task Tracking</h3>
+      <p>The core functionality of the task tracker is the same as JIRA or Trello. Tasks are stored as indiviudal entities mapped to Epics, and may contain subtasks. Each task entity has a status property and the task lifecycle is represented as a progression through the statuses:</p>
+      <p><img src="../../astro/public/diagrams/anatomy-task-lifecycle.svg" alt="Task lifecycle flow: undefined, ready, in progress, in review, completed"><br>
+      <em class="caption">Task status lifecycle — states progress from light to dark as work moves toward completion</em></p>
+      <p>I use <a href="https://github.com/beads-project/beads">Beads</a> task manager, which stores tasks, epics, and dependency relationships within the repo in the form of a Dolt database. I use <a href="https://github.com/Dicklesworthstone/beads_viewer">Beads Viewer</a> atop Beads to easily triage and expose task dependencies. The <code>.beads/</code> directory in every workspace is symlinked to a single persistent checkout (<code>beads-sync/</code>), so task state stays consistent no matter which branch I'm on. This is what enables parallelism: multiple agent sessions can work on independent tasks simultaneously, each isolated, all reading from the same task graph.</p>
+<pre><code>BannerFM/
+├── main/                   ← primary checkout
+├── beads-sync/             ← persistent shared task store
+├── fix-auth-bug/           ← task workspace (ephemeral)
+└── add-user-endpoint/      ← task workspace (ephemeral)
+
+Each branch of main symlinks to ./beads --> beads-sync/.beads/</code></pre>
+
+      <h3>Workspace Isolation</h3>
+      <p>Each task needs its own workspace so that changes don't bleed across workstreams. Without isolation, I found that agents working on one task would inadvertently stage or modify files belonging to another. Separate workspaces also mean separate git branches, which makes the eventual PR a clean diff of just that task's changes.</p>
+      <p>I use <a href="https://cmux.com/"><strong>cmux</strong></a> to spin up a workspace per task — each gets its own terminal session and git branch.</p>
+
+      <h3>The Agent Configuration</h3>
+      <p>The whole dev process is kicked off with slash commands, the core of which realize the task lifecycle through four steps:</p>
+<pre><code>┌─────────────────┐
+│  /task-selector │  Pick from backlog or plan new work
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   /start-task   │  Create cmux workspace + git branch, claim task
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   /finish-task  │  Push, create PR, transition to review,
+│                 │  verify merge, close task, cleanup
+└─────────────────┘</code></pre>
+      <p>There are two planning phases:</p>
+      <ol>
+        <li>The <strong>brainstorming</strong> skill runs research-driven Q&amp;A to define epics and tasks, then auto-decomposes large tasks into properly-sized subtasks (~5 files, ~150 lines changed per task).</li>
+        <li>The <strong>writing-plans</strong> skill is triggered when the <code>/start-task</code> slash command is invoked for a tasks with an <code>undefined</code> status.</li>
+      </ol>
+
+      <span class="divider" aria-hidden="true"><svg class="trace" focusable="false"><use href="#burst"/></svg></span>
+      <h2>Putting It Together</h2>
+      <p>The three pillars — issue tracking, workspace isolation, and agentic configuration — form a closed loop.</p>
+      <blockquote><p><strong>Ephemeral Plan</strong> — Because task tracking decomposes work into scoped units and workspace isolation gives each unit its own branch, every task starts with a focused implementation plan that lives only as long as the task itself. The plan doesn't need to survive beyond the PR — it's disposable by design, which is what keeps it specific enough to be useful.</p></blockquote>
+      <p>The result, for me, is a setup where the agent operates with roughly the same structure I'd expect from a human teammate: picking work from a prioritized backlog, working in isolation, following established procedures, reviewing its own output, and keeping documentation current. I've found that the scaffolding doesn't make the agent smarter — it improves <em>consistenty</em>.</p>
+    </article>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span>© 2026 Sam Graham</span>
+    <span class="footer-links">
+      <a href="/rss.xml" aria-label="RSS feed">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19 7.38 20 6.18 20 5 20 4 19 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44M4 10.1A9.9 9.9 0 0 1 13.9 20h-2.83A7.07 7.07 0 0 0 4 12.93V10.1Z"/></svg>
+      </a>
+      <a href="https://github.com/SamGrah" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+      </a>
+      <a href="https://www.linkedin.com/in/samgr/" aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      </a>
+      <a href="https://www.google.com/search?q=silicon+valley+hbo" title="Middle-out compression" aria-label="Pied Piper">
+        <svg class="pp-hat" viewBox="0 0 640 512" fill="currentColor" aria-hidden="true"><path d="M640 24.9c-80.8 53.6-89.4 92.5-96.4 104.4-6.7 12.2-11.7 60.3-23.3 83.6-11.7 23.6-54.2 42.2-66.1 50-11.7 7.8-28.3 38.1-41.9 64.2-108.1-4.4-167.4 38.8-259.2 93.6 29.4-9.7 43.3-16.7 43.3-16.7 94.2-36 139.3-68.3 281.1-49.2 1.1 0 1.9 .6 2.8 .8 3.9 2.2 5.3 6.9 3.1 10.8l-53.9 95.8c-2.5 4.7-7.8 7.2-13.1 6.1-126.8-23.8-226.9 17.3-318.9 18.6-73.4 1.1-97.5-33.5-97.5-35.1 0-1.1 .6-1.7 1.7-1.7 0 0 38.3 0 103.1-15.3 73.6-140.3 139.2-189.4 210.6-189.4 0 0 71.7 0 90.6 61.9 22.8-39.7 28.3-49.2 28.3-49.2 5.3-9.4 35-77.2 86.4-141.4 51.5-64 90.4-79.9 119.3-91.8z"/></svg>
+      </a>
+    </span>
+  </div>
+</footer>
+
+<script src="_frame.js"></script>
+</body>
+</html>
