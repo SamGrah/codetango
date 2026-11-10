@@ -1,66 +1,106 @@
 /* ============================================================
-   codeTango design system
+   codeTango design system: Modular Poster
    Tokens + rules documented in .opencode/skills/visual-style-guide/SKILL.md
    ============================================================ */
 
 /* ---------- tokens ---------- */
 
 :root {
-  --bg: #ffffff;
-  --text: #1f2a27;
-  --text-muted: #5f6f6b;
-  --accent: #00796b;         /* teal-700 — AA-contrast link color on white */
-  --accent-strong: #00695c;
-  --wordmark-code: #0f3328;
-  --wordmark-tango: #00796b;
-  --border: #e4eae8;
-  --code-bg: #f4f7f6;
+  --paper: #ffffff;
+  --text: #172a2f;
+  --muted: #56676a;
+  --link: #00756a;          /* AA link text on white */
+  --link-strong: #00695c;
+  --field-teal: #0e7c70;    /* painted fields: decorative, never text */
+  --field-two: #1a3238;     /* ink field */
+  --ochre: #c9962b;         /* accent: shapes, rules, highlights; never text */
+  --on-field: #ffffff;
+  --quote-field: #0e7c70;
+  --code-bg: #f1f5f4;
+  --rule: #dde5e3;
+  --wm-code: #172a2f;
+  --wm-tango: #00756a;
+  --focus: #00756a;
 
-  --content-width: 42rem;
+  --font-sans: "Familjen Grotesk Variable", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "DejaVu Sans Mono", monospace;
+  --gutter: clamp(0.75rem, 2vw, 1.5rem);
+  --pad: clamp(1rem, 4.5vw, 3.5rem);
+  --band: clamp(9rem, 22vw, 17rem);
+  --measure: 44rem;
+  --hang: clamp(1rem, 2.4vw, 1.5rem);
+  --quote-bleed: 3rem;
   --theme-duration: 220ms;
-  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  color-scheme: light;
 }
 
 [data-theme="dark"] {
-  --bg: #0a1a1e;             /* deep teal ink — committed, not muddy; the signature */
-  --text: #dbeae7;          /* soft foam-white, easy on the eyes */
-  --text-muted: #83a5a1;    /* cool teal-gray, ~6:1 on the ink */
-  --accent: #5ed4c5;        /* vivid aqua-teal — glows on the ink (~10:1) */
-  --accent-strong: #8fe4d9;
-  --wordmark-code: #c2e4dd;  /* calm light foam — the anchor */
-  --wordmark-tango: #5ed4c5; /* vivid accent — the pop */
-  --border: #17383d;        /* teal-tinted hairline */
-  --code-bg: #0e2a2f;       /* raised teal surface for inline code */
+  --paper: #0b1b20;
+  --text: #dce9e6;
+  --muted: #8ea9a4;
+  --link: #5ed4c5;
+  --link-strong: #8fe4d9;
+  --field-teal: #1f8a7c;
+  --field-two: #9db5b0;
+  --ochre: #d6a440;
+  --on-field: #f4fbf9;
+  --quote-field: #136a60;
+  --code-bg: #102a30;
+  --rule: #1b3a40;
+  --wm-code: #c2e4dd;
+  --wm-tango: #5ed4c5;
+  --focus: #5ed4c5;
+  color-scheme: dark;
 }
 
 /* ---------- base ---------- */
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 html {
+  -webkit-text-size-adjust: 100%;
   scrollbar-gutter: stable; /* no layout shift when page height changes */
 }
 
 body {
   margin: 0;
-  background: var(--bg);
+  background: var(--paper);
   color: var(--text);
-  font-family: "Open Sans Variable", system-ui, -apple-system, sans-serif;
-  font-size: 1.0625rem;
-  line-height: 1.7;
+  font-family: var(--font-sans);
+  font-size: 18px;
+  line-height: 1.65;
+  font-kerning: normal;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
-.container {
-  width: 100%;
-  max-width: var(--content-width);
-  margin-inline: auto;
-  padding-inline: 1.25rem;
+a {
+  color: var(--link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--ochre) 38%, transparent);
+  color: var(--text);
 }
 
 .visually-hidden {
@@ -72,13 +112,23 @@ body {
   white-space: nowrap;
 }
 
+/* ---------- the module grid ---------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gutter);
+  width: 100%;
+  max-width: 82rem;
+  margin-inline: auto;
+  padding-inline: var(--pad);
+}
+
 /* ---------- motion ---------- */
 
 /* Theme-switch cross-fade (220ms), gated behind reduced-motion */
 @media (prefers-reduced-motion: no-preference) {
   body,
-  .site-header,
-  .site-footer,
   a,
   button,
   code,
@@ -87,14 +137,49 @@ body {
   th,
   td,
   hr,
+  .field,
+  .foot-strip i,
   .astro-code,
   .astro-code span {
     transition:
       background-color var(--theme-duration) ease,
       color var(--theme-duration) ease,
-      border-color var(--theme-duration) ease;
+      border-color var(--theme-duration) ease,
+      text-decoration-color var(--theme-duration) ease;
+  }
+
+  /* The painted fields assemble on each page: slabs and rules wipe in, bars rise,
+     discs grow. Under 300ms; replays on each ClientRouter navigation by design. */
+  .home-band .slab,
+  .post-head .rule-slab {
+    transform-origin: left center;
+    animation: paint-x 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .home-band .post-bar {
+    transform-origin: center bottom;
+    animation: paint-y 240ms 30ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .post-head .column-block {
+    transform-origin: center top;
+    animation: paint-y 240ms 30ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .home-band .quarter {
+    transform-origin: right bottom;
+    animation: paint-s 240ms 60ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .post-head .disc {
+    transform-origin: center;
+    animation: paint-s 240ms 60ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .home-band h1 {
+    animation: lift 180ms 120ms ease-out both;
   }
 }
+
+@keyframes paint-x { from { transform: scaleX(0); } }
+@keyframes paint-y { from { transform: scaleY(0); } }
+@keyframes paint-s { from { transform: scale(0); } }
+@keyframes lift { from { opacity: 0; } }
 
 /* Page transitions are driven by Astro's <ClientRouter> (Base.astro), which calls
    startViewTransition() on every navigation — reliable in all browsers, unlike the
@@ -122,58 +207,75 @@ body {
 /* ---------- header ---------- */
 
 .site-header {
-  padding-block: 1.5rem 0.75rem;
-}
-
-.site-nav {
-  display: flex;
-  align-items: baseline;
-  gap: 1.4rem;
+  padding-block: 1.6rem 2.25rem;
+  align-items: center;
 }
 
 .wordmark {
-  margin-right: auto;
-  font-size: 1.25rem;
-  font-weight: 800;
-  letter-spacing: -0.01em;
+  grid-column: 1 / span 6;
+  justify-self: start;
+  padding-block: 0.2rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1;
   text-decoration: none;
 }
 
 .wordmark em {
   font-style: italic;
-  color: var(--wordmark-code);
+  font-weight: 600;
+  color: var(--wm-code);
 }
 
 .wordmark span {
-  color: var(--wordmark-tango);
+  color: var(--wm-tango);
+}
+
+.site-nav {
+  grid-column: 7 / -1;
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 1.35rem;
+  font-size: 1rem;
 }
 
 .nav-link {
-  color: var(--text-muted);
+  color: var(--text);
   text-decoration: none;
-  font-size: 0.95rem;
+  padding-block: 0.15rem;
+  border-bottom: 2px solid transparent;
 }
 
-.nav-link:hover,
+.nav-link:hover {
+  border-bottom-color: var(--rule);
+}
+
 .nav-link[aria-current="page"] {
-  color: var(--text);
+  border-bottom-color: var(--ochre);
+}
+
+.nav-icons {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
 }
 
 #theme-toggle,
 .icon-link {
-  align-self: center;
   display: inline-flex;
   padding: 0.2rem;
   background: none;
   border: 0;
   border-radius: 6px;
-  color: var(--text-muted);
+  color: var(--text);
   cursor: pointer;
 }
 
 #theme-toggle:hover,
 .icon-link:hover {
-  color: var(--text);
+  color: var(--link);
 }
 
 #theme-toggle svg,
@@ -182,12 +284,12 @@ body {
   height: 17px;
 }
 
-/* No harsh blue focus box on the icon buttons (e.g. the search icon after Esc) —
+/* No harsh focus box on the icon buttons (e.g. the search icon after Esc) —
    keyboard focus gets a soft on-brand state instead, keeping a11y without the box. */
 #theme-toggle:focus-visible,
 .icon-link:focus-visible {
   outline: none;
-  color: var(--text);
+  color: var(--link);
   background: var(--code-bg);
 }
 
@@ -195,25 +297,432 @@ body {
 [data-theme="dark"] .icon-moon { display: block; }
 [data-theme="dark"] .icon-sun { display: none; }
 
-/* ---------- main / footer ---------- */
-
 main {
   flex: 1;
-  padding-block: 2.75rem 4.5rem;
 }
+
+/* ---------- painted fields (decorative, never behind body text) ---------- */
+
+.field { background: var(--field-teal); }
+.field--two { background: var(--field-two); }
+.field--ochre { background: var(--ochre); }
+
+/* Home composition: a teal slab, an ink post, an ochre quarter disc rising from the right */
+.home-band {
+  height: var(--band);
+  align-items: end;
+}
+
+.home-band .slab {
+  grid-column: 1 / span 6;
+  grid-row: 1;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  padding: clamp(1rem, 2.2vw, 1.75rem);
+}
+
+.home-band h1 {
+  margin: 0;
+  color: var(--on-field);
+  font-size: clamp(2rem, 3.6vw, 3rem);
+  font-weight: 650;
+  letter-spacing: -0.025em;
+  line-height: 1;
+}
+
+.home-band .post-bar {
+  grid-column: 8 / span 1;
+  grid-row: 1;
+  height: 58%;
+}
+
+.home-band .quarter {
+  grid-column: 10 / span 3;
+  grid-row: 1;
+  justify-self: end;
+  width: min(100%, var(--band));
+  aspect-ratio: 1;
+  border-top-left-radius: 100%;
+}
+
+/* ---------- post listing (home) ---------- */
+
+.listing {
+  list-style: none;
+  margin: 0;
+  padding: clamp(3.5rem, 8vw, 6.5rem) 0 0;
+}
+
+.entry {
+  row-gap: 0.9rem;
+  margin-bottom: clamp(3.5rem, 8vw, 6.5rem);
+}
+
+.entry-date {
+  grid-column: 1 / span 2;
+  grid-row: 1;
+  padding-top: 0.55em;
+  font-size: 0.9rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.entry-title {
+  grid-column: 3 / span 7;
+  grid-row: 1;
+  margin: 0;
+  font-size: clamp(1.9rem, 4.2vw, 3.6rem);
+  font-weight: 650;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+
+.entry-title a {
+  color: var(--text);
+  text-decoration-line: underline;
+  text-decoration-color: var(--field-teal);
+  text-decoration-thickness: 0.07em;
+  text-underline-offset: 0.12em;
+}
+
+.entry-title a:hover {
+  color: var(--link);
+}
+
+.entry-synopsis {
+  grid-column: 3 / span 5;
+  grid-row: 2;
+  margin: 0;
+  max-width: 34em;
+  font-size: 1.05rem;
+  color: var(--muted);
+}
+
+.entry-meta {
+  grid-column: 11 / span 2;
+  grid-row: 1;
+  margin: 0;
+  padding-top: 0.55em;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.entry-meta span { display: block; }
+.entry-meta .cat { color: var(--text); font-weight: 600; }
+.entry-meta .len { color: var(--muted); }
+
+.entry-tags {
+  grid-column: 11 / span 2;
+  grid-row: 2;
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* ---------- post head ----------
+   The head shares the reading column's centred measure, so the title and the
+   body start on the same line. The ink block fills the margin back to the grid
+   edge; the ochre disc sits in the opposite margin. */
+
+.post-head {
+  grid-template-columns:
+    [full-start] minmax(var(--pad), 1fr)
+    [text-start] minmax(0, calc(var(--measure) / 2))
+    [mid] minmax(0, calc(var(--measure) / 2))
+    [text-end] minmax(var(--pad), 1fr)
+    [full-end];
+  column-gap: 0;
+  padding-inline: 0;
+  row-gap: 1.25rem;
+  padding-top: clamp(1rem, 3vw, 2.5rem);
+}
+
+.post-head .column-block {
+  grid-column: full-start / text-start;
+  grid-row: 1 / 5;
+  align-self: stretch;
+  justify-self: end;
+  width: max(0.5rem, 100% - var(--pad) - var(--hang));
+  margin-inline-end: var(--hang);
+  min-height: 8rem;
+}
+
+.post-head .disc {
+  grid-column: text-end / full-end;
+  grid-row: 1;
+  align-self: start;
+  justify-self: end;
+  width: min(9rem, 100% - var(--pad) - var(--hang));
+  margin-inline-end: var(--pad);
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
+/* Title, lede, meta and tags auto-flow down the text column, so an absent
+   synopsis or tag list leaves no empty row. */
+.post-title,
+.post-lede,
+.post-meta,
+.post-tags {
+  grid-column: text-start / text-end;
+}
+
+.post-title {
+  margin: 0;
+  font-size: clamp(2.3rem, 5.4vw, 4.6rem);
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+
+.post-lede {
+  margin: 0;
+  max-width: 36em;
+  font-size: clamp(1.1rem, 1.6vw, 1.3rem);
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--muted);
+}
+
+.post-meta {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: var(--gutter);
+  margin: 0.5rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.post-meta > * { margin: 0; }
+.post-meta .author { font-weight: 600; }
+.post-meta .muted { color: var(--muted); }
+
+.post-tags {
+  margin: -0.5rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.post-head .rule-slab {
+  grid-column: full-start / mid;
+  height: 0.75rem;
+  margin-inline-start: var(--pad);
+  margin-top: clamp(2.5rem, 5vw, 4rem);
+}
+
+/* ---------- prose (markdown content, centred reading column) ---------- */
+
+.prose {
+  max-width: var(--measure);
+  margin: clamp(2.5rem, 5vw, 4rem) auto 0;
+  padding-inline: var(--pad);
+  box-sizing: content-box;
+  font-size: 1.1875rem;
+  line-height: 1.7;
+}
+
+.prose > :first-child { margin-top: 0; }
+
+.prose p,
+.prose ul,
+.prose ol,
+.prose pre,
+.prose table,
+.prose blockquote {
+  margin: 0 0 1.25em;
+}
+
+.prose h2 {
+  position: relative;
+  margin: 2.4em 0 0.6em;
+  font-size: clamp(1.6rem, 2.6vw, 2.05rem);
+  font-weight: 650;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+}
+
+.prose h3 {
+  margin: 1.9em 0 0.45em;
+  font-size: 1.3rem;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: -0.012em;
+}
+
+.prose h4 {
+  margin: 1.8em 0 0.4em;
+  font-size: 1.1rem;
+  font-weight: 650;
+}
+
+.prose strong { font-weight: 650; }
+
+.prose a:hover {
+  color: var(--link-strong);
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.4em;
+}
+
+.prose li {
+  margin-bottom: 0.6em;
+  padding-left: 0.2em;
+}
+
+.prose li::marker {
+  color: var(--link);
+  font-weight: 650;
+}
+
+.prose blockquote {
+  padding: 1.35rem 1.25rem;
+  background: var(--quote-field);
+  color: var(--on-field);
+  border-left: 6px solid var(--ochre);
+}
+
+.prose blockquote p { margin: 0; }
+.prose blockquote p + p { margin-top: 0.8em; }
+.prose blockquote strong { color: var(--on-field); }
+.prose blockquote a { color: var(--on-field); }
+
+.prose img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-inline: auto;
+}
+
+/* An emphasised line directly after a diagram in the same paragraph is its caption. */
+.prose p:has(> img) > em {
+  display: block;
+  margin-top: 0.6rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* Static diagram + chart SVGs keep their own teal palette and dark text; give them a
+   soft light panel in dark mode so strokes and labels stay legible. */
+[data-theme="dark"] .prose img[src^="/diagrams/"],
+[data-theme="dark"] .prose img[src^="/charts/"] {
+  background: #eef4f2;
+  border-radius: 10px;
+  padding: 0.9rem;
+}
+
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 2.5em 0;
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.prose th,
+.prose td {
+  padding: 0.45em 0.7em;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+}
+
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.84em;
+  background: var(--code-bg);
+  padding: 0.1em 0.32em;
+  border-radius: 3px;
+}
+
+.prose pre {
+  padding: 1.1rem 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  white-space: pre;
+  overflow-x: auto;
+  background: var(--code-bg);
+  border-left: 4px solid var(--field-teal);
+}
+
+.prose pre code {
+  background: none;
+  padding: 0;
+  font-size: inherit;
+  border-radius: 0;
+}
+
+/* ---------- code blocks (Shiki, dual theme) ---------- */
+
+/* Keep Shiki's syntax colours, but drop its panel for the palette's code surface.
+   Spans go transparent so the container tint shows through. */
+.astro-code {
+  color: var(--shiki-light);
+  background-color: var(--code-bg);
+}
+
+.astro-code span {
+  color: var(--shiki-light);
+  background-color: transparent;
+}
+
+[data-theme="dark"] .astro-code,
+[data-theme="dark"] .astro-code span {
+  color: var(--shiki-dark);
+}
+
+/* ---------- footer ---------- */
 
 .site-footer {
-  border-top: 1px solid var(--border);
-  padding-block: 1.4rem 2.4rem;
-  font-size: 0.85rem;
-  color: var(--text-muted);
+  margin-top: clamp(4.5rem, 10vw, 8rem);
+  padding-bottom: 2.5rem;
+  row-gap: 1.25rem;
+  align-items: center;
+  font-size: 0.92rem;
+  color: var(--muted);
 }
 
+/* Accent strip: teal rectangle, ink circle, ochre circle. */
+.foot-strip {
+  grid-column: 1 / span 3;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 0.5rem;
+}
+
+.foot-strip i {
+  display: block;
+  height: 100%;
+}
+
+.foot-strip i:nth-child(1) { flex: 1; background: var(--field-teal); }
+.foot-strip i:nth-child(2),
+.foot-strip i:nth-child(3) { flex: none; width: 0.5rem; border-radius: 50%; }
+.foot-strip i:nth-child(2) { background: var(--field-two); }
+.foot-strip i:nth-child(3) { background: var(--ochre); }
+
 .footer-inner {
+  grid-column: 1 / -1;
   display: flex;
   flex-wrap: wrap;
   gap: 0.6rem 1.2rem;
   justify-content: space-between;
+  align-items: center;
 }
 
 .footer-links {
@@ -224,6 +733,12 @@ main {
 
 .footer-links a {
   display: inline-flex;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  color: var(--link);
 }
 
 .footer-links svg {
@@ -239,15 +754,6 @@ main {
   height: 21px;
 }
 
-.site-footer a {
-  color: var(--text-muted);
-  text-decoration: none;
-}
-
-.site-footer a:hover {
-  color: var(--text);
-}
-
 /* ---------- search (header modal) ---------- */
 
 /* Theme the Pagefind Component UI from our tokens — scoped on body so the header
@@ -255,19 +761,19 @@ main {
    they reference the site variables. */
 body {
   --pf-text: var(--text);
-  --pf-text-secondary: var(--text-muted);
-  --pf-text-muted: var(--text-muted);
-  --pf-background: var(--bg);
-  --pf-border: var(--border);
-  --pf-border-focus: var(--accent);
-  --pf-outline-focus: var(--accent); /* Pagefind ships #0969da blue here — on-brand it */
+  --pf-text-secondary: var(--muted);
+  --pf-text-muted: var(--muted);
+  --pf-background: var(--paper);
+  --pf-border: var(--rule);
+  --pf-border-focus: var(--link);
+  --pf-outline-focus: var(--link); /* Pagefind ships #0969da blue here — on-brand it */
   --pf-hover: var(--code-bg);
   /* Also the keyboard-selected top-level card background (and the loading-skeleton
      shimmer) — Pagefind defaults it to #eee, which flashes white in dark mode. */
   --pf-skeleton: var(--code-bg);
-  --pf-mark: var(--accent-strong);
-  --pf-font: "Open Sans Variable", system-ui, sans-serif;
-  --pf-modal-backdrop: rgba(31, 42, 39, 0.4);
+  --pf-mark: var(--link-strong);
+  --pf-font: var(--font-sans);
+  --pf-modal-backdrop: rgba(23, 42, 47, 0.4);
   --pf-modal-top: 12dvh;
 }
 
@@ -280,7 +786,7 @@ body {
 pagefind-modal mark,
 pagefind-results mark {
   background: none;
-  color: var(--accent-strong);
+  color: var(--link-strong);
   font-weight: 600;
 }
 
@@ -326,200 +832,93 @@ pagefind-modal .pf-input:focus-visible {
   }
 }
 
-/* ---------- post listing (home) ---------- */
+/* ---------- wide: square markers hang in the left margin, on the ink block's edge ---------- */
 
-.post-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2.6rem;
+@media (min-width: 64rem) {
+  .prose h2::before {
+    content: "";
+    position: absolute;
+    left: calc(-1 * var(--hang) - 0.85rem);
+    top: 0.18em;
+    width: 0.85rem;
+    height: 0.85rem;
+    background: var(--ochre);
+  }
+
+  /* The field bleeds into the margins; its text stays on the reading column's edges. */
+  .prose blockquote {
+    margin-inline: calc(-1 * var(--quote-bleed));
+    padding: 1.75rem var(--quote-bleed);
+    padding-left: calc(var(--quote-bleed) - 6px);
+  }
 }
 
-.post-list h2 {
-  margin: 0 0 0.3rem;
-  font-size: 1.25rem;
-  font-weight: 700;
-  line-height: 1.35;
-  letter-spacing: -0.01em;
+/* ---------- medium ---------- */
+
+@media (max-width: 62rem) {
+  .entry { row-gap: 0.75rem; }
+  .entry-title { grid-column: 3 / -1; }
+  .entry-synopsis { grid-column: 3 / -1; }
+  .entry-meta {
+    grid-column: 3 / -1;
+    grid-row: 3;
+    padding-top: 0;
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 1.25rem;
+  }
+  .entry-tags { grid-column: 3 / -1; grid-row: 4; margin-top: -0.5rem; }
+  .post-head .disc { display: none; }
+  .post-meta { display: flex; flex-wrap: wrap; column-gap: 1.25rem; row-gap: 0.2rem; }
 }
 
-.post-list h2 a {
-  color: var(--text);
-  text-decoration: none;
-}
+/* ---------- narrow: a 6-column module ---------- */
 
-.post-list h2 a:hover {
-  color: var(--accent);
-}
+@media (max-width: 46rem) {
+  .grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .site-header { padding-block: 1.25rem 1.5rem; }
+  .wordmark { grid-column: 1 / -1; grid-row: 1; font-size: 1.35rem; }
+  .site-nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: start;
+    margin-top: 0.9rem;
+    gap: 1.1rem;
+  }
 
-.post-synopsis {
-  margin: 0 0 0.45rem;
-  color: var(--text-muted);
-  font-size: 0.97rem;
-}
+  .home-band .slab { grid-column: 1 / span 4; }
+  .home-band .post-bar { display: none; }
+  .home-band .quarter { grid-column: 5 / span 2; width: 100%; }
 
-.post-meta {
-  color: var(--text-muted);
-  font-size: 0.85rem;
-}
+  .entry { row-gap: 0.6rem; }
+  .entry-date { grid-column: 1 / -1; grid-row: 1; padding-top: 0; }
+  .entry-title { grid-column: 1 / -1; grid-row: 2; }
+  .entry-synopsis { grid-column: 1 / -1; grid-row: 3; }
+  .entry-meta { grid-column: 1 / -1; grid-row: 4; padding-top: 0.2rem; }
+  .entry-tags { grid-column: 1 / -1; grid-row: 5; margin-top: -0.3rem; }
 
-/* ---------- post page ---------- */
+  /* Back to the 6-column module: the body starts on the block's left edge and
+     the head text sits beside the block. */
+  .post-head {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    column-gap: var(--gutter);
+    padding-inline: var(--pad);
+    row-gap: 1rem;
+  }
+  .post-head .column-block {
+    grid-column: 1 / span 1;
+    width: auto;
+    justify-self: stretch;
+    margin-inline-end: 0;
+    min-height: 0;
+  }
+  .post-title,
+  .post-lede,
+  .post-meta,
+  .post-tags { grid-column: 2 / -1; }
+  .post-tags { margin-top: -0.4rem; }
+  .post-head .rule-slab { grid-column: 1 / span 4; margin-inline-start: 0; }
+  .prose { font-size: 1.125rem; line-height: 1.65; }
 
-.post-header {
-  margin-bottom: 2.4rem;
-}
-
-.post-header h1 {
-  margin: 0 0 0.5rem;
-  font-size: 1.75rem;
-  font-weight: 800;
-  line-height: 1.25;
-  letter-spacing: -0.015em;
-}
-
-.post-lede {
-  margin: 0 0 0.5rem;
-  font-size: 1.02rem;
-  font-style: italic;
-  color: var(--text-muted);
-}
-
-/* ---------- prose (markdown content) ---------- */
-
-.prose > :first-child { margin-top: 0; }
-
-.prose h2 {
-  margin: 2.6em 0 0.8em;
-  font-size: 1.35rem;
-  line-height: 1.3;
-  letter-spacing: -0.01em;
-}
-
-.prose h3 {
-  margin: 2em 0 0.6em;
-  font-size: 1.12rem;
-}
-
-.prose h4 {
-  margin: 1.8em 0 0.5em;
-  font-size: 1rem;
-}
-
-.prose p {
-  margin: 1.1em 0;
-}
-
-.prose a {
-  color: var(--accent);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  text-decoration-thickness: 1px;
-}
-
-.prose a:hover {
-  color: var(--accent-strong);
-}
-
-.prose ul,
-.prose ol {
-  padding-left: 1.4em;
-}
-
-.prose li {
-  margin: 0.35em 0;
-}
-
-.prose blockquote {
-  margin: 1.6em 0;
-  padding: 0.1em 0 0.1em 1.1em;
-  border-left: 3px solid var(--accent);
-}
-
-.prose blockquote p {
-  margin: 0.6em 0;
-}
-
-.prose img {
-  display: block;
-  max-width: 100%;
-  height: auto;
-  margin-inline: auto;
-}
-
-/* Static diagram + chart SVGs keep their own teal palette and dark text; give them a
-   soft light panel in dark mode so strokes and labels stay legible. */
-[data-theme="dark"] .prose img[src^="/diagrams/"],
-[data-theme="dark"] .prose img[src^="/charts/"] {
-  background: #eef4f2;
-  border-radius: 10px;
-  padding: 0.9rem;
-}
-
-.prose hr {
-  border: 0;
-  border-top: 1px solid var(--border);
-  margin: 2.5em 0;
-}
-
-.prose table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.92rem;
-  margin: 1.4em 0;
-}
-
-.prose th,
-.prose td {
-  padding: 0.45em 0.7em;
-  border-bottom: 1px solid var(--border);
-  text-align: left;
-  vertical-align: top;
-}
-
-.prose code {
-  font-family: var(--font-mono);
-  font-size: 0.85em;
-  background: var(--code-bg);
-  padding: 0.15em 0.4em;
-  border-radius: 5px;
-}
-
-.prose pre code {
-  background: none;
-  padding: 0;
-  font-size: inherit;
-  border-radius: 0;
-}
-
-/* ---------- code blocks (Shiki, dual theme) ---------- */
-
-.astro-code {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1rem 1.2rem;
-  font-size: 0.85rem;
-  line-height: 1.65;
-  overflow-x: auto;
-  margin: 1.4em 0;
-}
-
-.astro-code,
-.astro-code span {
-  color: var(--shiki-light);
-  background-color: var(--shiki-light-bg);
-}
-
-/* Keep Shiki's dark syntax colors, but drop its neutral-gray panel for our
-   teal-ink surface so code blocks belong to the palette. Spans go transparent
-   so the container tint shows through. */
-[data-theme="dark"] .astro-code {
-  color: var(--shiki-dark);
-  background-color: var(--code-bg);
-}
-
-[data-theme="dark"] .astro-code span {
-  color: var(--shiki-dark);
-  background-color: transparent;
+  .foot-strip { grid-column: 1 / span 3; }
 }
