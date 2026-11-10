@@ -102,7 +102,7 @@ Use the teal ramp in `style` directives (see the anatomy post for reference) —
 
 Charts are compiled from Vega-Lite specs to SVG automatically. To add a chart:
 
-1. Drop a `<name>.vl.json` Vega-Lite spec in `astro/src/charts/`. Author only `data` + `mark` + `encoding` — the brand theme (teal palette, Open Sans, minimal axes) is merged in automatically from `src/charts/_theme.mjs`.
+1. Drop a `<name>.vl.json` Vega-Lite spec in `astro/src/charts/`. Author only `data` + `mark` + `encoding` — the brand theme (teal palette, Familjen Grotesk, minimal axes) is merged in automatically from `src/charts/_theme.mjs`.
 2. Reference the output in a post: `![alt](/charts/<name>.svg)`.
 3. It builds automatically (`prebuild`/`predev` hooks run `scripts/build-charts.mjs`); or run `npm run charts` manually.
 
@@ -148,7 +148,7 @@ CI gate + local safety net. Framework: **Vitest** (`vitest.config.ts`; `include:
 - **`test/content/conventions.test.ts`** — reads each `src/content/blog/*.md` with `gray-matter`; **parses the canonical tag/category vocabulary out of `.opencode/skills/post-formatting/SKILL.md`** (single source of truth) and hard-fails off-vocabulary tags/categories, non-kebab filenames, or missing title/date.
 - **`test/build/`** — assert against `dist/` after a build (`js-budget`, `agent-surface`, `integrity`, `links`). Gated by **`ensureBuilt()`** (`test/helpers/ensure-build.ts`): builds only if `dist/index.html` is absent, so CI (which builds first) doesn't rebuild and local `npm test` stays self-contained. `publishedPosts()` there is the shared non-draft post loader.
 
-Gotchas: `astro check` needs `src/env.d.ts` to declare the `@fontsource-variable/open-sans` side-effect import (no bundled types), and `z` must come from `astro:schema` not `astro:content` (deprecated). RSS `content:encoded` is **entity-escaped, not CDATA** — match both forms. When the URL scheme or a content type changes, update the build-output assertions to match.
+Gotchas: `astro check` needs `src/env.d.ts` to declare the `@fontsource-variable/familjen-grotesk` side-effect import (no bundled types), and `z` must come from `astro:schema` not `astro:content` (deprecated). RSS `content:encoded` is **entity-escaped, not CDATA** — match both forms. When the URL scheme or a content type changes, update the build-output assertions to match.
 
 ## Docs MCP (recommended)
 

@@ -5,7 +5,15 @@ const { frontmatter } = Astro.props;
 ---
 
 <Base title={frontmatter.title} description={frontmatter.description}>
-  <article class="prose" data-pagefind-body>
-    <slot />
+  <article data-pagefind-body>
+    <header class="post-head grid">
+      <div class="column-block field field--two" aria-hidden="true"></div>
+      <div class="disc field field--ochre" aria-hidden="true"></div>
+      <h1 class="post-title">{frontmatter.title}</h1>
+      <div class="rule-slab field" aria-hidden="true"></div>
+    </header>
+    <div class="prose">
+      <slot />
+    </div>
   </article>
 </Base>

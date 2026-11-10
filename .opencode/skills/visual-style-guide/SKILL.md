@@ -14,23 +14,30 @@ the `astro-reference` skill (framework facts + visuals workflow), the `deploymen
 
 ## Design Principles
 
-1. **Content-first minimalism.** Chrome recedes: no logo icon, no sidebars, footer reduced
-   to social icons. The page is the post.
-2. **Simply rendered HTML.** The site compiles to static HTML and must stay fast on slow
+The design is **Modular Poster**: a restrained Swiss/Bauhaus poster system. Flat colour
+fields sit on a modular grid around a calm, centred reading column.
+
+1. **The reading column is sacred.** Post text sits in one centred ~44rem column with no
+   texture, fields, or decoration behind it. Composition happens around it, never in it.
+2. **Colour fields carry the character.** Boldness comes from a few flat geometric fields
+   (teal slab, ink bar, ochre disc), not from big chrome type, gradients, cards, or shadows.
+   Fields are decorative (`aria-hidden`) and never sit behind body text.
+3. **Simply rendered HTML.** The site compiles to static HTML and must stay fast on slow
    connections and trivially crawlable by agents. Every byte of JS/CSS must earn its place.
-3. **Low-key enhancement.** Features are quiet: subtle transitions (120–300 ms), no layout
-   shift, `prefers-reduced-motion` always respected. Nothing animates for animation's sake.
-4. **Calibration reference:** [savvycal.com/articles](https://savvycal.com/articles/) — the
-   *level* of restraint to emulate (single column, title + excerpt + date, nothing else
-   competing for attention). Not a template to copy.
+4. **Low-key enhancement.** Motion is short (≤300 ms), never shifts layout, and always
+   respects `prefers-reduced-motion`.
 
 ## Brand
 
-- Wordmark: **codeTango** — text only, no logo, rendered in the header (and only there).
-  Hardcoded in `Base.astro` as `<em>code</em><span>Tango</span>`; colored via the
-  `--wordmark-code` / `--wordmark-tango` tokens (do not hardcode hex). Do not reintroduce a
-  logo icon.
-- The teal identity lives in the wordmark, links, and accents — not a painted header bar.
+- Wordmark: **codeTango**, text only and no logo, in the header (and only there).
+  Hardcoded in `Base.astro` as `<em>code</em><span>Tango</span>`. "code" is **always italic**.
+  Colour comes from the `--wm-code` / `--wm-tango` tokens (don't hardcode hex). Don't
+  reintroduce a logo icon, and keep the wordmark at a normal, confident size: giant
+  decorative wordmarks read as gaudy.
+- Teal leads the brand. Ink and ochre are its two supporting field colours.
+- The theme toggle is the sun/moon icon button (sun in light, moon in dark, one click
+  flips the theme). The footer always uses the icon links (RSS, GitHub, LinkedIn) and always
+  keeps the Pied Piper hat link. Never replace these with text labels or a custom control.
 
 ## Color System
 
@@ -38,28 +45,28 @@ Theme is a token system in `global.css`, switched by `[data-theme]` on `<html>` 
 light/dark toggle persisted to `localStorage`; system preference is the default until first
 click). Use the tokens for anything theme-aware; never hardcode theme colors.
 
-**Dark mode is deep teal ink, not neutral charcoal.** `--bg: #0a1a1e` is a committed,
-saturated teal-ink — deliberately brand-colored. It's the dark-mode signature: everything
-else stays quiet so the ink and the glowing accent carry the mood. Light mode is clean white
-— the two modes share the teal *identity* but not the same trick (bright accent-on-ink reads
-differently from ink-accent-on-white). The load-bearing tokens:
-
 | Token | Light | Dark | Note |
 |---|---|---|---|
-| `--bg` | `#ffffff` | `#0a1a1e` | dark = deep teal ink |
-| `--text` | `#1f2a27` | `#dbeae7` | dark = soft foam-white |
-| `--text-muted` | `#5f6f6b` | `#83a5a1` | ~6:1 on ink |
-| `--accent` (links) | `#00796b` | `#5ed4c5` | dark = vivid aqua-teal, ~10:1 on ink |
-| `--wordmark-code` (italic "code") | `#0f3328` | `#c2e4dd` | the anchor |
-| `--wordmark-tango` ("Tango") | `#00796b` | `#5ed4c5` | the pop |
-| `--border` | `#e4eae8` | `#17383d` | teal-tinted hairline |
-| `--code-bg` (inline) | `#f4f7f6` | `#0e2a2f` | raised teal surface |
+| `--paper` | `#ffffff` | `#0b1b20` | page background; dark = deep teal night |
+| `--text` | `#172a2f` | `#dce9e6` | |
+| `--muted` | `#56676a` | `#8ea9a4` | meta, synopses, footer |
+| `--link` | `#00756a` | `#5ed4c5` | link text, AA on the page |
+| `--link-strong` | `#00695c` | `#8fe4d9` | link hover, search highlight |
+| `--field-teal` | `#0e7c70` | `#1f8a7c` | teal slab, rule slab, code-block edge, footer bar |
+| `--field-two` | `#1a3238` | `#9db5b0` | ink bar / column block, footer circle |
+| `--ochre` | `#c9962b` | `#d6a440` | accent: disc, H2 squares, active nav, quote edge, selection, footer circle |
+| `--on-field` | `#ffffff` | `#f4fbf9` | text on a painted field (home "Posts", quotes) |
+| `--quote-field` | `#0e7c70` | `#136a60` | blockquote background (AA with `--on-field`) |
+| `--code-bg` | `#f1f5f4` | `#102a30` | inline code and code-block panel |
+| `--rule` | `#dde5e3` | `#1b3a40` | hairlines, table borders |
+| `--wm-code` / `--wm-tango` | `#172a2f` / `#00756a` | `#c2e4dd` / `#5ed4c5` | wordmark |
 
-`#009688` (teal-500) fails AA contrast on white and is **not** used for text — links/accents
-are `#00796b` (teal-700) light / `#5ed4c5` dark.
+**Ochre is an approved accent, for shapes only.** It fails contrast as text (~2.6:1 on
+white), so use it on fields, rules, markers, and highlights, never on text or links. Don't add
+further hues without approval.
 
-**Diagram palette** — Mermaid diagrams use the teal ramp exclusively (unstyled Mermaid
-renders off-brand lavender). Established pairings, from published posts:
+**Diagram palette.** Mermaid diagrams and Vega-Lite charts stay **teal-only**: ochre is a
+site accent, not a data colour. Unstyled Mermaid renders off-brand lavender. Established pairings, from published posts:
 
 | Fill | Text | Stroke | Use |
 |---|---|---|---|
@@ -70,35 +77,45 @@ renders off-brand lavender). Established pairings, from published posts:
 | `#B2DFDB` (teal-100) | `#004D40` | `#80CBC4` | lightest step / initial states |
 
 Sequential meaning: light → dark encodes progression (see the task-lifecycle diagram in
-`anatomy-of-an-agentic-dev-setup.md`). Do not introduce non-teal hues without approval.
+`anatomy-of-an-agentic-dev-setup.md`).
 
 ## Typography
 
-- **Font:** Open Sans Variable, self-hosted via `@fontsource-variable/open-sans` (no external
-  font request). Body 17px / line-height 1.7.
-- **Wordmark:** heavy weight, header only.
-- **Post synopsis / lede:** italic, muted (`--text-muted`).
-- Headings inside posts: H2/H3 only — the frontmatter title renders as the H1.
+- **Font:** Familjen Grotesk Variable, self-hosted via `@fontsource-variable/familjen-grotesk`
+  (upright + italic; no external font request). It is the only family; code uses the
+  system monospace stack (`--font-mono`), which has reliable box-drawing glyphs.
+- Base 18px / 1.65. Post body 19px / 1.7 on the 44rem measure (18px / 1.65 below 46rem).
+- Titles: weight 650, tight negative tracking, flush left. Listing titles up to 3.6rem, the
+  post title up to 4.6rem.
+- **Post synopsis / lede:** italic, muted.
+- Headings inside posts: H2/H3 only. The frontmatter title renders as the H1.
 
 ## Layout & Chrome
 
-- **Single ~42rem (~672px) column** for everything — header, content, footer. One centered
-  column, no sidebars.
-- **Quiet chrome.** Header and page share the background, separated by whitespace; the footer
-  by a hairline `--border`. No teal bar. Header carries the wordmark, Posts/About links, a
-  search icon, and the theme toggle.
-- Navigation is the two header links + the Pagefind search modal.
+- **The module grid** (`.grid`): 12 columns (6 below 46rem), max 82rem, `--pad` side padding.
+  Header, footer, the home band, and listing entries sit on it.
+- **Header:** wordmark left; Posts/About, search icon, and theme toggle right. The active
+  nav link gets an ochre underline. It shares the page background (no painted bar).
+- **Home:** a band of three fields (a teal slab holding the visible "Posts" H1, an ink bar, an
+  ochre quarter-disc), then entries with the date on columns 1–2, a big flush-left title
+  and synopsis on 3–9, and category, read time, and tags on 11–12.
+- **Post / About:** the head shares the reading column's left edge. An ink column block
+  fills the left margin, an ochre disc sits in the right margin (hidden below 62rem), and a
+  teal rule slab closes the head. The body is the centred 44rem `.prose` column.
+- **Footer:** an accent strip (teal rectangle, ink circle, ochre circle), then the copyright
+  line and the icon links.
 
 ## Motion
 
-All motion is subtle and gated behind `@media (prefers-reduced-motion: no-preference)` where
-it spans surfaces. Nothing longer than ~300 ms; transitions cover
-color/background/border/shadow/fill/stroke — never `all`; no motion that causes layout shift.
+All motion is subtle and gated behind `@media (prefers-reduced-motion: no-preference)`.
+Nothing longer than ~300 ms; transitions cover colour/background/border, never `all`;
+no motion causes layout shift.
 
 | Effect | Timing |
 |---|---|
-| Theme switch cross-fade (CSS-only, applied to body/header/content/nav/icons) | 220 ms ease |
+| Theme switch cross-fade | 220 ms ease |
 | Page transition (root cross-fade via `<ClientRouter/>`) | 160 ms |
+| Fields paint in (slabs wipe, bars rise, discs grow; transform only) | 240 ms, 0–60 ms stagger, `cubic-bezier(0.22, 1, 0.36, 1)`; replays on every navigation by design |
 | Search modal + results entrance | ~165–230 ms, `cubic-bezier(0.22, 1, 0.36, 1)` |
 
 **Page transitions** are driven by Astro's `<ClientRouter/>` (in `Base.astro`), which calls
@@ -109,14 +126,18 @@ reduced-motion disables it.
 
 ## Components
 
-- **Listing row** = title / synopsis / `date · N min read`.
-- **Post** = title / italic synopsis lede / meta line.
+- **Listing entry** = date / title / synopsis / category + read time / tags, on the grid.
+- **Post head** = title / italic synopsis lede / meta (author, date, read time, category) /
+  tags, with the column block, disc, and rule slab. Keep meta plain: no boxed metadata,
+  and no reading-time bars or other meta widgets.
+- **Blockquote** = a solid `--quote-field` with `--on-field` text and an ochre left edge. On wide
+  screens it extends `--quote-bleed` into the margins while its text stays on the column edges.
+- **H2** = an ochre square hangs in the left margin on wide screens (≥64rem).
 - **Code blocks** = Shiki dual-theme (`github-light`/`github-dark`), switched by
-  `[data-theme]`. In dark mode the block panel is overridden from Shiki's neutral `#24292e`
-  to the teal `--code-bg` (spans forced transparent) so code belongs to the palette — Shiki's
-  syntax *colors* are kept.
+  `[data-theme]`. The panel is overridden to `--code-bg` in both themes, with a teal left edge
+  (spans forced transparent), so code belongs to the palette. Shiki's syntax *colours* are kept.
 - **Search** = Pagefind Component UI header modal (magnifier or ⌘K / `/`), live-as-you-type,
-  themed to site tokens incl. the accent `mark` highlight. Details in the `astro-reference` skill →
+  themed to site tokens incl. the `mark` highlight. Details in the `astro-reference` skill →
   Search.
 
 ## Visuals (all static SVG, build-time, no client JS)
@@ -129,7 +150,7 @@ so author them dark-on-transparent:
   ramp above. Best for flowcharts/relationships; weak at precise placement.
 - **Data charts** — Vega-Lite JSON spec in `astro/src/charts/*.vl.json` → generated SVG in
   `astro/public/charts/` via `scripts/build-charts.mjs` (auto on `prebuild`/`predev`, or
-  `npm run charts`). The teal palette + Open Sans + minimal-axis look is applied
+  `npm run charts`). The teal palette + Familjen Grotesk + minimal-axis look is applied
   automatically from `src/charts/_theme.mjs`, so specs stay data-only. See
   the `astro-reference` skill → Visuals for the full workflow.
 

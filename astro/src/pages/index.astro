@@ -9,20 +9,29 @@ const posts = (
 ---
 
 <Base>
-  <h1 class="visually-hidden">codeTango — posts</h1>
-  <ul class="post-list">
+  <div class="home-band grid">
+    <div class="slab field"><h1>Posts</h1></div>
+    <div class="post-bar field field--two" aria-hidden="true"></div>
+    <div class="quarter field field--ochre" aria-hidden="true"></div>
+  </div>
+  <ol class="listing">
     {
       posts.map((post) => (
-        <li>
-          <h2>
+        <li class="entry grid">
+          <time class="entry-date" datetime={post.data.date.toISOString().slice(0, 10)}>
+            {formatDate(post.data.date)}
+          </time>
+          <h2 class="entry-title">
             <a href={`/blog/${post.id}/`}>{post.data.title}</a>
           </h2>
-          {post.data.synopsis && <p class="post-synopsis">{post.data.synopsis}</p>}
-          <span class="post-meta">
-            {formatDate(post.data.date)} · {readingTime(post.body ?? '')} min read
-          </span>
+          {post.data.synopsis && <p class="entry-synopsis">{post.data.synopsis}</p>}
+          <p class="entry-meta">
+            {post.data.categories[0] && <span class="cat">{post.data.categories[0]}</span>}
+            <span class="len">{readingTime(post.body ?? '')} min read</span>
+          </p>
+          {post.data.tags.length > 0 && <p class="entry-tags">{post.data.tags.join(', ')}</p>}
         </li>
       ))
     }
-  </ul>
+  </ol>
 </Base>

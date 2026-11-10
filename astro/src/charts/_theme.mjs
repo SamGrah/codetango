@@ -8,7 +8,7 @@
 // mode — the same treatment the Mermaid diagrams get. Background is transparent.
 
 export const chartTheme = {
-  font: 'Open Sans, system-ui, sans-serif',
+  font: 'Familjen Grotesk Variable, Familjen Grotesk, system-ui, sans-serif',
   background: null,
   view: { stroke: null },
   padding: 5,
