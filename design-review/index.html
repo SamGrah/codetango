@@ -139,8 +139,8 @@
       $('#design-list').innerHTML = designs.map((d, i) => {
         const hidden = state.onlyStarred && !state.stars[d.id] && i !== state.index;
         const prev = designs[i - 1];
-        const heading = !prev || prev.status !== d.status || prev.round !== d.round
-          ? `<li class="group">${groupLabel(d)}</li>` : '';
+        const newGroup = d.status && (!prev || prev.status !== d.status || prev.round !== d.round);
+        const heading = newGroup ? `<li class="group">${groupLabel(d)}</li>` : '';
         return `${heading}<li ${hidden ? 'hidden' : ''}><button data-index="${i}" aria-current="${i === state.index}">
           <span class="key">${i + 1}</span>
           <span>${d.name}${d.isNew ? ' <span class="flag">New</span>' : d.revised ? ' <span class="flag">Revised</span>' : ''}${d.boundary ? '<br><span class="flag">Breaks the style guide</span>' : ''}</span>
